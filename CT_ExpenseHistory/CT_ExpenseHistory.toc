@@ -1,0 +1,15 @@
+## Interface: 110100, 120000
+## Version: 12.0.0
+## Title: CTMod Midnight - ExpenseHistory
+## Author: Cide & TS (Original CTMod); Midnight community port
+## Notes: Detailed log of character expenses.
+## DefaultState: Enabled
+## SavedVariables: CT_EH_History
+## Dependencies: CT_Library
+## Group: CT_Library
+## X-Part-Of: CT-Library
+
+
+CT_ExpenseHistory.lua
+localization.lua
+CT_ExpenseHistory.xml

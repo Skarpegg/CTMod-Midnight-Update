@@ -1,0 +1,12 @@
+## Interface: 40402
+## Version: 12.0.0
+## Title: CTMod Midnight - PartyBuffs
+## Author: Cide & TS (Original CTMod); Midnight community port
+## Notes: Shows buffs at party member frames.
+## DefaultState: Enabled
+## SavedVariables: CT_PartyBuffsOptions
+## Dependencies: CT_Library
+## Group: CT_Library
+## X-Part-Of: CT-Library
+
+CT_PartyBuffs.xml

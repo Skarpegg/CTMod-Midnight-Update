@@ -1,0 +1,146 @@
+<Bindings>
+	<Binding name="CLICK CT_BarModActionButton1:Button31" header="CT_BarMod_Bar1" category="ADDONS"/>
+	<Binding name="CLICK CT_BarModActionButton2:Button31" category="ADDONS"/>
+	<Binding name="CLICK CT_BarModActionButton3:Button31" category="ADDONS"/>
+	<Binding name="CLICK CT_BarModActionButton4:Button31" category="ADDONS"/>
+	<Binding name="CLICK CT_BarModActionButton5:Button31" category="ADDONS"/>
+	<Binding name="CLICK CT_BarModActionButton6:Button31" category="ADDONS"/>
+	<Binding name="CLICK CT_BarModActionButton7:Button31" category="ADDONS"/>
+	<Binding name="CLICK CT_BarModActionButton8:Button31" category="ADDONS"/>
+	<Binding name="CLICK CT_BarModActionButton9:Button31" category="ADDONS"/>
+	<Binding name="CLICK CT_BarModActionButton10:Button31" category="ADDONS"/>
+	<Binding name="CLICK CT_BarModActionButton11:Button31" category="ADDONS"/>
+	<Binding name="CLICK CT_BarModActionButton12:Button31" category="ADDONS"/>
+	<Binding name="CLICK CT_BarModActionButton13:Button31" header="CT_BarMod_Bar2" category="ADDONS"/>
+	<Binding name="CLICK CT_BarModActionButton14:Button31" category="ADDONS"/>
+	<Binding name="CLICK CT_BarModActionButton15:Button31" category="ADDONS"/>
+	<Binding name="CLICK CT_BarModActionButton16:Button31" category="ADDONS"/>
+	<Binding name="CLICK CT_BarModActionButton17:Button31" category="ADDONS"/>
+	<Binding name="CLICK CT_BarModActionButton18:Button31" category="ADDONS"/>
+	<Binding name="CLICK CT_BarModActionButton19:Button31" category="ADDONS"/>
+	<Binding name="CLICK CT_BarModActionButton20:Button31" category="ADDONS"/>
+	<Binding name="CLICK CT_BarModActionButton21:Button31" category="ADDONS"/>
+	<Binding name="CLICK CT_BarModActionButton22:Button31" category="ADDONS"/>
+	<Binding name="CLICK CT_BarModActionButton23:Button31" category="ADDONS"/>
+	<Binding name="CLICK CT_BarModActionButton24:Button31" category="ADDONS"/>
+	<Binding name="CLICK CT_BarModActionButton25:Button31" header="CT_BarMod_Bar3" category="ADDONS"/>
+	<Binding name="CLICK CT_BarModActionButton26:Button31" category="ADDONS"/>
+	<Binding name="CLICK CT_BarModActionButton27:Button31" category="ADDONS"/>
+	<Binding name="CLICK CT_BarModActionButton28:Button31" category="ADDONS"/>
+	<Binding name="CLICK CT_BarModActionButton29:Button31" category="ADDONS"/>
+	<Binding name="CLICK CT_BarModActionButton30:Button31" category="ADDONS"/>
+	<Binding name="CLICK CT_BarModActionButton31:Button31" category="ADDONS"/>
+	<Binding name="CLICK CT_BarModActionButton32:Button31" category="ADDONS"/>
+	<Binding name="CLICK CT_BarModActionButton33:Button31" category="ADDONS"/>
+	<Binding name="CLICK CT_BarModActionButton34:Button31" category="ADDONS"/>
+	<Binding name="CLICK CT_BarModActionButton35:Button31" category="ADDONS"/>
+	<Binding name="CLICK CT_BarModActionButton36:Button31" category="ADDONS"/>
+	<Binding name="CLICK CT_BarModActionButton37:Button31" header="CT_BarMod_Bar4" category="ADDONS"/>
+	<Binding name="CLICK CT_BarModActionButton38:Button31" category="ADDONS"/>
+	<Binding name="CLICK CT_BarModActionButton39:Button31" category="ADDONS"/>
+	<Binding name="CLICK CT_BarModActionButton40:Button31" category="ADDONS"/>
+	<Binding name="CLICK CT_BarModActionButton41:Button31" category="ADDONS"/>
+	<Binding name="CLICK CT_BarModActionButton42:Button31" category="ADDONS"/>
+	<Binding name="CLICK CT_BarModActionButton43:Button31" category="ADDONS"/>
+	<Binding name="CLICK CT_BarModActionButton44:Button31" category="ADDONS"/>
+	<Binding name="CLICK CT_BarModActionButton45:Button31" category="ADDONS"/>
+	<Binding name="CLICK CT_BarModActionButton46:Button31" category="ADDONS"/>
+	<Binding name="CLICK CT_BarModActionButton47:Button31" category="ADDONS"/>
+	<Binding name="CLICK CT_BarModActionButton48:Button31" category="ADDONS"/>
+	<Binding name="CLICK CT_BarModActionButton49:Button31" header="CT_BarMod_Bar5" category="ADDONS"/>
+	<Binding name="CLICK CT_BarModActionButton50:Button31" category="ADDONS"/>
+	<Binding name="CLICK CT_BarModActionButton51:Button31" category="ADDONS"/>
+	<Binding name="CLICK CT_BarModActionButton52:Button31" category="ADDONS"/>
+	<Binding name="CLICK CT_BarModActionButton53:Button31" category="ADDONS"/>
+	<Binding name="CLICK CT_BarModActionButton54:Button31" category="ADDONS"/>
+	<Binding name="CLICK CT_BarModActionButton55:Button31" category="ADDONS"/>
+	<Binding name="CLICK CT_BarModActionButton56:Button31" category="ADDONS"/>
+	<Binding name="CLICK CT_BarModActionButton57:Button31" category="ADDONS"/>
+	<Binding name="CLICK CT_BarModActionButton58:Button31" category="ADDONS"/>
+	<Binding name="CLICK CT_BarModActionButton59:Button31" category="ADDONS"/>
+	<Binding name="CLICK CT_BarModActionButton60:Button31" category="ADDONS"/>
+	<Binding name="CLICK CT_BarModActionButton61:Button31" header="CT_BarMod_Bar6" category="ADDONS"/>
+	<Binding name="CLICK CT_BarModActionButton62:Button31" category="ADDONS"/>
+	<Binding name="CLICK CT_BarModActionButton63:Button31" category="ADDONS"/>
+	<Binding name="CLICK CT_BarModActionButton64:Button31" category="ADDONS"/>
+	<Binding name="CLICK CT_BarModActionButton65:Button31" category="ADDONS"/>
+	<Binding name="CLICK CT_BarModActionButton66:Button31" category="ADDONS"/>
+	<Binding name="CLICK CT_BarModActionButton67:Button31" category="ADDONS"/>
+	<Binding name="CLICK CT_BarModActionButton68:Button31" category="ADDONS"/>
+	<Binding name="CLICK CT_BarModActionButton69:Button31" category="ADDONS"/>
+	<Binding name="CLICK CT_BarModActionButton70:Button31" category="ADDONS"/>
+	<Binding name="CLICK CT_BarModActionButton71:Button31" category="ADDONS"/>
+	<Binding name="CLICK CT_BarModActionButton72:Button31" category="ADDONS"/>
+	<Binding name="CLICK CT_BarModActionButton73:Button31" header="CT_BarMod_Bar7" category="ADDONS"/>
+	<Binding name="CLICK CT_BarModActionButton74:Button31" category="ADDONS"/>
+	<Binding name="CLICK CT_BarModActionButton75:Button31" category="ADDONS"/>
+	<Binding name="CLICK CT_BarModActionButton76:Button31" category="ADDONS"/>
+	<Binding name="CLICK CT_BarModActionButton77:Button31" category="ADDONS"/>
+	<Binding name="CLICK CT_BarModActionButton78:Button31" category="ADDONS"/>
+	<Binding name="CLICK CT_BarModActionButton79:Button31" category="ADDONS"/>
+	<Binding name="CLICK CT_BarModActionButton80:Button31" category="ADDONS"/>
+	<Binding name="CLICK CT_BarModActionButton81:Button31" category="ADDONS"/>
+	<Binding name="CLICK CT_BarModActionButton82:Button31" category="ADDONS"/>
+	<Binding name="CLICK CT_BarModActionButton83:Button31" category="ADDONS"/>
+	<Binding name="CLICK CT_BarModActionButton84:Button31" category="ADDONS"/>
+	<Binding name="CLICK CT_BarModActionButton85:Button31" header="CT_BarMod_Bar8" category="ADDONS"/>
+	<Binding name="CLICK CT_BarModActionButton86:Button31" category="ADDONS"/>
+	<Binding name="CLICK CT_BarModActionButton87:Button31" category="ADDONS"/>
+	<Binding name="CLICK CT_BarModActionButton88:Button31" category="ADDONS"/>
+	<Binding name="CLICK CT_BarModActionButton89:Button31" category="ADDONS"/>
+	<Binding name="CLICK CT_BarModActionButton90:Button31" category="ADDONS"/>
+	<Binding name="CLICK CT_BarModActionButton91:Button31" category="ADDONS"/>
+	<Binding name="CLICK CT_BarModActionButton92:Button31" category="ADDONS"/>
+	<Binding name="CLICK CT_BarModActionButton93:Button31" category="ADDONS"/>
+	<Binding name="CLICK CT_BarModActionButton94:Button31" category="ADDONS"/>
+	<Binding name="CLICK CT_BarModActionButton95:Button31" category="ADDONS"/>
+	<Binding name="CLICK CT_BarModActionButton96:Button31" category="ADDONS"/>
+	<Binding name="CLICK CT_BarModActionButton97:Button31" header="CT_BarMod_Bar9" category="ADDONS"/>
+	<Binding name="CLICK CT_BarModActionButton98:Button31" category="ADDONS"/>
+	<Binding name="CLICK CT_BarModActionButton99:Button31" category="ADDONS"/>
+	<Binding name="CLICK CT_BarModActionButton100:Button31" category="ADDONS"/>
+	<Binding name="CLICK CT_BarModActionButton101:Button31" category="ADDONS"/>
+	<Binding name="CLICK CT_BarModActionButton102:Button31" category="ADDONS"/>
+	<Binding name="CLICK CT_BarModActionButton103:Button31" category="ADDONS"/>
+	<Binding name="CLICK CT_BarModActionButton104:Button31" category="ADDONS"/>
+	<Binding name="CLICK CT_BarModActionButton105:Button31" category="ADDONS"/>
+	<Binding name="CLICK CT_BarModActionButton106:Button31" category="ADDONS"/>
+	<Binding name="CLICK CT_BarModActionButton107:Button31" category="ADDONS"/>
+	<Binding name="CLICK CT_BarModActionButton108:Button31" category="ADDONS"/>
+	<Binding name="CLICK CT_BarModActionButton109:Button31" header="CT_BarMod_Bar10" category="ADDONS"/>
+	<Binding name="CLICK CT_BarModActionButton110:Button31" category="ADDONS"/>
+	<Binding name="CLICK CT_BarModActionButton111:Button31" category="ADDONS"/>
+	<Binding name="CLICK CT_BarModActionButton112:Button31" category="ADDONS"/>
+	<Binding name="CLICK CT_BarModActionButton113:Button31" category="ADDONS"/>
+	<Binding name="CLICK CT_BarModActionButton114:Button31" category="ADDONS"/>
+	<Binding name="CLICK CT_BarModActionButton115:Button31" category="ADDONS"/>
+	<Binding name="CLICK CT_BarModActionButton116:Button31" category="ADDONS"/>
+	<Binding name="CLICK CT_BarModActionButton117:Button31" category="ADDONS"/>
+	<Binding name="CLICK CT_BarModActionButton118:Button31" category="ADDONS"/>
+	<Binding name="CLICK CT_BarModActionButton119:Button31" category="ADDONS"/>
+	<Binding name="CLICK CT_BarModActionButton120:Button31" category="ADDONS"/>
+	<Binding name="CLICK CT_BarModActionButton121:Button31" header="CT_BarMod_Bar11" category="ADDONS"/>
+	<Binding name="CLICK CT_BarModActionButton122:Button31" category="ADDONS"/>
+	<Binding name="CLICK CT_BarModActionButton123:Button31" category="ADDONS"/>
+	<Binding name="CLICK CT_BarModActionButton124:Button31" category="ADDONS"/>
+	<Binding name="CLICK CT_BarModActionButton125:Button31" category="ADDONS"/>
+	<Binding name="CLICK CT_BarModActionButton126:Button31" category="ADDONS"/>
+	<Binding name="CLICK CT_BarModActionButton127:Button31" category="ADDONS"/>
+	<Binding name="CLICK CT_BarModActionButton128:Button31" category="ADDONS"/>
+	<Binding name="CLICK CT_BarModActionButton129:Button31" category="ADDONS"/>
+	<Binding name="CLICK CT_BarModActionButton130:Button31" category="ADDONS"/>
+	<Binding name="CLICK CT_BarModActionButton131:Button31" category="ADDONS"/>
+	<Binding name="CLICK CT_BarModActionButton132:Button31" category="ADDONS"/>
+	<Binding name="CLICK CT_BarModActionButton133:Button31" header="CT_BarMod_Bar12" category="ADDONS"/>
+	<Binding name="CLICK CT_BarModActionButton134:Button31" category="ADDONS"/>
+	<Binding name="CLICK CT_BarModActionButton135:Button31" category="ADDONS"/>
+	<Binding name="CLICK CT_BarModActionButton136:Button31" category="ADDONS"/>
+	<Binding name="CLICK CT_BarModActionButton137:Button31" category="ADDONS"/>
+	<Binding name="CLICK CT_BarModActionButton138:Button31" category="ADDONS"/>
+	<Binding name="CLICK CT_BarModActionButton139:Button31" category="ADDONS"/>
+	<Binding name="CLICK CT_BarModActionButton140:Button31" category="ADDONS"/>
+	<Binding name="CLICK CT_BarModActionButton141:Button31" category="ADDONS"/>
+	<Binding name="CLICK CT_BarModActionButton142:Button31" category="ADDONS"/>
+	<Binding name="CLICK CT_BarModActionButton143:Button31" category="ADDONS"/>
+	<Binding name="CLICK CT_BarModActionButton144:Button31" category="ADDONS"/>
+</Bindings>

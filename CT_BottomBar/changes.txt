@@ -1,0 +1,476 @@
+CT_BottomBar (12.0.0) 2026-06-22
+- Left disabled on retail (superseded by Blizzard's Edit Mode); Classic / Cata builds unaffected
+
+CT_BottomBar (11.0.2.2) 2024-08-18
+- Updates for Classic versions with code baselined to WoW: The War Within
+
+CT_BottomBar (10.2.7.1) 2024-05-15
+- Updates for Cataclsym Classic (courtesy of Rob Zak)
+- Fix to XP Bar mouseover in all classic editions
+
+CT_BottomBar (10.1.5.1) 2023-07-12
+- Enough's enough.  Disabled in Dragonflight.  (99% replaced by EditMode).
+
+CT_BottomBar (10.0.5.2) 2023-02-04
+- Disabling the vehicle tools bar in Dragonflight (now covered by EditMode)
+
+CT_BottomBar (10.0.5.1) 2023-01-25
+- Disabling the backpack and micro-menu in Dragonflight (now covered by EditMode)
+
+CT_BottomBar (10.0.2.5) 2023-01-04
+- Minor refactoring; nothing substantive
+
+CT_BottomBar (10.0.2.2) 2022-12-02
+- The main bar re-appears during dragonriding (with a new option to keep it hidden)
+
+CT_BottomBar (10.0.0.2) 2022-10-26
+- Restoring some functions that were disabled in Dragonflight
+- Fixing bag bar alignment in Classic
+- Adding control over micro button spacing
+
+CT_BottomBar (9.2.0.4) 2022-10-23
+- Updates to the bag, micro-menu and fps bars for Dragonflight
+- All other modules/features disabled in Dragonflight 
+
+CT_BottomBar (9.2.0.1) 2022-09-28
+- LFG micro button in WotLK and SoM
+- PvP micro button in WotLK
+- Shaman Totem Bar in WotLK
+
+CT_BottomBar (9.1.0.6) 2021-09-28
+- Adding ZoneAbilityFrame
+
+CT_BottomBar (9.1.0.3) 2021-08-09
+- Refactoring to align with changes in CT_Library
+
+CT_BottomBar (9.1.0.1) 2021-06-23
+- Minor cleanup; nothing substantive.
+
+CT_BottomBar (9.0.5.7) 2021-05-25
+- Fixed: error on new characters without a profile.
+
+CT_BottomBar (9.0.5.6) 2021-05-13
+- Refactoring to align with changes in CT_Library 9.0.5.6
+
+CT_BottomBar (9.0.5.4) 2021-04-26
+- Fixed: Classic experience bar appearing during gameplay in the top corner on Retail (bug introduced in 9.0.5.3)
+
+CT_BottomBar (9.0.5.3) 2021-04-19
+- Improved how the classic performance monitor moves around the key ring button
+- Fixed the default bag spacing on classic
+- Hairline adjustment to the arrow buttons on classic
+- Changes in anticipation of Classic-TBC
+
+CT_BottomBar (9.0.2.4) 2021-02-01
+- The draggable guide frame around the Stance Bar expands for classes with several stances
+
+CT_BottomBar (9.0.2.1) 2020-11-07
+- Better placement of help tips around moved and vertically-oriented micro buttons
+
+CT_BottomBar (9.0.1.1) 2020-09-26
+- Minor code cleanup; nothing substantive
+
+CT_BottomBar (8.3.7.2) 2020-09-08
+- Removed a deprecated function that will cause errors in Shadowlands
+
+CT_BottomBar (8.3.7.1) 2020-08-21
+- Improved compatibility between different editions (Classic, Retail, PTR, Beta)
+
+CT_BottomBar (8.3.0.7) 2020-03-25
+- Small tweak to options menu; nothing substantive
+
+CT_BottomBar (8.3.0.3) 2020-01-16
+- Small tweak to options menu; nothing substantive
+
+CT_BottomBar (8.3.0.2) 2020-01-16
+- Minor code cleanup; nothing substantive
+
+CT_BottomBar (8.3.0.1) 2020-01-06
+- Fix to the custom XP bar in Classic when it is deactivated, so it properly remains hidden
+
+CT_BottomBar (8.2.5.9) 2019-12-18
+- Minor code cleanup; nothing substantive
+
+CT_BottomBar (8.2.5.8) 2019-12-15
+- Fix to the movable performance monitor in Classic 1.13.3
+- Partially integrated with CurseForge localization
+
+CT_BottomBar (8.2.5.7) 2019-12-11
+- Added a movable key ring button to Classic
+- More control over textures behind the main menu bar in Classic
+
+CT_BottomBar (8.2.5.5) 2019-10-18
+- Changes corresponding to CT_Library
+- Added a "Stop Flying Button" to Classic
+
+CT_BottomBar (8.2.0.9) 2019-09-12
+- The cancel-flying button now follows the movable stance bar in Classic
+- The classic xp and rep bars are once again configurable like pre-Legion
+
+CT_BottomBar (8.2.0.7) 2019-08-29
+- Disabled custom OverrideBar code (a retail thing) from causing errors in Classic
+- Added a movable stance bar to Classic
+
+CT_BottomBar (8.2.0.5) 2019-08-08
+- Added the latency meter in Wow Classic
+
+CT_ButtomBar (8.2.0.1) 2019-06-19
+- Small tweaks to default positions in WoW Classic
+
+CT_BottomBar (8.1.5.3) 2019-05-29
+- Compatibility with WoW Classic and Retail editions
+
+CT_BottomBar (8.1.5.2) 2019-04-15
+- Fixed option sliders that were not showing current and min/max values since 8.0
+
+CT_BottomBar (8.1.0.2) 2018-12-21
+- The previous change is now also integrated to CT_BarMod and the default pet bar
+
+CT_BottomBar (8.1.0.1) 2018-12-16
+- Dismissing pets properly hides buttons from the pet bar
+- Summoning pets no longer creates "dead zones" on other bars
+
+CT_BottomBar (8.1.0.0) 2018-12-11
+- Small tweak to prevent XP/Rep/Azerite mouseover text from showing through other frames
+
+CT_BottomBar (8.0.1.6) 2018-09-08
+- The XP/Rep/Azerite bars properly disable, if directed, when logging on
+
+CT_BottomBar (8.0.1.5) 2018-08-15
+- The "talking head" quest dialogue is now movable!  No longer stuck over custom bars.
+- The movable action-bar arrows and action bar are less clunky
+
+
+CT_BottomBar (8.0.1.3) 2018-07-29
+- Fixed combat taint issue that was introduced in 8.0.1.2
+- Fixed action-bar paging buttons not restoring when mod disabled
+- Improved options for manipulating XP/Rep bars
+- Small tweak to micro-button bar during pet battles
+
+CT_BottomBar (8.0.1.2) 2018-07-21
+- Restored XP/Rep bar functionality, works with Artifact/Azerite power too!
+- Restored micro-button and bag bars, added option to hide background
+- Resolved CT_BB portion of problem with battleground queuing.
+- The FPS indicator (pressing CTRL-R) is now movable!  No longer stuck behind custom bars.
+
+CT_BottomBar (8.0.1.0) 2018-07-17
+- Partially updated for 8.0.1
+- Some addon functionality disabled, pending further updates: XP, rep, menu and bag bars
+
+CT_BottomBar (7.3.2.0) 2017-12-30
+- Updated for 7.3.2.
+
+CT_BottomBar (7.3.0.0) 2017-09-03
+- Updated for 7.3.0.
+
+CT_BottomBar (7.2.0.0) 2017-04-18
+- Updated for 7.2.0.
+
+CT_BottomBar (7.1.0.0) 2016-12-11
+- Updated for 7.1.0.
+
+CT_BottomBar (7.0.3.1) 2016-07-23
+- Editbox fixes.
+
+CT_BottomBar (7.0.3.0) 2016-07-22
+- Updated to 7.0.3.
+
+CT_BottomBar (6.2.3.0) 2015-10-24
+- Updated to 6.2.3.
+
+CT_BottomBar (6.1.0.0) 2015-03-13
+- Updated to 6.1.0.
+- MicroButtons menu fix.
+
+CT_BottomBar (6.0.2.0) 2014-10-15
+- Updated to 6.0.2.
+
+CT_BottomBar (5.4.7.0) 2014-05-16
+- Updated to 5.4.7.
+- Library updates.
+- Rescaling the UI Scale or the game itself in windowed mode now won't cause the bars to move randomly.
+
+CT_BottomBar (5.4.2.1) 2013-12-30
+- Changed library to a standalone module.
+
+CT_BottomBar (5.4.2) 2013-12-21
+- Library fix.
+
+CT_BottomBar (5.4) 2013-12-12
+- Updated for the WoW 5.4 patch.
+- Updated microbuttons.
+
+CT_BottomBar (5.3) 2013-05-24
+- Updated for the WoW 5.3 patch.
+
+CT_BottomBar (5.2) 2013-03-09
+- Updated for the WoW 5.2 patch.
+
+CT_BottomBar (5.0102) 2012-12-15
+- Now includes version 5.0102 of CT_BarMod in the zip file.
+
+CT_BottomBar (5.0101) 2012-12-10
+- Updated for the WoW 5.1 patch.
+- The reputation bar will now show friendship reputation values the same way as the default UI.
+- Fixed a bug: The experience bar could sometimes be visible above the game's default vehicle, override, and pet battle frames when they were hidden.
+
+CT_BottomBar (5.0004) 2012-09-23
+- Added an option in the "Artwork" section to show lions instead of gryphons.
+- Fixed a bug that was causing the experience bar tooltip to be shown after a one second delay rather than immediately.
+- Fixed a bug that could cause the experience bar tooltip to be shown when the option to hide the experience bar was enabled.
+- Now includes version 5.0004 of CT_BarMod in the zip file.
+
+CT_BottomBar (5.0003) 2012-09-06
+- Internal fix: Added some missing local statements.
+- Now includes version 5.0003 of CT_BarMod in the zip file.
+
+CT_BottomBar (5.0002) 2012-08-28
+- Release version for WoW 5.
+- The class bar is visible by default for the monk class.
+- Added an option to hide the CT_BottomBar bars when you are in a pet battle.
+- Added an option to not show the CT_BottomBar experience bar on the pet battle frame.
+- The Vehicle Tools bar will now show a button to leave a vehicle if you are in a vehicle that has no abilities and can be exited.
+
+CT_BottomBar (5.0001) 2012-08-27
+- Beta version for WoW 5.
+
+CT_BottomBar (4.0307) 2012-08-20
+- Now includes version 4.0305 of CT_BarMod in the zip file.
+
+CT_BottomBar (4.0306) 2012-08-06
+
+Bug Fixes
+- Fixed a bug: CT_BottomBar was not applying the clamping option to a bar when a deactivated bar was manually activated from the options window.
+- Fixed a problem that might have caused the Leave Vehicle button on Blizzard's vehicle frame to not be visible for some vehicles.
+- Fixed a problem that might have caused the Extra Bar to display at the wrong location.
+- Fixed positioning problems with the Menu Bar and Experience Bar that could occur when the game animated the large BonusActionBarFrame that is used for some quests.
+
+Experience and Reputation bars
+- Added options to change the width of the Experience and Reputation frames.
+- Added options to change the number of divisions shown on the Experience and Reputation bars.
+- Added options to hide the division markings on the Experience and Reputation bars.
+- Added options to hide the border on the Experience and Reputation bars.
+- Added an option to use the Reputation border for the bar currently shown in the Experience frame.
+- Added an option to display the Experience/Reputation borders on top of the division textures instead of below them.
+- Added an option to hide the Experience bar if you are at the maximum character level or have experience disabled.
+- Added an option to not show the Experience bar on vehicle/bonus frames.
+
+General
+- Now includes version 4.0304 of CT_BarMod in the zip file.
+
+
+CT_BottomBar (4.0305) 2012-03-06
+- This was a test version.
+
+CT_BottomBar (4.0304) 2012-01-02
+- Fixed a bug: Added a declaration statement for a local variable.
+- Now includes version 4.0303 of CT_BarMod in the zip file.
+
+CT_BottomBar (4.0303) 2011-12-28
+- Fixed a bug: The option "Disable the default main action bar" was sometimes getting reset to a default value when you entered the game or reloaded your UI.
+- Includes version 4.0302 of CT_BarMod in the zip file.
+
+CT_BottomBar (4.0302) 2011-11-27
+- Updated CT_BottomBar version number to match the new version of CT_BarMod.
+- Now includes version 4.0302 of CT_BarMod in the zip file.
+
+CT_BottomBar (4.0301) 2011-11-27
+- Updated for the WoW 4.3 patch.
+- Fixed a bug that was causing the Pet Bar scale, opacity, and button spacing to be ignored when toggling the "Activate" option for the Pet Bar.
+- Added support for Blizzard's new one-button "Extra Bar".
+- a) The game will show and hide the Extra Bar when appropriate (eg. some boss fights).
+- b) You can position the Extra Bar when the CT_BottomBar options window is open.
+- c) Added an option to hide the textures for the Extra Bar.
+- d) Added an option to change the scale of the Extra Bar.
+- e) Blizzard has added a key binding for the button on the Extra bar. It is called "Extra Action Button 1" in the game's key binding window. It can be found between the "Action button" and "Special action button" key bindings.
+- f) If you are having any problems with the Extra Bar you can try disabling the "Activate" option for it in the CT_BottomBar options window (when not in combat). Alternately, you can try using a key binding for the button.
+
+CT_BottomBar (4.0201) 2011-10-26
+- Now includes version 4.0201 of CT_BarMod in the zip file.
+- Updated CT_BottomBar version number to match the new version of CT_BarMod.
+
+CT_BottomBar (4.0200) 2011-06-28
+- Updated version numbers for the WoW 4.2 patch.
+- Removed key ring related code now that Blizzard has taken the key ring out of the game.
+- Updated the menu bar to include the new Dungeon Journal and Raid micro buttons.
+- Added an option to change the spacing between bag buttons.
+- Fixed some text that was not wrapping in the options window.
+
+CT_BottomBar (4.0100) 2011-04-26
+
+- Updated for the WoW 4.1 patch.
+- Updated CT_Library.lua to version 4.0100.
+- This version includes all the changes that were in the CT_BottomBar 4.008 betas.
+
+In order to resolve vehicle and shapeshifting issues related to the game's default main action bar, CT_BottomBar version 4.0100 no longer supports moving the default main action bar.
+
+To provide a movable replacement for the game's main action bar, a new bar (bar 12) has been added to CT_BarMod version 4.0100. This new bar behaves like the default main action bar, and it can automatically use the same key bindings.
+
+NOTE: If you previously only used CT_BottomBar, you should now also install CT_BarMod if you want to use CT_BarMod's bar 12 as a replacement main action bar. If you don't install CT_BarMod you will still be able to use the default main action bar, but it won't be movable.
+
+The first time that the new version of CT_BottomBar is used, it will check to see if the new version of CT_BarMod is also installed. If both addons are installed, then CT_BottomBar will disable the default main action bar, enable CT_BarMod's bar 12, and apply any saved settings for CT_BottomBar's old action bar to the new CT_BarMod bar.
+
+If the initial defaults do not work for you the first time CT_BottomBar is started, then you can enable or disable the default main action bar using a new option found in CT_BottomBar. There is also a new option in CT_BarMod that will allow you to enable or disable CT_BarMod's replacement for the default main action bar (bar 12).
+
+General
+- Added an option to hide the artwork on the left half of the game's MainMenuBar (behind the action buttons).
+- Added an option to hide the artwork on the right half of the game's MainMenuBar (behind the action bar page buttons, menu buttons, key ring button, and bag buttons).
+
+Activating and deactivating bars
+- Most bars now have an 'Activate' option which is turned on by default.
+- When a bar is activated, CT_BottomBar will let you move and rotate the bar.
+- When you deactivate a bar, CT_BottomBar will try to restore the bar to its default state. If the bar does not restore as expected then you may need to reload your UI once (/reload).
+
+Action Bar
+- Added an option to disable the default main action bar. Changes to this option will not take effect until addons are reloaded (/reload).
+
+Bags Bar
+- Added an option to hide all buttons except for the backpack. This will also change the size of the bar.
+
+Vehicle Tools Bar
+- You can now choose whether or not to include room on the bar for the two possible aiming buttons.
+
+Miscellaneous
+- When you drag a bar while the options window is open, the tooltip will become hidden until the mouse button is released.
+- Added an option to show drag frames for CT_BarMod bars when the CT_BottomBar options window is open. This option will only appear if CT_BarMod is loaded as well.
+
+-----
+
+CT_BottomBar (4.007)
+- This was an unreleased test version.
+
+CT_BottomBar (4.006) 2010-11-22
+- Changing the action bar option 'Hide the empty button grid' after logging in should now work properly.
+
+CT_BottomBar (4.005) 2010-10-25
+- Fixed the problem of not being able to see vehicle buttons on the action bar if you've chosen not to hide the action bar when in a vehicle.
+
+CT_BottomBar (4.004) 2010-10-24
+
+CT_BottomBar allows you to move the default action bar anywhere on the screen. Since the 4.0.1. patch, classes that can shapeshift, change stances, etc. and who do so during combat, sometimes find that their action buttons get stuck at the bottom of the screen. This is happening because Blizzard slides the bar down, positions it at the bottom of the screen, and then attaches the buttons to it. Since these buttons are protected, CT_BottomBar cannot move them back while you are in combat. Once combat ends the buttons should automatically go back to where you had placed them.
+
+This CT_BottomBar update adds some options that will prevent Blizzard from being able to move the buttons. While it is not a perfect solution, it may help those people currently experiencing this issue. Please see the change notes below for the details.
+
+- Added an option to prevent Blizzard from moving the bonus action bar's buttons when you shapeshift, change stances, etc.
+- Added an option to prevent Blizzard from changing the spacing of the bonus action bar's buttons when you shapeshift, change stances, etc. This will also prevent a vertical action bar from becoming horizontal during combat.
+- When enabled, these options may cause 'action blocked by an addon' errors, and they may lead to other interface issues.
+- These options are disabled by default to avoid potential interface issues for people that don't need to use these options.
+- The 'move' option is the one least likely to cause any issues, and should be tried first.
+- The 'spacing' option will cause at least one 'action blocked' message, and is more likely to cause interface issues.
+- If you change these options while you are in combat, they may have no effect until you exit combat.
+- If these options cause any issues that are not acceptable then you will need to disable one or both of the options.
+- If you disable either of these options after having them enabled, you should reload your UI (/reload) or logout and login once.
+
+CT_BottomBar (4.003)
+- Added an option to prevent dragging the bars completely off screen.
+- Fixed a problem where the griffins would not hide when the option to hide them was enabled.
+
+CT_BottomBar (4.002)
+- WoW 4.0 patch version for the live realms.
+- Updated CT_Library.lua to version 4.002.
+
+CT_BottomBar (4.001)
+- WoW 4.0 patch test version for the PTR realms.
+
+CT_BottomBar (3.301)
+- Fixed an issue that was preventing you from being able to click on something underneath an empty button on the main action bar.
+
+CT_BottomBar (3.300)
+
+- Updated for the WoW 3.3 patch.
+- Made a change to prevent a "VehicleMenuBarLeaveButton:SetPoint(): CT_BottomBar_VehicleBarFrame is dependent on this" message which could sometimes occur when entering a vehicle.
+- Clicking an empty button slot when shapeshifted, or in a vehicle (if you've hidden Blizzard's vehicle frame), will no longer cause it to click the button on the main action bar beneath that slot.
+- Added an option to hide the Main Bar gryphons. Previously this option was only available in CT_Core. Changing the option in CT_BottomBar will also change the corresponding option in CT_Core (if that addon is loaded).
+- Added the /ctbb command which can be used to directly open the CT_BottomBar options window.
+- Updated CT_Library.lua to version 3.005.
+
+CT_Libary.lua (3.005)
+
+Settings import
+- Fixed a problem with the settings import feature in the CTMod Control Panel where it was not properly importing frame positions.
+- Fixed a problem where there would be more than one "Settings Import" item listed in the CTMod Control Panel when more than one version of CT_Library.lua was encountered.
+- The settings import window now defaults to the first character on the first server that has importable options.
+- Added the ability to delete settings.
+
+Slash command
+- Added the /ctmod command as an alternative to the existing /ct command. Either one will open the CTMod Control Panel.
+- Added code to allow direct access to an addon's options window via a slash command (refer to individual addons for any slash commands that may have been added).
+
+General
+- The scrollbar in the options window resets to the top when you select a different addon.
+- The message at the top of the CTMod Control panel now mentions the slash commands that can be used to open it.
+- Some variables and functions which were global are now correctly declared as local.
+
+-----
+
+CT_BottomBar (3.201)
+- Fixed a problem that was preventing you from changing the spell assigned to a totem bar slot while in a vehicle with the totem bar visible.
+
+CT_BottomBar (3.200)
+- Updated for the WoW 3.2 patch.
+- Can now move and hide the totem bar.
+
+CT_BottomBar (3.017)
+- Fixed a bug that was preventing the key bindings for the first page of the action bar from working if you exited a vehicle while the option to hide the Action Bar was enabled.
+
+CT_BottomBar (3.016)
+- Some additional fixes to address WoW 3.1 issues.
+- Fixed the problem where the lower half of the vertical Menu Bar would shift to the right when entering combat.
+
+CT_BottomBar (3.015)
+- Updated for the WoW 3.1 patch.
+- Updated CT_Library.lua to version 3.004.
+
+CT_Library.lua (3.004)
+- Fixed a nil value error when the client's locale was not recognized.
+
+CT_BottomBar (3.013)
+- Fixed a problem with the fourth pet button not hiding when the "Hide the pet bar" option was enabled.
+- Added an option to replace the experience bar with the reputation bar. This emulates the game's behavior at maximum character level, but can be used at any level.
+- Added an option to display a solid experience bar when there is no reputation and experience bar. This emulates the game's behavior at maximum character level, but can be used at any level.
+- Updated CT_Library.lua to version 3.003.
+
+CT_BottomBar (3.012)
+- If you scale the action bar so that it is smaller than normal, there will no longer be an unclickable area around the action bar when you are in shadow form, bear form, etc.
+- If you hide the CT_BottomBar reputation bar and you are using the standard interface's action bars, then the game will shift the action bars down slightly in response to the hidden reputation bar.
+- Added an option to hide the CT_BottomBar reputation bar when you are not monitoring a reputation.
+- Fixed the positioning of the vehicle leave button on the Possess Bar when there are no other buttons showing on the bar.
+- Updated CT_Library.lua to version 3.002.
+
+CT_Library (3.002)
+- Fixed a bug that was causing some text to be aligned incorrectly in some of the addons.
+- Corrected a spelling mistake on the CTMod Control panel window.
+
+CT_BottomBar (3.011)
+- Updated to avoid a potential SetPoint() error when entering a vehicle.
+
+CT_BottomBar (3.010)
+- Updated to resolve issues with the game's Vehicle Frame.
+- Fixed items that were causing 'action blocked by an addon' messages.
+- Fixed problems which could cause some things to not display during combat.
+- When the CT_BottomBar options window is open you can now Shift Click on a bar to reset it to its default position.
+- Added an option to hide and show the game's Possess Bar.
+- Added an option to hide the empty button grid on the Action Bar.
+- Added a 'Reset positions' button to reset the bars to their default positions.
+- Added a checkbox above the 'Reset options' button to allow you to reset the options for just your current character, or for all of your characters.
+- Added an option to hide or show the standard vehicle frame.
+- Added an option that allows you to choose whether or not you want to hide the CT_BottomBar bars when you are in a vehicle. By default, the bars are hidden just like in the standard UI. Refer to the notes below the option for more details.
+- If you are using TitanPanel, CT_BottomBar will take into account the height of the bottom TitanPanel bar when you reset the positions of the CT_BottomBar bars.
+
+CT_BottomBar (3.003)
+- Updated CT_Library.lua
+
+CT_BottomBar (3.002)
+- Now saves the orientation of the items on a per character basis.
+
+CT_BottomBar (3.001)
+- Now displays the Achievements and PVP buttons on the Menu Bar.
+- The problem with unusable buttons after zoning should now be fixed.
+- The Action Bar arrows are now movable.
+
+CT_BottomBar (3.000)
+- Updated for the WoW 3.0 patch.
+- The key ring can now be moved by itself.
+- The class bar will now be displayed for death knights and priests with shadow form.
+- The class bar should now appear for any class that has a shapeshift/stance/etc bar.
+- Fixed the long standing problem where the class bar would sometimes not be movable.

@@ -1,0 +1,185 @@
+CT_Viewport (12.0.0) 2026-06-22
+- Update for WoW: Midnight (interface 120000)
+
+CT_MapMod (11.0.2.2) 2024-08-18
+- Updates for WoW: The War Within
+
+CT_Viewport (9.2.0.3) 2022-10-14
+- Fix to bug introduced in 9.2.0.2 affecting non-default resolutions
+
+CT_Viewport (9.2.0.2) 2022-09-30
+- Updates for WoW Dragonflight
+
+CT_Viewport (9.1.0.3) 2021-08-09
+- Added optional background color
+
+CT_Viewport (9.0.5.6) 2021-05-13
+- Refactoring to align with changes in CT_Library 9.0.5.6
+- The TOC edit in 9.0.5.3 to BC Classic has been reverted, since those servers will continue from Classic.
+
+CT_Viewport (9.0.5.3) 2021-04-10
+- The 9.0.2.5 workaround is only enabled for accounts that existed prior to 9.0.2.5 (thus it will be omitted in Classic-TBC)
+
+CT_Viewport (9.0.2.5) 2021-03-07
+- Fixed: Logging onto each alt for the first time since 9.0.2.4 no longer wipes settings
+- Improved: Custom viewports may now be defined in finer increments to the nearest 0.5 (such as 123.5)
+- Minor refactoring to make the code simpler
+
+CT_Viewport (9.0.2.4) 2021-02-03
+- Settings now exportable between characters, but with the unintended consequence of resetting
+
+CT_Viewport (8.3.7.1) 2020-07-18
+- Unified with the CT Control Panel to resolve Shadowlands BackdropTemplate compatibility
+- Added option to remove the alert message when loading the game with a custom viewport
+- Added frFR and zhCN localization (courtesy: ddc, fredakook)
+
+CT_Viewport (8.3.0.10) 2020-06-10
+- Maintains a custom viewport during mid-encounter cut scenes (e.g. Jaina or Mythic N'Zoth)
+
+CT_Viewport (8.2.0.4) 2019-06-30
+- Added safeguards to prevent the game from becoming unusable
+
+CT_Viewport (8.0.1.7) 2018-09-26
+- Compatible with custom (non-standard) resolutions in windowed mode
+
+CT_Viewport (8.0.1.0) 2018-07-17
+- Updated for 8.0.1
+
+CT_Viewport (7.3.2.0) 2017-12-30
+- Updated for 7.3.2.
+
+CT_Viewport (7.3.0.0) 2017-09-03
+- Updated for 7.3.0.
+
+CT_Viewport (7.1.0.0) 2016-12-11
+- Updated for 7.1.0.
+
+CT_Viewport (7.0.3.2) 2016-08-05
+- Minor fixes.
+
+CT_Viewport (7.0.3.1) 2016-07-23
+- Editbox fixes.
+- Some texture anchor fixes.
+
+CT_Viewport (7.0.3.0) 2016-07-22
+- Updated to 7.0.3.
+
+CT_Viewport (6.2.3.0) 2015-10-24
+- Updated to 6.2.3.
+
+CT_Viewport (6.1.0.0) 2015-03-13
+- Updated to 6.1.0.
+
+CT_Viewport (6.0.2.0) 2014-10-15
+- Updated to 6.0.2.
+
+CT_Viewport (5.4.7.0) 2014-05-16
+- Updated to 5.4.7.
+- Library updates.
+
+CT_Viewport (5.4.2.1) 2013-12-30
+- Changed library to a standalone module.
+
+CT_Viewport (5.4.2) 2013-12-21
+- Library fix.
+
+CT_Viewport (5.4) 2013-12-12
+- Updated for the WoW 5.4 patch.
+
+CT_Viewport (5.3) 2013-05-24
+- Updated for the WoW 5.3 patch.
+
+CT_Viewport (5.2) 2013-03-09
+- Updated for the WoW 5.2 patch.
+
+CT_Viewport (5.0101) 2012-12-10
+- Updated for the WoW 5.1 patch.
+
+CT_Viewport (5.0002) 2012-08-28
+- Release version for WoW 5.
+
+CT_Viewport (5.0001) 2012-08-19
+- Beta version for WoW 5.
+
+CT_Viewport (4.0301) 2011-11-27
+- Updated for the WoW 4.3 patch.
+
+CT_Viewport (4.0200) 2011-06-28
+- Updated version numbers for the WoW 4.2 patch.
+
+CT_Viewport (4.0100) 2011-04-26
+- Updated for the WoW 4.1 patch.
+- Updated CT_Library.lua to version 4.0100.
+
+CT_Viewport (4.004) 2010-11-19
+- Fixed an issue that was causing the size of the WorldFrame to be calculated incorrectly due to the UI scale change included in the WoW 4.0.3 patch.
+- Fixed some bugs that were allowing the edges of the yellow inner frame in the CT_Viewport configuration window to be dragged outside of the red frame.
+- Fixed a bug that was causing a reduction in the height of the red and yellow frames in the CT_Viewport configuration window every time the video resolution was changed to another with the same aspect ratio.
+
+CT_Viewport (4.003) 2010-10-23
+- Fixed a bug that was preventing the game's video resolution from being changed.
+- Fixed a bug that was causing the red and yellow frames in the CT_Viewport options window to display incorrectly if you changed the game's video resolution or display mode without causing the UI to reload.
+
+CT_Viewport (4.002)
+- WoW 4.0 patch version for the live realms.
+- Updated CT_Library.lua to version 4.002.
+
+CT_Viewport (4.001)
+- WoW 4.0 patch test version for the PTR realms.
+
+CT_Viewport (3.301)
+- Now attempts to prevent other addons from altering the size and position of the viewport.
+
+CT_Viewport (3.300)
+
+- Updated for the WoW 3.3 patch.
+- Added the /ctvp command which can be used to open the CT_Viewport window.
+- Now displays a basic options window in the CTMod Control Panel. It describes the slash commands available, and provides a button to open the CT_Viewport window.
+- Updated CT_Library.lua to version 3.005.
+
+CT_Libary.lua (3.005)
+
+Settings import
+- Fixed a problem with the settings import feature in the CTMod Control Panel where it was not properly importing frame positions.
+- Fixed a problem where there would be more than one "Settings Import" item listed in the CTMod Control Panel when more than one version of CT_Library.lua was encountered.
+- The settings import window now defaults to the first character on the first server that has importable options.
+- Added the ability to delete settings.
+
+Slash command
+- Added the /ctmod command as an alternative to the existing /ct command. Either one will open the CTMod Control Panel.
+- Added code to allow direct access to an addon's options window via a slash command (refer to individual addons for any slash commands that may have been added).
+
+General
+- The scrollbar in the options window resets to the top when you select a different addon.
+- The message at the top of the CTMod Control panel now mentions the slash commands that can be used to open it.
+- Some variables and functions which were global are now correctly declared as local.
+- Updated CT_Library.lua to version 3.005.
+
+-----
+
+CT_Viewport (3.200)
+- Updated for the WoW 3.2 patch.
+
+CT_Viewport (3.005)
+- Updated for the WoW 3.1 patch.
+- Updated CT_Library.lua to version 3.004.
+
+CT_Library.lua (3.004)
+- Fixed a nil value error when the client's locale was not recognized.
+
+CT_Viewport (3.003)
+- Updated CT_Library.lua to version 3.003.
+
+CT_Viewport (3.002)
+- Updated CT_Library.lua to version 3.002.
+
+CT_Library (3.002)
+- Fixed a bug that was causing some text to be aligned incorrectly in some of the addons.
+- Corrected a spelling mistake on the CTMod Control panel window.
+
+CT_ViewPort (3.001)
+- Updated CT_Library.lua
+
+CT_Viewport (3.000)
+- Updated for the WoW 3.0 patch.
+- No longer shows the letter "r" after the current aspect ratio when it is less than 1.

@@ -1,0 +1,427 @@
+CT_BuffMod (12.0.0) 2026-06-22
+- Update for WoW: Midnight (interface 120000)
+- Combat-safe aura tracking keyed by auraInstanceID (fixes duplicate buttons piling up during combat)
+- Sanitized aura and caster fields against secret values; use the shared DebuffTypeColor fallback
+
+CT_BuffMod (11.0.2.4) 2024-08-23
+- Bugfix for the count of an aura
+
+CT_BuffMod (11.0.2.3) 2024-08-18
+- Classic compatibility for 11.0.2.2
+
+CT_BuffMod (11.0.2.2) 2024-08-18
+- Updates for WoW: The War Within
+
+CT_BuffMod (10.0.0.4) 2022-11-07
+- Now also hides the debuff frame in Dragonflight
+
+CT_BuffMod (10.0.0.2) 2022-10-25
+- Removing workaround; updating secure frames to rely on cvar ActionButtonUseKeyDown
+- Non-secure frames will also respect ActionButtonUseKeyDown for consistency
+
+CT_BuffMod (9.2.0.4) 2022-10-22
+- Workaround for secure actions blocked on key press
+
+CT_BuffMod (9.2.0.2) 2022-09-30
+- Updates for WoW Dragonflight
+- Correcting Bindings.xml and toc files
+
+CT_BuffMod (9.2.0.1) 2022-09-26
+- Audio expiration warning in Classic WotLK
+
+CT_BuffMod (9.1.0.3) 2021-08-09
+- Control panel improvements
+
+CT_BuffMod (9.0.5.6) 2021-05-13
+- Refactoring to align with changes in CT_Library 9.0.5.6
+
+CT_BuffMod (9.0.5.2) 2020-03-14
+- Fixed: obscure bug in 9.0.5.1 relating to a custom larger font
+
+CT_BuffMod (9.0.5.1) 2020-03-06
+- Improved: compatibility to game font addons and non-latin character sets
+
+CT_BuffMod (9.0.1.1) 2020-10-05
+- More control over the sequence of grouping and sorting with non-secure frames.
+
+CT_BuffMod (8.3.7.2) 2020-09-05
+- Option for non-secure frames to filter buffs with or without a duration
+
+CT_BuffMod (8.3.7.1) 2020-07-24
+- Shadowlands BackdropTemplate compatibility
+- Option to show the default UI border on aura buttons
+
+CT_BuffMod (8.3.0.9) 2020-05-23
+- Small adjustments to the options menu for easier use
+
+CT_BuffMod (8.3.0.8) 2020-03-31
+- Optional smaller or larger font size
+
+CT_BuffMod (8.3.0.7) 2020-03-29
+- Performance improvements using C_Timer to replace OnUpdate
+- Code updates corresponding to CT_Library
+
+CT_BuffMod (8.3.0.3) 2020-01-20
+- Localization
+
+CT_BuffMod (8.3.0.1) 2019-01-01
+- Minor code cleanup; nothing substantive
+
+CT_BuffMod (8.2.5.5) 2019-10-14
+- Changes corresponding to CT_Library
+
+CT_BuffMod (8.2.5.4) 2019-10-09
+- Corrected the "recast" key binding that stopped working during WoW 8.x
+- Added translations by curse users Dahk and dynaletik.  Merci et Danke!
+
+CT_BuffMod (8.2.5.2) 2019-09-29
+- Show buffs for target, pet or focus
+- Further cleanup and localization of the options menu
+- Removed .tga files that were not even being used
+
+CT_BuffMod (8.2.5.1) 2019-09-23
+- Restored original Vanilla expiring-buff sound for Classic edition
+- Removed files that were unused (empty) for several years
+- Simplified the options menu, and started localizing it for enUS and frFR
+
+CT_BuffMod (8.2.0.5) 2019-08-14
+- Tooltip footer directs users to type /ctbuff for configuring the addon
+
+CT_BuffMod (8.2.0.1) 2019-06-25
+- PlaySoundFile() updated for 8.2.0
+
+CT_BuffMod (8.1.5.3) 2019-05-29
+- Compatibility with WoW Classic and Retail editions
+
+CT_BuffMod (8.1.5.2) 2019-05-06
+- Improved options for Style 2 (icon and time) appearance
+
+CT_BuffMod (8.1.0.3) 2018-01-08
+- Buffs may now show durations in "days" when exceeding 24 hours
+
+CT_BuffMod (8.0.1.0) 2018-07-17
+- Updated for 8.0.1
+
+CT_BuffMod (7.3.2.0) 2017-12-30
+- Updated for 7.3.20.
+
+CT_BuffMod (7.3.0.0) 2017-09-03
+- Updated for 7.3.0.
+
+CT_BuffMod (7.2.0.0) 2017-04-18
+- Updated for 7.2.0.
+
+CT_BuffMod (7.1.0.0) 2016-12-11
+- Updated for 7.1.0.
+
+CT_BuffMod (7.0.3.1) 2016-07-23
+- Editbox fixes.
+- Weapon enchant fix.
+- Buff text should no longer wrap into multiple lines.
+- Some other smaller fixes.
+
+CT_BuffMod (7.0.3.0) 2016-07-22
+- Updated to 7.0.3.
+
+CT_BuffMod (6.2.3.0) 2015-10-24
+- Updated to 6.2.3.
+
+CT_BuffMod (6.1.0.0) 2015-03-13
+- Updated to 6.1.0.
+
+CT_BuffMod (6.0.2.0) 2014-10-15
+- Updated to 6.0.2.
+
+CT_BuffMod (5.4.7.0) 2014-05-16
+- Updated to 5.4.7.
+- Library updates.
+
+CT_BuffMod (5.4.2.1) 2013-12-30
+- Changed library to a standalone module.
+
+CT_BuffMod (5.4.2) 2013-12-21
+- Library fix.
+
+CT_BuffMod (5.4) 2013-12-12
+- Updated for the WoW 5.4 patch.
+
+CT_BuffMod (5.3) 2013-05-24
+- Updated for the WoW 5.3 patch.
+
+CT_BuffMod (5.2) 2013-03-09
+- Updated for the WoW 5.2 patch.
+
+CT_BuffMod (5.0101) 2012-12-10
+- Updated for the WoW 5.1 patch.
+
+CT_BuffMod (5.0005) 2012-09-23
+- Fixed a problem related to a bug in Blizzard's FontInstance:SetFont() function that could cause a buff count to display incorrectly or cause the game to crash.
+
+CT_BuffMod (5.0004) 2012-09-05
+- Fixed a bug that could cause an error if you toggled the "Hide the consolidated buffs frame" option from enabled to disabled.
+- If the option to hide Blizzard's buffs frame, weapons frame, or consolidated frame is enabled and something other than CT_BuffMod shows the frame, then CT_BuffMod will re-hide the frame.
+
+CT_BuffMod (5.0003) 2012-08-29
+- Fixed a bug that could cause an error if you toggled the "Color the background of the bar" option while you had a buff, were using style 1 buttons, and had the "Show time remaining bar" option disabled.
+
+CT_BuffMod (5.0002) 2012-08-28
+- Release version for WoW 5.
+- The "advanced conditions" edit box in the "visibility" section of the options window is now easier to click on.
+
+CT_BuffMod (5.0001) 2012-08-19
+- Beta version for WoW 5.
+
+CT_BuffMod (4.0301) 2011-11-27
+- Updated for the WoW 4.3 patch.
+- Added an option which allows you to use unsecure buff buttons.
+- Added an option (for unsecure buffs only) that lets you sort non-expiring buffs before, after, or with the other buffs in the same sorting group.
+
+- When using unsecure buff buttons:
+
+a) You can only cancel buffs when not in combat. This is a game restriction.
+b) You cannot cancel weapon buffs. This is a game restriction.
+c) When sorting by time, CT_BuffMod will also sort by name if the times are the same.
+d) Unusecure buff buttons are not affected by the current bugs in Blizzard's Secure Aura routines (see below).
+
+- You can use unsecure buff buttons to emulate the "Auras" buff group that was available in older versions of CT_BuffMod as follows:
+
+a) Enable the "Use unsecure buff buttons" option for the window.
+b) Group the buffs as "All buffs". Don't use "Canceleable buffs" or "Uncancelable buffs".
+c) Set the "Buffs that you cast" option to "With other players".
+d) Set the "Non-expiring buffs" option to "After other buffs".
+
+- Blizzard finally fixed some of the bugs in their Secure Aura routines. As a result the following items are now implemented in CT_BuffMod:
+
+a) The off hand weapon enchant button should now display and cancel properly.
+b) The ranged weapon enchant button should now display and cancel properly.
+c) You can now sort buffs that you cast, with buffs cast by others. Refer to the "Buffs you can cast" option in the "Sorting" section of the CT_BuffMod options. The default for this option is now "Sort with others".
+
+- NOTE: There are still some bugs in Blizzard's Secure Aura routines on the 4.3 PTR as of Nov 27, 2011. It is not known if the bugs will be fixed before 4.3 gets released. Below are some issues you may experience due to these bugs.
+
+1) If you show consolidated or weapon buttons in a CT_BuffMod window...
+
+1a) If a buff fades or is cancelled, the final buff button in the window may not get hidden. The button may continue to show a duplicate buff or a buff that is no longer applicable.
+
+1b) If there was a consolidated or weapon button positioned after the non-hidden button, then you may end up with the two buttons occupying the same spot in the window. You can work around this by showing the consolidated and weapon buttons before the other buff groups.
+
+2) If you show weapon buttons in a CT_BuffMod window...
+
+2a) If you gain a ranged weapon buff, the weapon buff button may not get shown in the window until you gain or lose another buff.
+
+
+CT_BuffMod (4.0200) 2011-06-28
+- Updated version numbers for the WoW 4.2 patch.
+
+CT_BuffMod (4.0101) 2011-04-26
+- Fixed a bug that was causing an error when logging into the game for some people.
+
+CT_BuffMod (4.0100) 2011-04-26
+
+- Updated for the WoW 4.1 patch.
+- Updated CT_Library.lua to version 4.0100.
+- This version includes all the changes that were in the CT_BuffMod 4.003 and 4.004 betas.
+
+If you were using the beta version:
+- The default buff window layout is now different than it was in the beta. As a result, you might need to adjust your layout options.
+- The beta layout defaults were for a single column with a fixed height (Layout = 'Top to bottom. Wrap right', Buffs per column = 19, Number of columns = 1).
+- The new layout defaults are for a single column with a variable height (Layout = 'Left to right. Wrap down', Buffs per row = 1, Number of rows = 0).
+
+General
+- The addon now uses Blizzard's Secure Aura Header routines so that you can cancel a buff using a Right-click.
+- Due to the use of secure buttons, there are a number of options which if changed will not have any effect until you are out of combat.
+
+Colors
+- Added an option to select a color for the consolidated window.
+- Added an option to select a color for the consolidated bar.
+
+Expiration
+- You can now configure when a fading icon begins to flash.
+
+Windows
+- You can now add, clone, or delete a buff window.
+- Disabling a window will delete the window but retain its options.
+- If you Alt Left-click on a CT_BuffMod window, the addon will open the options window and automatically select the window you clicked.
+
+Units
+- For a "player" buff window, you can now choose whether or not you want to show vehicle buffs when you are in a vehicle.
+- You can now create a separate window just for vehicle buffs.
+
+Visibility
+- You can now control whether to hide or show a buff window based on macro conditions.
+
+Sorting
+- You can now choose to sort buffs that you have cast, before or after those cast by others. A third option (sort WITH the buffs cast by other people) is currently not available due to a bug in Blizzard's routines.
+
+- When grouping items, the new 'cancelable buffs' group is comparable to the old 'buffs' type in the previous versions of CT_BuffMod. These are usually buffs that have a duration, but will also include things like mounts. The game (not the addon) determines which buffs are cancelable. The game may include some buffs in this group that cannot be cancelled with a right-click.
+
+- When grouping items, the new 'uncancelable buffs' group is comparable to the old 'auras' type. These are usually buffs that have no expiration time. The game (not the addon) determines which buffs are uncancelable.
+
+- Added consolidated button support as one of the sorting groups. When you mouse over the consolidated button in the buff window it will display a consolidated buffs window.
+
+- If weapons buffs and the consolidated button end up beside each other in the buff window, the weapon buffs will appear first in the buff window even if they are listed after the consolidated button in the options window. The order is controlled by Blizzard's Secure Aura Header routines.
+
+- When sorting by time, Blizzard's routines treat buffs with no duration (like mounts) as having 0 time remaining.
+
+Consolidated buffs
+- You can now choose to display a consolidated button as one of the sorting groups.
+
+- If you enable the consolidated button, then the game will move some buffs into a separate consolidated window that will be displayed when you mouse over the consolidated button.
+
+- Although the game (not the addon) decides which buffs get moved into the consolidated window, there are some options available to influence that decision.
+
+- Refer to the '?' buttons in the CT_BuffMod options window for some more details about consolidation.
+
+Window appearance
+- You can now control the left, right, top, and bottom distance between the buffs and the window border.
+- You can now choose from eight different layout types that control the arrangement of buttons in the window.
+- Left-to-right and Right-to-left layouts arrange the buffs horizontally in rows with a fixed width. The number of rows can be fixed or variable.
+- Top-to-bottom and Bottom-to-top layouts arrange the buffs vertically in columns with a fixed height. The number of columns can be fixed or variable.
+- You can control the distance between buffs in the same row or column.
+- You can control the distance between rows or columns.
+
+Button appearance
+- You can now choose from two styles of buttons: a button and a bar, or just a button.
+- You can now color code the border of debuff icons (the color is based on the type of debuff: curse, magic, etc).
+- You can now color code debuff bars (the color is based on the type of debuff: curse, magic, etc).
+- Added more options for justifying the name and time remaining text on a bar.
+- Added more options for the location of the time remaining text on a bar.
+- Added options to control the text offset on the left and right sides of the bar.
+- When using the new button style you can configure the icon size, color code the border of debuff icons, show time remaining text, and configure the time format, location and offset from the icon.
+
+Known issues
+- Blizzard's secure aura routines currently assign the main-hand slot number to the off-hand weapon's buff button. This causes the main-hand buff to be cancelled when you right click the off-hand buff button. Until Blizzard fixes the bug, a workaround has been added to CT_BuffMod that will correct the slot number, however it can only do so when you are not in combat.
+
+- Blizzard's secure aura routines do not currently support temporary enchants on a ranged weapon.
+
+- Blizzard's secure aura routines support a third way to sort the buffs that you cast (sort WITH the buffs cast by other people). However, this third sort method is currently not available due to a bug in Blizzard's routines.
+
+-----
+
+CT_BuffMod (4.002)
+- WoW 4.0 patch version for the live realms.
+- Updated CT_Library.lua to version 4.002.
+- Due to a change made by Blizzard, addons are no longer able to cancel buffs when you right click on a buff's icon unless the addon uses secure frames for the buffs.
+- Since CT_BuffMod currently uses insecure frames, you will not be able to cancel any buffs in the CT_BuffMod window.
+- An updated version of CT_BuffMod that uses secure buttons to allow you to cancel buffs is being worked on, but is not ready yet.
+- There are options in CT_BuffMod that will let you show Blizzard's default buff frames so that you can cancel buffs.
+- An alternate way to cancel buffs is to use the /cancelaura command with a spell name in a macro.
+
+CT_BuffMod (4.001)
+- WoW 4.0 patch test version for the PTR realms.
+- Due to a change made by Blizzard, addons are no longer able to cancel buffs when you right click on a buff's icon unless the addon uses secure frames for the buffs. Since CT_BuffMod currently uses insecure frames, you will not be able to cancel any buffs using the CT_BuffMod window.
+
+CT_BuffMod (3.303)
+- Added a "Show drag and resize tooltips" option (default is enabled).
+- Added a "Reset window position" button to the CT_BuffMod options window.
+- Right-clicking the CT_BuffMod window when it is unlocked no longer resets the window's position.
+
+CT_BuffMod (3.302)
+- Fixed a problem that was sometimes causing an expiration warning message to be displayed more than once for the same spell.
+- Fixed a problem that was causing the expiration warning timers to not always be saved correctly.
+- The sliders for the expiration warning timers now display the number of seconds when the setting is over 1 minute, and they can now each be set to the "Off" position.
+- Fixed a problem that was preventing the time remaining bar for weapon buffs from updating correctly.
+- Added an option to show buffs (default is enabled).
+- Added an option to show debuffs (default is enabled).
+- Added an option to show auras (default is enabled).
+- Added an option to show tooltips (default is enabled).
+- Added an option to show weapon details in the tooltip for weapon buffs (default is enabled).
+- Added an option to show the spell number in the tooltip (default is disabled).
+- Added an option to show the name of the caster (if known) in the tooltip (default is enabled). If the caster is a pet or vehicle, then the pet/vehicle's owner is also shown if they are in your party/raid.
+- Added an option to lock a buff's position within the window when the mouse is over its icon (default is enabled). This makes it easier to cancel a buff, or view its tooltip, when you are gaining or losing other buffs at the same time.
+
+CT_BuffMod (3.301)
+
+Buff options
+- Added an option to center the duration if not showing the buff name.
+
+CT_BuffMod (3.300)
+
+- Updated for the WoW 3.3 patch.
+- Added options to hide Blizzard's temporary enchants frame, buffs frame, and consolidated buffs frame. All 3 frames are hidden by default.
+- Added an option to prevent the CT_BuffMod window from being moved off screen.
+- Hiding the CT_BuffMod window's border no longer prevents the window from being positioned at the very edges of the screen.
+- Added the /ctbuff command which can be used to directly open the CT_BuffMod options window.
+- Some variables and functions which were global are now correctly declared as local.
+- Updated CT_Library.lua to version 3.005.
+
+CT_Libary.lua (3.005)
+
+Settings import
+- Fixed a problem with the settings import feature in the CTMod Control Panel where it was not properly importing frame positions.
+- Fixed a problem where there would be more than one "Settings Import" item listed in the CTMod Control Panel when more than one version of CT_Library.lua was encountered.
+- The settings import window now defaults to the first character on the first server that has importable options.
+- Added the ability to delete settings.
+
+Slash command
+- Added the /ctmod command as an alternative to the existing /ct command. Either one will open the CTMod Control Panel.
+- Added code to allow direct access to an addon's options window via a slash command (refer to individual addons for any slash commands that may have been added).
+
+General
+- The scrollbar in the options window resets to the top when you select a different addon.
+- The message at the top of the CTMod Control panel now mentions the slash commands that can be used to open it.
+- Some variables and functions which were global are now correctly declared as local.
+
+-----
+
+CT_BuffMod (3.200)
+- Updated for the WoW 3.2 patch.
+
+CT_BuffMod (3.012)
+- Internal changes and fixes.
+
+CT_BuffMod (3.011)
+- Fixed a bug that was sometimes causing buff names to be displayed in red when the "Color code debuff names" option was enabled and the "Color buffs" option was disabled.
+- Fixed a bug that was sometimes causing the items to be sorted incorrectly when the "Reverse the direction of sort" option was enabled.
+
+CT_BuffMod (3.010)
+- The addon now recycles previously created frames and font strings instead of creating new ones for each buff.
+- Fixed some text display issues when using a narrow window.
+- Added an option to control the vertical direction that the window grows and can be resized (upwards, downwards, outwards).
+-- This new option can be found in the 'Window Options' section.
+-- This setting is used when the 'Auto expand window height' option is enabled, and also when manually resizing the window.
+-- To manually resize the window when upwards resizing is selected, drag the window's upper right corner.
+-- To manually resize the window when downwards (or outwards) resizing is selected, drag the window's lower right corner.
+-- The default direction is downwards.
+
+CT_BuffMod (3.009)
+- When you are in a vehicle it now shows the buffs, debuffs, and auras on the vehicle instead of the ones on you.
+- Fixed a bug that was creating a new frame (instead of re-using an existing one) each time an item was added to the window.
+- Fixed a bug that could cause a time value to be displayed on an aura when a buff or debuff above it faded.
+
+CT_BuffMod (3.008)
+- Updated for the WoW 3.1 patch.
+- Updated CT_Library.lua to version 3.004.
+
+CT_Library.lua (3.004)
+- Fixed a nil value error when the client's locale was not recognized.
+
+CT_BuffMod (3.006)
+- Fixed a problem that was causing a display issue when two buffs had the same icon (such as Aspect of the Pack and the Striped Frostsaber mount).
+- Fixed an addon_action_blocked error which could occur during combat.
+
+CT_BuffMod (3.005)
+- Fixed a bug which could cause an "attempt to index local 'tblEntry' (a nil value)" error when there were weapon buffs.
+- Fixed a bug which could cause an "attempt to index local 'color' (a nil value)" error when the "Color Code Debuff Names" option was enabled.
+- Updated CT_Library.lua to version 3.003.
+
+CT_BuffMod (3.004)
+- When sorting by Type you can now choose the sequence in which the addon displays the different types of buffs.
+- Added an option to reverse the direction of the sort.
+- Updated CT_Library.lua to version 3.002.
+
+CT_Library (3.002)
+- Fixed a bug that was causing some text to be aligned incorrectly in some of the addons.
+- Corrected a spelling mistake on the CTMod Control panel window.
+
+CT_BuffMod (3.003)
+- You can now reset CT_BuffMod options for just your current character, or for all of your characters. To reset the options for all characters you must first select the checkbox above the reset button.
+
+CT_BuffMod (3.002)
+- Updated CT_Library.lua
+
+CT_BuffMod (3.001)
+- Right clicking on an aura will now cancel it. This includes mounts, but does not include shapeshift forms. Due to a change by Blizzard, cancelling a shapheshift form now requires a secure action button.
+- Right clicking on a debuff no longer cancels a buff or aura.
+
+CT_BuffMod (3.000)
+- Updated for the WoW 3.0 patch.

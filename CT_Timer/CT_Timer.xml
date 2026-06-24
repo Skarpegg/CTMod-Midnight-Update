@@ -1,0 +1,172 @@
+<Ui xmlns="http://www.blizzard.com/wow/ui/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.blizzard.com/wow/ui/
+..\FrameXML\UI.xsd">
+	<Script file="localization.lua"/>
+	<Script file="CT_Timer.lua"/>
+	<Frame name="CT_TimerFrame" movable="true" hidden="true" parent="UIParent" clampedToScreen="true">
+		<Size>
+			<AbsDimension x="128" y="36"/>
+		</Size>
+		<Anchors>
+			<Anchor point="TOP" relativeTo="UIParent" relativePoint="TOP">
+				<Offset>
+					<AbsDimension x="0" y="-14"/>
+				</Offset>
+			</Anchor>
+		</Anchors>
+		<Layers>
+			<Layer level="ARTWORK">
+				<Texture name="$parentHeaderTexture" file="Interface\DialogFrame\UI-DialogBox-Header">
+					<Size>
+						<AbsDimension x="256" y="64"/>
+					</Size>
+					<Anchors>
+						<Anchor point="TOP"/>
+					</Anchors>
+				</Texture>
+				<FontString name="$parentTime" inherits="GameFontNormal" text="00:00:00">
+					<Anchors>
+						<Anchor point="TOP" relativeTo="$parentHeaderTexture">
+							<Offset>
+								<AbsDimension x="0" y="-14"/>
+							</Offset>
+						</Anchor>
+					</Anchors>
+				</FontString>
+			</Layer>
+		</Layers>
+		<Frames>
+			<Button name="$parentScrollDownHour" inherits="UIPanelScrollDownButtonTemplate" hidden="false">
+				<Anchors>
+					<Anchor point="TOPLEFT" relativePoint="LEFT">
+						<Offset>
+							<AbsDimension x="-18" y="-2"/>
+						</Offset>
+					</Anchor>
+				</Anchors>
+				<Scripts>
+					<OnClick>
+						CT_Timer_ModTime(self, -3600);
+					</OnClick>
+					<OnEnter>
+						CT_Timer_OnMouseOver();
+					</OnEnter>
+					<OnLeave>
+						CT_Timer_OnMouseOut();
+					</OnLeave>
+				</Scripts>
+			</Button>
+			<Button name="$parentScrollUpHour" inherits="UIPanelScrollUpButtonTemplate" hidden="false">
+				<Anchors>
+					<Anchor point="BOTTOMLEFT" relativePoint="LEFT">
+						<Offset>
+							<AbsDimension x="-18" y="-2"/>
+						</Offset>
+					</Anchor>
+				</Anchors>
+				<Scripts>
+					<OnClick>
+						CT_Timer_ModTime(self, 3600);
+					</OnClick>
+					<OnEnter>
+						CT_Timer_OnMouseOver();
+					</OnEnter>
+					<OnLeave>
+						CT_Timer_OnMouseOut();
+					</OnLeave>
+				</Scripts>
+			</Button>
+			<Button name="$parentScrollDownMin" inherits="UIPanelScrollDownButtonTemplate" hidden="false">
+				<Anchors>
+					<Anchor point="TOPRIGHT" relativePoint="RIGHT">
+						<Offset>
+							<AbsDimension x="18" y="-2"/>
+						</Offset>
+					</Anchor>
+				</Anchors>
+				<Scripts>
+					<OnClick>
+						CT_Timer_ModTime(self, -60);
+					</OnClick>
+					<OnEnter>
+						CT_Timer_OnMouseOver();
+					</OnEnter>
+					<OnLeave>
+						CT_Timer_OnMouseOut();
+					</OnLeave>
+				</Scripts>
+			</Button>
+			<Button name="$parentScrollUpMin" inherits="UIPanelScrollUpButtonTemplate" hidden="false">
+				<Anchors>
+					<Anchor point="BOTTOMRIGHT" relativePoint="RIGHT">
+						<Offset>
+							<AbsDimension x="18" y="-2"/>
+						</Offset>
+					</Anchor>
+				</Anchors>
+				<Scripts>
+					<OnClick>
+						CT_Timer_ModTime(self, 60);
+					</OnClick>
+					<OnEnter>
+						CT_Timer_OnMouseOver();
+					</OnEnter>
+					<OnLeave>
+						CT_Timer_OnMouseOut();
+					</OnLeave>
+				</Scripts>
+			</Button>
+			<Frame toplevel="true" name="$parentDragClickFrame" hidden="false">
+				<Anchors>
+					<Anchor point="CENTER"/>
+				</Anchors>
+				<Size>
+					<AbsDimension x="135" y="30"/>
+				</Size>
+				<Scripts>
+					<OnEnter>
+						CT_Timer_OnMouseOver(self);	-- self used for the gametooltip
+					</OnEnter>
+					<OnLeave>
+						CT_Timer_OnMouseOut();
+					</OnLeave>
+					<OnMouseDown>
+						if ( IsShiftKeyDown() and button == "LeftButton" ) then
+							self:GetParent():StartMoving();
+						end
+					</OnMouseDown>
+					<OnMouseUp>
+						if ( button == "RightButton" ) then
+							CT_Timer_Reset();
+						elseif ( button == "LeftButton" and not IsShiftKeyDown() ) then
+							CT_Timer_Toggle(self:GetParent());
+						end
+						self:GetParent():StopMovingOrSizing();
+						CT_Timer_SavePosition();
+					</OnMouseUp>
+					<OnLoad>
+						self.onbutton = 0;
+						self.updatetime = 0.01;
+					</OnLoad>
+				</Scripts>
+			</Frame>
+		</Frames>
+		<Scripts>
+			<OnLoad>
+				CT_TimerFrame_OnLoad(self)
+			</OnLoad>
+			<OnEvent>
+				CT_TimerFrame_OnEvent(self, event);
+			</OnEvent>
+		</Scripts>
+	</Frame>
+	<Frame name="CT_TimerGlobalFrame" parent="UIParent" hidden="true">
+		<Scripts>
+			<OnShow>
+				self.timeTicker = C_Timer.NewTicker(0.25, CT_Timer_UpdateTime);
+			</OnShow>
+			<OnHide>
+				if (self.timeTicker) then self.timeTicker:Cancel(); end
+			</OnHide>
+		</Scripts>
+	</Frame>
+</Ui>

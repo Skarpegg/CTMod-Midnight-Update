@@ -1,0 +1,5 @@
+<Bindings>
+	<Binding name="CT_BUFFMOD_RECASTBUFFS" runOnUp="true" header="CT_BUFFMOD" category="ADDONS">
+		-- Do nothing (dummy binding)
+	</Binding>
+</Bindings>

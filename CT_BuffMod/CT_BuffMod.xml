@@ -1,0 +1,257 @@
+<Ui xmlns="http://www.blizzard.com/wow/ui/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.blizzard.com/wow/ui/.. \FrameXML\UI.xsd">
+	<Button name="CT_BuffMod_UnsecureAuraButtonTemplate" virtual="true">
+		<Layers>
+			<Layer level="ARTWORK">
+				<Texture name="$parentIcon" setAllPoints="true"/>
+			</Layer>
+			<Layer level="OVERLAY">
+				<Texture parentKey="border" file="Interface\Buttons\UI-Debuff-Overlays">
+					<Anchors>
+						<Anchor point="TOPLEFT">
+							<Offset x="-1" y="0"/>
+						</Anchor>
+						<Anchor point="BOTTOMRIGHT">
+							<Offset x="0" y="0"/>
+						</Anchor>
+					</Anchors>
+					<TexCoords left="0.296875" right="0.5703125" top="0" bottom="0.515625"/>
+				</Texture>
+				<FontString parentKey="symbol" inherits="TextStatusBarText">
+					<Anchors>
+						<Anchor point="TOPLEFT">
+							<Offset x="2" y="-2"/>
+						</Anchor>
+					</Anchors>
+				</FontString>
+			</Layer>
+		</Layers>
+		<Attributes>
+			<Attribute name="type2" type="string" value="cancelaura"/>
+		</Attributes>
+		<Scripts>
+			<OnEnter>
+				CT_BuffMod_AuraButton_OnEnter(self);
+			</OnEnter>
+			<OnLeave>
+				CT_BuffMod_AuraButton_OnLeave(self);
+			</OnLeave>
+			<OnMouseDown>
+				CT_BuffMod_AuraButton_OnMouseDown(self, button);
+			</OnMouseDown>
+			<OnMouseUp>
+				CT_BuffMod_AuraButton_OnMouseUp(self, button);
+			</OnMouseUp>
+			<OnShow>
+				CT_BuffMod_AuraButton_OnShow(self);
+			</OnShow>
+			<OnHide>
+				CT_BuffMod_AuraButton_OnHide(self);
+			</OnHide>
+		</Scripts>
+	</Button>
+
+	<Button name="CT_BuffMod_UnsecureAuraButton15Template" virtual="true" inherits="CT_BuffMod_UnsecureAuraButtonTemplate">
+		<Size>
+			<AbsDimension x="15" y="15"/>
+		</Size>
+	</Button>
+	<Button name="CT_BuffMod_UnsecureAuraButton16Template" virtual="true" inherits="CT_BuffMod_UnsecureAuraButtonTemplate">
+		<Size>
+			<AbsDimension x="16" y="16"/>
+		</Size>
+	</Button>
+	<Button name="CT_BuffMod_UnsecureAuraButton17Template" virtual="true" inherits="CT_BuffMod_UnsecureAuraButtonTemplate">
+		<Size>
+			<AbsDimension x="17" y="17"/>
+		</Size>
+	</Button>
+	<Button name="CT_BuffMod_UnsecureAuraButton18Template" virtual="true" inherits="CT_BuffMod_UnsecureAuraButtonTemplate">
+		<Size>
+			<AbsDimension x="18" y="18"/>
+		</Size>
+	</Button>
+	<Button name="CT_BuffMod_UnsecureAuraButton19Template" virtual="true" inherits="CT_BuffMod_UnsecureAuraButtonTemplate">
+		<Size>
+			<AbsDimension x="19" y="19"/>
+		</Size>
+	</Button>
+	<Button name="CT_BuffMod_UnsecureAuraButton20Template" virtual="true" inherits="CT_BuffMod_UnsecureAuraButtonTemplate">
+		<Size>
+			<AbsDimension x="20" y="20"/>
+		</Size>
+	</Button>
+	<Button name="CT_BuffMod_UnsecureAuraButton21Template" virtual="true" inherits="CT_BuffMod_UnsecureAuraButtonTemplate">
+		<Size>
+			<AbsDimension x="21" y="21"/>
+		</Size>
+	</Button>
+	<Button name="CT_BuffMod_UnsecureAuraButton22Template" virtual="true" inherits="CT_BuffMod_UnsecureAuraButtonTemplate">
+		<Size>
+			<AbsDimension x="22" y="22"/>
+		</Size>
+	</Button>
+	<Button name="CT_BuffMod_UnsecureAuraButton23Template" virtual="true" inherits="CT_BuffMod_UnsecureAuraButtonTemplate">
+		<Size>
+			<AbsDimension x="23" y="23"/>
+		</Size>
+	</Button>
+	<Button name="CT_BuffMod_UnsecureAuraButton24Template" virtual="true" inherits="CT_BuffMod_UnsecureAuraButtonTemplate">
+		<Size>
+			<AbsDimension x="24" y="24"/>
+		</Size>
+	</Button>
+	<Button name="CT_BuffMod_UnsecureAuraButton25Template" virtual="true" inherits="CT_BuffMod_UnsecureAuraButtonTemplate">
+		<Size>
+			<AbsDimension x="25" y="25"/>
+		</Size>
+	</Button>
+	<Button name="CT_BuffMod_UnsecureAuraButton26Template" virtual="true" inherits="CT_BuffMod_UnsecureAuraButtonTemplate">
+		<Size>
+			<AbsDimension x="26" y="26"/>
+		</Size>
+	</Button>
+	<Button name="CT_BuffMod_UnsecureAuraButton27Template" virtual="true" inherits="CT_BuffMod_UnsecureAuraButtonTemplate">
+		<Size>
+			<AbsDimension x="27" y="27"/>
+		</Size>
+	</Button>
+	<Button name="CT_BuffMod_UnsecureAuraButton28Template" virtual="true" inherits="CT_BuffMod_UnsecureAuraButtonTemplate">
+		<Size>
+			<AbsDimension x="28" y="28"/>
+		</Size>
+	</Button>
+	<Button name="CT_BuffMod_UnsecureAuraButton29Template" virtual="true" inherits="CT_BuffMod_UnsecureAuraButtonTemplate">
+		<Size>
+			<AbsDimension x="29" y="29"/>
+		</Size>
+	</Button>
+	<Button name="CT_BuffMod_UnsecureAuraButton30Template" virtual="true" inherits="CT_BuffMod_UnsecureAuraButtonTemplate">
+		<Size>
+			<AbsDimension x="30" y="30"/>
+		</Size>
+	</Button>
+	<Button name="CT_BuffMod_UnsecureAuraButton31Template" virtual="true" inherits="CT_BuffMod_UnsecureAuraButtonTemplate">
+		<Size>
+			<AbsDimension x="31" y="31"/>
+		</Size>
+	</Button>
+	<Button name="CT_BuffMod_UnsecureAuraButton32Template" virtual="true" inherits="CT_BuffMod_UnsecureAuraButtonTemplate">
+		<Size>
+			<AbsDimension x="32" y="32"/>
+		</Size>
+	</Button>
+	<Button name="CT_BuffMod_UnsecureAuraButton33Template" virtual="true" inherits="CT_BuffMod_UnsecureAuraButtonTemplate">
+		<Size>
+			<AbsDimension x="33" y="33"/>
+		</Size>
+	</Button>
+	<Button name="CT_BuffMod_UnsecureAuraButton34Template" virtual="true" inherits="CT_BuffMod_UnsecureAuraButtonTemplate">
+		<Size>
+			<AbsDimension x="34" y="34"/>
+		</Size>
+	</Button>
+	<Button name="CT_BuffMod_UnsecureAuraButton35Template" virtual="true" inherits="CT_BuffMod_UnsecureAuraButtonTemplate">
+		<Size>
+			<AbsDimension x="35" y="35"/>
+		</Size>
+	</Button>
+	<Button name="CT_BuffMod_UnsecureAuraButton36Template" virtual="true" inherits="CT_BuffMod_UnsecureAuraButtonTemplate">
+		<Size>
+			<AbsDimension x="36" y="36"/>
+		</Size>
+	</Button>
+	<Button name="CT_BuffMod_UnsecureAuraButton37Template" virtual="true" inherits="CT_BuffMod_UnsecureAuraButtonTemplate">
+		<Size>
+			<AbsDimension x="37" y="37"/>
+		</Size>
+	</Button>
+	<Button name="CT_BuffMod_UnsecureAuraButton38Template" virtual="true" inherits="CT_BuffMod_UnsecureAuraButtonTemplate">
+		<Size>
+			<AbsDimension x="38" y="38"/>
+		</Size>
+	</Button>
+	<Button name="CT_BuffMod_UnsecureAuraButton39Template" virtual="true" inherits="CT_BuffMod_UnsecureAuraButtonTemplate">
+		<Size>
+			<AbsDimension x="39" y="39"/>
+		</Size>
+	</Button>
+	<Button name="CT_BuffMod_UnsecureAuraButton40Template" virtual="true" inherits="CT_BuffMod_UnsecureAuraButtonTemplate">
+		<Size>
+			<AbsDimension x="40" y="40"/>
+		</Size>
+	</Button>
+	<Button name="CT_BuffMod_UnsecureAuraButton41Template" virtual="true" inherits="CT_BuffMod_UnsecureAuraButtonTemplate">
+		<Size>
+			<AbsDimension x="41" y="41"/>
+		</Size>
+	</Button>
+	<Button name="CT_BuffMod_UnsecureAuraButton42Template" virtual="true" inherits="CT_BuffMod_UnsecureAuraButtonTemplate">
+		<Size>
+			<AbsDimension x="42" y="42"/>
+		</Size>
+	</Button>
+	<Button name="CT_BuffMod_UnsecureAuraButton43Template" virtual="true" inherits="CT_BuffMod_UnsecureAuraButtonTemplate">
+		<Size>
+			<AbsDimension x="43" y="43"/>
+		</Size>
+	</Button>
+	<Button name="CT_BuffMod_UnsecureAuraButton44Template" virtual="true" inherits="CT_BuffMod_UnsecureAuraButtonTemplate">
+		<Size>
+			<AbsDimension x="44" y="44"/>
+		</Size>
+	</Button>
+	<Button name="CT_BuffMod_UnsecureAuraButton45Template" virtual="true" inherits="CT_BuffMod_UnsecureAuraButtonTemplate">
+		<Size>
+			<AbsDimension x="45" y="45"/>
+		</Size>
+	</Button>
+
+	<Button name="CT_BuffMod_SecureAuraButton15Template" virtual="true" inherits="SecureActionButtonTemplate,CT_BuffMod_UnsecureAuraButton15Template"/>
+	<Button name="CT_BuffMod_SecureAuraButton16Template" virtual="true" inherits="SecureActionButtonTemplate,CT_BuffMod_UnsecureAuraButton16Template"/>
+	<Button name="CT_BuffMod_SecureAuraButton17Template" virtual="true" inherits="SecureActionButtonTemplate,CT_BuffMod_UnsecureAuraButton17Template"/>
+	<Button name="CT_BuffMod_SecureAuraButton18Template" virtual="true" inherits="SecureActionButtonTemplate,CT_BuffMod_UnsecureAuraButton18Template"/>
+	<Button name="CT_BuffMod_SecureAuraButton19Template" virtual="true" inherits="SecureActionButtonTemplate,CT_BuffMod_UnsecureAuraButton19Template"/>
+	<Button name="CT_BuffMod_SecureAuraButton20Template" virtual="true" inherits="SecureActionButtonTemplate,CT_BuffMod_UnsecureAuraButton20Template"/>
+	<Button name="CT_BuffMod_SecureAuraButton21Template" virtual="true" inherits="SecureActionButtonTemplate,CT_BuffMod_UnsecureAuraButton21Template"/>
+	<Button name="CT_BuffMod_SecureAuraButton22Template" virtual="true" inherits="SecureActionButtonTemplate,CT_BuffMod_UnsecureAuraButton22Template"/>
+	<Button name="CT_BuffMod_SecureAuraButton23Template" virtual="true" inherits="SecureActionButtonTemplate,CT_BuffMod_UnsecureAuraButton23Template"/>
+	<Button name="CT_BuffMod_SecureAuraButton24Template" virtual="true" inherits="SecureActionButtonTemplate,CT_BuffMod_UnsecureAuraButton24Template"/>
+	<Button name="CT_BuffMod_SecureAuraButton25Template" virtual="true" inherits="SecureActionButtonTemplate,CT_BuffMod_UnsecureAuraButton25Template"/>
+	<Button name="CT_BuffMod_SecureAuraButton26Template" virtual="true" inherits="SecureActionButtonTemplate,CT_BuffMod_UnsecureAuraButton26Template"/>
+	<Button name="CT_BuffMod_SecureAuraButton27Template" virtual="true" inherits="SecureActionButtonTemplate,CT_BuffMod_UnsecureAuraButton27Template"/>
+	<Button name="CT_BuffMod_SecureAuraButton28Template" virtual="true" inherits="SecureActionButtonTemplate,CT_BuffMod_UnsecureAuraButton28Template"/>
+	<Button name="CT_BuffMod_SecureAuraButton29Template" virtual="true" inherits="SecureActionButtonTemplate,CT_BuffMod_UnsecureAuraButton29Template"/>
+	<Button name="CT_BuffMod_SecureAuraButton30Template" virtual="true" inherits="SecureActionButtonTemplate,CT_BuffMod_UnsecureAuraButton30Template"/>
+	<Button name="CT_BuffMod_SecureAuraButton31Template" virtual="true" inherits="SecureActionButtonTemplate,CT_BuffMod_UnsecureAuraButton31Template"/>
+	<Button name="CT_BuffMod_SecureAuraButton32Template" virtual="true" inherits="SecureActionButtonTemplate,CT_BuffMod_UnsecureAuraButton32Template"/>
+	<Button name="CT_BuffMod_SecureAuraButton33Template" virtual="true" inherits="SecureActionButtonTemplate,CT_BuffMod_UnsecureAuraButton33Template"/>
+	<Button name="CT_BuffMod_SecureAuraButton34Template" virtual="true" inherits="SecureActionButtonTemplate,CT_BuffMod_UnsecureAuraButton34Template"/>
+	<Button name="CT_BuffMod_SecureAuraButton35Template" virtual="true" inherits="SecureActionButtonTemplate,CT_BuffMod_UnsecureAuraButton35Template"/>
+	<Button name="CT_BuffMod_SecureAuraButton36Template" virtual="true" inherits="SecureActionButtonTemplate,CT_BuffMod_UnsecureAuraButton36Template"/>
+	<Button name="CT_BuffMod_SecureAuraButton37Template" virtual="true" inherits="SecureActionButtonTemplate,CT_BuffMod_UnsecureAuraButton37Template"/>
+	<Button name="CT_BuffMod_SecureAuraButton38Template" virtual="true" inherits="SecureActionButtonTemplate,CT_BuffMod_UnsecureAuraButton38Template"/>
+	<Button name="CT_BuffMod_SecureAuraButton39Template" virtual="true" inherits="SecureActionButtonTemplate,CT_BuffMod_UnsecureAuraButton39Template"/>
+	<Button name="CT_BuffMod_SecureAuraButton40Template" virtual="true" inherits="SecureActionButtonTemplate,CT_BuffMod_UnsecureAuraButton40Template"/>
+	<Button name="CT_BuffMod_SecureAuraButton41Template" virtual="true" inherits="SecureActionButtonTemplate,CT_BuffMod_UnsecureAuraButton41Template"/>
+	<Button name="CT_BuffMod_SecureAuraButton42Template" virtual="true" inherits="SecureActionButtonTemplate,CT_BuffMod_UnsecureAuraButton42Template"/>
+	<Button name="CT_BuffMod_SecureAuraButton43Template" virtual="true" inherits="SecureActionButtonTemplate,CT_BuffMod_UnsecureAuraButton43Template"/>
+	<Button name="CT_BuffMod_SecureAuraButton44Template" virtual="true" inherits="SecureActionButtonTemplate,CT_BuffMod_UnsecureAuraButton44Template"/>
+	<Button name="CT_BuffMod_SecureAuraButton45Template" virtual="true" inherits="SecureActionButtonTemplate,CT_BuffMod_UnsecureAuraButton45Template"/>
+
+	<Frame name="CT_BuffMod_UnsecureAuraHeaderTemplate" hidden="true" virtual="true">
+		<Scripts>
+			<OnLoad function="CT_BuffMod_UnsecureAuraHeader_OnLoad"/>
+			<OnEvent function="CT_BuffMod_UnsecureAuraHeader_OnEvent"/>
+			<OnShow function="CT_BuffMod_UnsecureAuraHeader_Update"/>
+			<OnUpdate function="CT_BuffMod_UnsecureAuraHeader_OnUpdate"/>
+			<OnAttributeChanged function="CT_BuffMod_UnsecureAuraHeader_OnAttributeChanged"/>
+		</Scripts>
+	</Frame>
+	<Frame name="CT_BuffMod_SecureAuraHeaderTemplate" hidden="true" virtual="true" inherits="SecureAuraHeaderTemplate"/>
+
+	<Frame name="CT_BuffMod_UnsecureConsolidatedButtonTemplate" hidden="true" virtual="true"/>
+	<Frame name="CT_BuffMod_SecureConsolidatedButtonTemplate" hidden="true" virtual="true" inherits="SecureHandlerEnterLeaveTemplate,SecureHandlerShowHideTemplate"/>
+
+	<Frame name="CT_BuffMod_UnsecureConsolidatedFrameTemplate" hidden="true" virtual="true"/>
+	<Frame name="CT_BuffMod_SecureConsolidatedFrameTemplate" hidden="true" virtual="true" inherits="SecureFrameTemplate"/>
+</Ui>

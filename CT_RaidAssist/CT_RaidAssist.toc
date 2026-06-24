@@ -1,0 +1,19 @@
+## Interface: 110100, 120000
+## Version: 12.0.0
+## Title: CTMod Midnight - RaidAssist
+## Author: TS & Cide (Original), Dargen (MT Addon), DDC (Redesign); Midnight community port
+## Notes: Monitor raid HP and click cast buffs, debuff removals, resurrections
+## DefaultState: Enabled
+## LoadOnDemand: 0
+## Dependencies: CT_Library
+## SavedVariables: CT_RaidAssistOptions
+## Group: CT_Library
+## X-Part-Of: CT-Library
+
+# Durability tracking on both retail and classic
+Libs/LibDurability.lua
+
+# CTRA (for both retail and classic)
+CT_RaidAssist.lua
+CT_RaidAssist_ExpansionData.lua
+localization.lua

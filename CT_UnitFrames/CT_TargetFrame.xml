@@ -1,0 +1,86 @@
+<Ui xmlns="http://www.blizzard.com/wow/ui/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.blizzard.com/wow/ui/
+..\FrameXML\UI.xsd">
+	<Script file="CT_TargetFrame.lua"/>
+	<Frame name="CT_TargetFrame" parent="TargetFrame">
+		<Layers>
+			<Layer level="OVERLAY">
+				<FontString name="CT_TargetHealthLeft" inherits="GameFontNormalSmall" text="">
+					<Anchors>
+						<Anchor point="RIGHT" relativeTo="TargetFrame" relativePoint="TOPLEFT">
+							<Offset>
+								<AbsDimension x="4" y="-46"/>
+							</Offset>
+						</Anchor>
+					</Anchors>
+				</FontString>
+				<FontString name="CT_TargetManaLeft" inherits="GameFontNormalSmall" text="">
+					<Anchors>
+						<Anchor point="RIGHT" relativeTo="TargetFrame" relativePoint="TOPLEFT">
+							<Offset>
+								<AbsDimension x="4" y="-57"/>
+							</Offset>
+						</Anchor>
+					</Anchors>
+				</FontString>
+			</Layer>
+		</Layers>
+		<Frames>
+			<Frame name="$parentClassFrame" hidden="true">
+				<Size>
+					<AbsDimension x="96" y="24"/>
+				</Size>
+
+				<Anchors>
+					<Anchor point="BOTTOM" relativeTo="TargetFrame" relativePoint="TOP">
+						<Offset>
+							<AbsDimension x="0" y="5"/>
+						</Offset>
+					</Anchor>
+				</Anchors>
+				<Layers>
+					<Layer level="ARTWORK">
+						<FontString name="$parentText" hidden="false" inherits="GameFontNormalSmall" text="">
+							<Anchors>
+								<Anchor point="CENTER"/>
+							</Anchors>
+							<Size>
+								<AbsDimension x="96" y="12"/>
+							</Size>
+						</FontString>
+					</Layer>
+				</Layers>
+				<Scripts>
+					<OnLoad>
+						Mixin(self, BackdropTemplateMixin or {})
+						self:SetBackdrop({
+							bgFile = "Interface\\Tooltips\\UI-Tooltip-Background",
+							edgeFile = "Interface\\Tooltips\\UI-Tooltip-Border",
+							tile = true,
+							tileSize = 16,
+							edgeSize = 12,
+							insets = { left = 3, right = 3, top = 3, bottom = 3 },
+						})
+						self:SetBackdropColor(0, 0, 1, 0.5)
+						self:SetBackdropBorderColor(0.8, 0.8, 0.8, 0.8)
+						self:RegisterUnitEvent("UNIT_FACTION", "target")
+						<!-- (Removed since WoW 5.3.0) self:RegisterEvent("UNIT_DYNAMIC_FLAGS") -->
+						self:RegisterEvent("PLAYER_TARGET_CHANGED")
+						self:RegisterEvent("GROUP_ROSTER_UPDATE")
+					</OnLoad>
+					<OnEvent>
+						CT_SetTargetClass()
+					</OnEvent>
+				</Scripts>
+			</Frame>
+		</Frames>
+		<Scripts>
+			<OnLoad>
+				self:SetParent(TargetFrameTextureFrame or TargetFrame.TargetFrameContent.TargetFrameContentMain)	-- prior/after WoW 10.x
+				self:RegisterEvent("PLAYER_LOGIN");
+			</OnLoad>
+			<OnEvent>
+				CT_TargetFrameOnEvent(self, event, ...);
+			</OnEvent>
+		</Scripts>
+	</Frame>
+</Ui>

@@ -1,0 +1,15 @@
+## Interface: 110100, 120000
+## Version: 12.0.0
+## Title: CTMod Midnight - Core
+## Author: Cide & TS (Original CTMod); Midnight community port
+## Notes: General nifty features for CTMod.
+## DefaultState: Enabled
+## SavedVariables: CT_CoreOptions
+## Dependencies: CT_Library
+## Group: CT_Library
+## X-Part-Of: CT-Library
+
+CT_Core.lua
+CT_Core_Chat.lua
+CT_Core_Other.lua
+localization.lua

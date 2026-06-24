@@ -1,0 +1,311 @@
+CT_UnitFrames (12.0.0) 2026-06-22
+- Update for WoW: Midnight (interface 120000)
+- Guarded health/power bar text against secret values, and stopped tainting Blizzard's secure health-bar update from insecure code
+
+CT_UnitFrames (11.0.2.2) 2024-08-18
+- Updates for WoW: The War Within
+
+CT_UnitFrames (11.0.2.1) 2024-07-28
+- Updates for WoW: The War Within
+
+CT_UnitFrames (10.2.5.1) 2024-02-10
+- Disabling the assist frame on retail to prevent errors
+
+CT_UnitFrames (10.1.7.1) 2023-11-04
+- Preventing error during combat
+
+CT_UnitFrames (10.0.7.1) 2023-03-19
+- Removing the custom focus frame from Dragonflight to prevent taint
+
+CT_UnitFrames (10.0.2.3) 2022-12-17
+- Updating the target class frame for Dragonflight
+
+CT_UnitFrames (10.0.0.4) 2022-11-12
+- Update for Dragonflight 10.0.2 (build 46619 on the beta)
+
+CT_UnitFrames (9.2.0.4) 2022-10-21
+- Further updates for Dragonflight
+- Bugfix for target health bar text in live servers
+
+CT_UnitFrames (9.2.0.3) 2022-10-09
+- Updates for Dragonflight
+
+CT_UnitFrames (9.1.0.6) 2021-09-09
+- Removing an error in 1.14.0 triggered by Blizzard's partial implementation of UnitGetIncomingHeals()
+
+CT_UnitFrames (9.1.0.5) 2021-09-01
+- Removing an error in 2.5.2 triggered Blizzard's partial implementation of UnitGetIncomingHeals()
+
+CT_UnitFrames (9.0.5.6) 2021-05-12
+- Added the Pet Frame as a sixth set of options
+
+CT_UnitFrames (9.0.5.3) 2021-04-19
+- Assist frame added to Classic
+- Other changes in anticipation of TBC-Classic (prepping the /focus frame)
+
+CT_UnitFrames (9.0.2.4) 2021-01-30
+- Fixed a race condition depending on the order that PLAYER_LOGIN scripts fired
+
+CT_UnitFrames (9.0.2.2) 2020-12-03
+- Commenting out legacy code that was kept in 8.3.0.9, but on second look seems unnecessary and might be causing taint
+
+CT_UnitFrames (9.0.2.1) 2020-11-18
+- Resolving an addon conflict with UnitFramesImproved
+- Fix to health/power bar text sometimes appearing obscured in behind
+- Fix to closing the options menu while in combat (UIPanel restrictions)
+- Updates to focus and assist frames
+
+CT_UnitFrames (8.3.7.1) 2020-08-21
+- Shadowlands BackdropTemplate compatibility
+- Improvements for PTR and Beta compatibility
+
+CT_UnitFrames (8.3.0.11) 2020-06-18
+- Fix to the assist frame updating when the target-of-target changes after 8.3.0.9
+
+CT_UnitFrames (8.3.0.10) 2020-06-09
+- Fix to health/mana values on party-member bars after big changes in 8.3.0.9
+
+CT_UnitFrames (8.3.0.9) 2020-06-03
+- Significant performance improvements using RegisterUnitEvent() and other techniques
+- Class-colours on party members updated after /reload or disconnect
+
+CT_UnitFrames (8.3.0.7) 2020-03-08
+- Performance improvements when showing player coordinates
+
+CT_UnitFrames (8.3.0.2) 2020-01-15
+- Fix to CT_PartyFrame.lua:167 missing global "module"
+
+CT_UnitFrames (8.3.0.1) 2020-01-11
+- Added option to use class colours on party frames
+
+CT_UnitFrames (8.2.5.2) 2019-09-28
+- Classic font toggle correctly shows as disabled by default for first-time users
+
+CT_UnitFrames (8.2.5.1) 2019-09-14
+- More control over fonts on player, target and party frames
+- Removed taint from party frames to avoid framexml textstatusbar.lua:33 combat error
+
+CT_UnitFrames (8.2.0.8) 2019-09-01
+- Added pvp and hostile colors to target-class frame (credit to GitHub user shoestare)
+
+CT_UnitFrames (8.2.0.7) 2019-08-30
+- Classic fix to target health and mana values
+- Added shortcut to toggle the TargetOfTarget display
+
+CT_UnitFrames (8.2.0.5) 2019-08-08
+- Compatibility for both WoW Classic and Retail editions
+
+CT_UnitFrames (8.1.0.3) 2019-01-11
+- Integrated the custom assist and focus frames with CT_Core casting bar timers
+
+CT_UnitFrames (8.0.1.5) 2018-08-21
+- Added option to show player coords next to player frame.  (default: not shown)
+
+CT_UnitFrames (8.0.1.0) 2018-07-17
+- Updated for 8.0.1
+
+CT_UnitFrames (7.3.2.0) 2017-12-30
+- Updated for 7.3.2.
+
+CT_UnitFrames (7.3.0.0) 2017-09-03
+- Updated for 7.3.0.
+
+CT_UnitFrames (7.1.0.0) 2016-12-11
+- Updated for 7.1.0.
+
+CT_UnitFrames (7.0.3.2) 2016-08-05
+- Assist and focus frame castbar fixes.
+
+CT_UnitFrames (7.0.3.1) 2016-07-23
+- Editbox fixes.
+
+CT_UnitFrames (7.0.3.0) 2016-07-22
+- Updated to 7.0.3.
+
+CT_UnitFrames (6.2.3.0) 2015-10-24
+- Updated to 6.2.3.
+
+CT_UnitFrames (6.1.0.0) 2015-03-13
+- Updated to 6.1.0.
+
+CT_UnitFrames (6.0.3.0) 2014-12-11
+- Removed Blizzard cooldown text from Assist Frame's buffs and debuffs.
+- Fixed party text slider ondrag value setp issues.
+
+CT_UnitFrames (6.0.2.0) 2014-10-15
+- Updated to 6.0.2.
+
+CT_UnitFrames (5.4.7.0) 2014-05-16
+- Updated to 5.4.7.
+- Library updates.
+
+CT_UnitFrames (5.4.2.1) 2013-12-30
+- Changed library to a standalone module.
+
+CT_UnitFrames (5.4.2) 2013-12-21
+- Library fix.
+
+CT_UnitFrames (5.4) 2013-12-12
+- Updated for the WoW 5.4 patch.
+
+CT_UnitFrames (5.3) 2013-05-24
+- Updated for the WoW 5.3 patch.
+
+CT_UnitFrames (5.202) 2013-03-15
+- This should fix the errors when the game tried to display absorption on the health bars.
+- Changed "$parentMyHealPredictionBar", "$parentOtherHealPredictionBar", "$parentTotalAbsorbBar", "$parentTotalAbsorbBarOverlay", and "$parentOverAbsorbGlow" from StatusBar to Texture objects, and repositioned them within the CT_AssistFrame.xml and CT_FocusFrame.xml files.
+- In the calls to UnitFrame_Initialize() in CT_AssistFrame.lua and CT_FocusFrame.lua, changed the last parameter from _G[thisName.."OverAbsorbGlow"] to _G[thisName.."TextureFrameOverAbsorbGlow"].
+
+CT_UnitFrames (5.201) 2013-03-12
+- Fixed some syntax errors.
+
+CT_UnitFrames (5.2) 2013-03-09
+- Blizzard added 3 parameters to UnitFrame_Initialize
+
+CT_UnitFrames (5.0101) 2012-12-10
+- Updated for the WoW 5.1 patch.
+
+CT_UnitFrames (5.0004) 2012-09-16
+- The health and mana text shown beside a unit frame is now shown above the unit frame's texture frame rather than behind it.
+- Fixed a bug that could prevent textures (like the gold dragon) from appearing around the portrait on the assist and focus frames.
+
+CT_UnitFrames (5.0003) 2012-08-30
+- Bug fix: Locking and unlocking the assist and focus frames should now work properly and not cause an error.
+
+CT_UnitFrames (5.0002) 2012-08-28
+- Release version for WoW 5.
+- Added an option to break up large numbers (for example: 123,456). This is the default.
+- Added an option to abbreviate large numbers (for example: 123 K). This is the default.
+- Added an option to show health/mana values on the left side of the player frame.
+- Added options to show health/mana values on the right side of the target, assist, and focus frames.
+- Added options to show buffs on top of the assist and focus frames.
+
+CT_UnitFrames (5.0001) 2012-08-20
+- Beta version for WoW 5.
+
+CT_UnitFrames (4.0301) 2011-11-27
+- Updated for the WoW 4.3 patch.
+
+CT_UnitFrames (4.0200) 2011-06-28
+- Updated version numbers for the WoW 4.2 patch.
+- Fixed a bug that was locking the Assist and Focus frames each time the UI was reloaded.
+- Added an option for each frame type to adjust the spacing between the frame and the health/mana values shown beside the frame.
+
+CT_UnitFrames (4.0100) 2011-04-26
+- Updated for the WoW 4.1 patch.
+- Updated CT_Library.lua to version 4.0100.
+- Now that Blizzard has added the ability to move the player and target frames, those functions have been removed from CT_UnitFrames.
+- The position of the player and target frames should automatically get reset the first time you log in after the WoW 4.1 patch.
+- To unlock, lock, or reset the player and target frames, right click on the frame's portrait and open the game's "Move frame" menu.
+- If you choose to show buffs on top of the target frame (via the target frame's "Move frame" menu), then the class name will be shown below the target frame.
+- The Assist and Focus frame option windows each have their own "Reset Position" button now.
+
+CT_UnitFrames (4.004) 2011-02-08
+- As of patch 4.0.6, Blizzard now shows predicted healing on the health bar of the player, pet, target, focus, and party frames.
+- The assist and focus frames created by CT_UnitFrames can also now show predicted healing on their health bars.
+- To enable or disable predicted healing, open the game's Interface options window, select the Raid Frames category, and then check or uncheck the Display Incoming Heals option.
+- The assist and focus frames in CT_UnitFrames now show the quest icon (a shield with an exclamation mark) when the unit is a quest boss. The target frame already shows the icon.
+
+CT_UnitFrames (4.003) 2010-10-23
+- Blizzard has added a round "phased" icon to the right of a party member's health/mana bars which displays if they are in a different phase than you. If this icon is visible, CT_UnitFrames will now shift the "right of health bar" and "right of mana bar" text further to the right to avoid the icon.
+
+CT_UnitFrames (4.002)
+- WoW 4.0 patch version for the live realms.
+- Updated CT_Library.lua to version 4.002.
+
+CT_UnitFrames (4.001)
+- WoW 4.0 patch test version for the PTR realms.
+
+CT_UnitFrames (3.302)
+- The "assist" and "target of assist" frames should now be recognized by click cast addons like Clique.
+
+CT_UnitFrames (3.301)
+- Fixed the error: attempt to index global 'TargetofTargetPortrait' (a nil value)
+- Fixed the problem with the target's class not appearing over the name in the Target Frame.
+
+CT_UnitFrames (3.300)
+
+- Updated for the WoW 3.3 patch.
+- The option window can no longer be dragged off screen.
+- Added an option to not change the color of the health bars as health decreases.
+- Added the /ctuf command which can be used to open the CT_UnitFrames options window.
+- Now displays a basic options window in the CTMod Control Panel. It describes the slash commands available, and provides a button to open the CT_UnitFrames window.
+- Updated CT_Library.lua to version 3.005.
+
+CT_Libary.lua (3.005)
+
+Settings import
+- Fixed a problem with the settings import feature in the CTMod Control Panel where it was not properly importing frame positions.
+- Fixed a problem where there would be more than one "Settings Import" item listed in the CTMod Control Panel when more than one version of CT_Library.lua was encountered.
+- The settings import window now defaults to the first character on the first server that has importable options.
+- Added the ability to delete settings.
+
+Slash command
+- Added the /ctmod command as an alternative to the existing /ct command. Either one will open the CTMod Control Panel.
+- Added code to allow direct access to an addon's options window via a slash command (refer to individual addons for any slash commands that may have been added).
+
+General
+- The scrollbar in the options window resets to the top when you select a different addon.
+- The message at the top of the CTMod Control panel now mentions the slash commands that can be used to open it.
+- Some variables and functions which were global are now correctly declared as local.
+- Updated CT_Library.lua to version 3.005.
+
+-----
+
+CT_UnitFrames (3.200)
+- Updated for the WoW 3.2 patch.
+
+CT_UnitFrames (3.016)
+- Updated for the WoW 3.1 patch.
+- Updated CT_Library.lua to version 3.004.
+
+CT_Library.lua (3.004)
+- Fixed a nil value error when the client's locale was not recognized.
+
+CT_UnitFrames (3.014)
+- Added the ability to display the current health/mana value without the maximum.
+
+CT_UnitFrames (3.013)
+- Updated CT_Library.lua to version 3.003.
+
+CT_UnitFrames (3.012)
+- Fixed a problem that was sometimes resulting in a taller than normal CT_UnitFrames options window for the player frame options.
+- The position of a frame that has not been dragged anywhere will now be remembered when you reset the position of the frame.
+- Updated CT_Library.lua to version 3.002.
+
+CT_Library (3.002)
+- Fixed a bug that was causing some text to be aligned incorrectly in some of the addons.
+- Corrected a spelling mistake on the CTMod Control panel window.
+
+CT_UnitFrames (3.011)
+- The default position of the new focus frame is no longer on top of the assist frame (if you haven't already repositioned it).
+
+CT_UnitFrames (3.010)
+- Added a focus frame. This frame is the same size as the target of target frame, shows the same number of buffs, debuffs, etc and is movable.
+- The focus frame's option window includes an option to hide the standard focus frame.
+- The CT_UnitFrames options window has been reduced in size. Each frame now has its own 'page' accessible via a row of buttons.
+- Added a 'Reset positions' button to the CT_UnitFrames options window
+- If the player and/or target frames get moved by another addon, then they should automatically move back to where you placed them once you are out of combat.
+- If you are using TitanPanel, CT_UnitFrames will take into account the height of the top TitanPanel bar when you reset the position of a frame.
+- If you are using TitanPanel, the player and target frames will no longer be undraggable and in the wrong location after TitanPanel loads.
+
+CT_UnitFrames (3.003)
+- Updated CT_Library.lua
+
+CT_UnitFrames (3.002)
+- Fixes a problem introduced in 3.001 which prevented the Target frame and Target of Target frame from using the selected format for the values.
+
+CT_UnitFrames (3.001)
+- Fixed a bug which could cause the Target of Target frame to appear even if it was disabled.
+- No longer prevents you from showing the same value on, and to the right of, the player/party bars.
+- You can now display values to the left of the Target and Target of Target frames.
+- There are now separate settings for enemy health bars for the Target and Target of Target frames. When an enemy is targeted, the "Enemy Health Bar" settings are used instead of the "On Health Bar" ones.
+- Added a setting to enable/disable the casting bar for the Target of Target frame.
+- Adjusted the update frequency of the mana bar text to match Blizzard's.
+
+CT_UnitFrames (3.000)
+- Updated to work with WoW 3.0.2.
+- All frames now handle the death knight's runic power.
+- Updated buff/debuff handling for the Target frame and the Target of Target frame.
+- You can now right click the drag area of the Player, Target, and Traget of Target frames (when unlocked) to reset them to their default position.
+- The Target of Target frame now has a raid target icon, a casting bar, and you can enable a small Target frame for it.

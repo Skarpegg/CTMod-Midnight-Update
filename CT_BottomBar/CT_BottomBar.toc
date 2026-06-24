@@ -1,0 +1,36 @@
+## Interface: #######
+## Version: 12.0.0
+## Title: CTMod Midnight - BottomBar |cFF808080(disabled on retail)|r
+## Author: Cide & TS (Original CTMod); Midnight community port
+## Notes: Breaks up the main menu bar into movable pieces.
+## DefaultState: Enabled
+## SavedVariables: CT_BottomBarOptions
+## Dependencies: CT_Library
+## Group: CT_Library
+## X-Part-Of: CT-Library
+
+#CT_BottomBar.lua
+#CT_BottomBar_MainMenu.lua
+#CT_BottomBar_Override.lua
+#CT_BottomBar_PetBattle.lua
+#CT_BottomBar_Options.lua
+#CT_BottomBar_Addons.lua
+#CT_BottomBar_Arrows.lua
+#CT_BottomBar_Bags.lua
+#CT_BottomBar_Class.lua
+#CT_BottomBar_Extra.lua
+#CT_BottomBar_Menu.lua
+#CT_BottomBar_MultiCast.lua
+#CT_BottomBar_Pet.lua
+#CT_BottomBar_Possess.lua
+#CT_BottomBar_Vehicle.lua
+#CT_BottomBar_StatusBar.lua
+#CT_BottomBar_FPS.lua
+#CT_BottomBar_TalkingHead.lua
+#CT_BottomBar_Exp.lua
+#CT_BottomBar_Rep.lua
+#CT_BottomBar_ClassicPerformanceBar.lua
+#CT_BottomBar_ClassicKeyRingButton.lua
+#CT_BottomBar_StanceBar.lua
+#CT_BottomBar_ZoneAbility.lua
+#localization.lua

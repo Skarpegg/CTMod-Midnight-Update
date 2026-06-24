@@ -1,0 +1,14 @@
+## Interface: 40402
+## Version: 12.0.0
+## Title: CTMod Midnight - Viewport
+## Author: Cide & TS (Original CTMod); Midnight community port
+## Notes: Allows you to change the rendered world's size.
+## DefaultState: Enabled
+## SavedVariablesPerCharacter: CT_Viewport_Saved
+## SavedVariables: CT_ViewportOptions, CT_ViewportBackup
+## Dependencies: CT_Library
+## Group: CT_Library
+## X-Part-Of: CT-Library
+
+CT_Viewport.lua
+localization.lua

@@ -1,0 +1,419 @@
+CT_RaidAssist (12.0.0) 2026-06-22
+- Update for WoW: Midnight (interface 120000)
+- Guarded health/power reads against secret values so bar updates skip instead of erroring in combat
+- Wired SPELLS_CHANGED in place of the removed LEARNED_SPELL_IN_TAB; use shared DebuffTypeColor and getSpellName helpers
+- Fixed a crash from UnitInRange returning a "secret boolean" (frame border/background coloring); routed through CT_Library.safeBool
+
+CT_RaidAssist (11.0.2.3) 2024-08-19
+- Updates for WoW: The War Within
+
+CT_RaidAssist (11.0.2.2) 2024-08-18
+- Updates for WoW: The War Within
+
+CT_RaidAssist (10.2.5.1) 2024-02-10
+- Fix to incoming heals on retail
+- Faster range check interval
+
+CT_RaidAssist (10.0.2.4) 2022-12-27
+- Updates for Dragonflight
+
+CT_RaidAssist (9.2.0.3) 2022-10-14
+- Removing cooldown text when action bar numbers are shown
+
+CT_RaidAssist (9.2.0.1) 2022-09-26
+- Updates for Classic WotLK
+
+CT_RaidAssist (9.1.0.6) 2021-09-11
+- Removing LibHealComm-4.0 now that 2.5.2 and 1.14.0 includes a limited form of UnitGetIncomingHeals()
+
+CT_RaidAssist (9.1.0.3) 2021-08-03
+- Control panel improvements
+
+CT_RaidAssist (9.0.5.8) 2021-06-12
+- LibDurability and LibHealComm-4.0 now always included when applicable; removing the opt-out feature for simplicity
+- Fix to event handling when accepting/confirming a summon
+
+CT_RaidAssist (9.0.5.6) 2021-05-13
+- Refactoring to align with changes in CT_Library 9.0.5.6
+- Minor changes in anticipation of Burning Crusade Classic
+
+CT_RaidAssist (9.0.5.4) 2021-04-25
+- Minor code cleanup; nothing substantive
+
+CT_RaidAssist (9.0.5.3) 2021-04-02
+- Range check now happens every 1s, instead of 2s
+- Updated LibDurability.lua to r23, and added remark in that file to clarify it is CC BY-NC-SA 3.0 (per CurseForge)
+
+CT_RaidAssist (9.0.2.4) 2021-01-31
+- Optional health percentage on raid frames
+- Updated border thickness setting for Shadowlands
+- Small visual tweaks to size, position and fonts
+
+CT_RaidAssist (9.0.2.3) 2021-01-17
+- Fixed a different issue introduced in 9.0.2.1 to labels that affected all modes
+
+CT_RaidAssist (9.0.2.1) 2020-11-17
+- Fixed a bug when using labels in collapsed-frames mode
+- Adding encounter debuffs for Castle Nathria and Classic Naxx
+
+CT_RaidAssist (8.3.7.3) 2020-10-11
+- Fixed asynchronous spell loading in Classic for click casting without using /reload
+
+CT_RaidAssist (8.3.7.2) 2020-09-12
+- Click-casting will now work across different editions (Classic, Retail and Beta)
+- More tolerance for asynchronous delays in fetching localized spell data
+- More click-cast options for some classes
+- Library updates
+
+CT_RaidAssist (8.3.7.1) 2020-08-21
+- Compatibility changes for Shadowlands 9.0 pre-patch
+- Optional tighter vertical and horizonatal spacing
+
+CT_RaidAssist (8.3.0.11) 2020-06-24
+- Fix to tooltip bug during certain boss encounters
+- Added more unique encounter buffs
+
+CT_RaidAssist (8.3.0.9) 2020-05-17
+- Added support for anticipated changes in Shadowlands
+- Custom raid frames now track phasing and warmode status
+- LibHealComm-4.0 updated to v1.8.1 by Shadowed
+
+CT_RaidAssist (8.3.0.8) 2020-04-25
+- Optional group/role/class labels over each col/row
+- Optional health/power bars on target frames
+- Optional "pets" group for water elementals and any other class pets
+- Added polish to the total-absorb and incoming-heal bars
+- More control over click-casting, and integration with Clique addon
+- Tweak to font-size scaling, balancing retail and classic a bit better
+
+CT_RaidAssist (8.3.0.7) 2020-03-29
+- Now shows incoming (predicted) heals on retail and classic
+- Options to configure the total-absorb and incoming-heal bars
+- Tweak to "modern" health bar opacity while outside combat
+- Fix the the localized message for missed ready checks
+- Auras and health bars update faster upon entering combat
+- Reduced CPU usage using C_Timer
+- Localization - credits to 萌丶汉丶纸 (zhCH) and FTB_Exper (frFR)
+
+CT_RaidAssist (8.3.0.5) 2020-02-10
+- Click-cast decursing also available outside combat
+
+CT_RaidAssist (8.3.0.4) 2020-01-21
+- Removed a message that spammed in boss fights
+
+CT_RaidAssist (8.3.0.3) 2020-01-18
+- Click-cast functionality extended to all localisations
+
+CT_RaidAssist (8.3.0.1) 2020-01-13
+- New options for blending in class colours to backgrounds and borders
+
+CT_RaidAssist (8.2.5.9) 2019-12-18
+- Minor code cleanup; nothing substantive
+
+CT_RaidAssist (8.2.5.8) 2019-12-12
+- Small tooltip tweak to explain the limitations of a feature on Classic
+
+CT_RaidAssist (8.2.5.7) 2019-12-11
+- New option to change background/border colours for removable debuffs
+- New option for cooldown animation on expiring buffs, debuffs
+- Improved the visibility of buffs, debuffs
+
+CT_RaidAssist (8.2.5.6) 2019-11-09
+- Adding encounter buffs for Molten Core, Onyxia, Eternal Palace and M+
+- Adding consumable and durability monitor, with privacy opt-out feature
+
+CT_RaidAssist (8.2.5.5) 2019-10-24
+- Changes corresponding to CT_Library
+- Eliminated bug when zoning in to a new area
+- Improvements to displaying buffs and debuffs
+
+CT_RaidAssist (8.2.5.4) 2019-10-11
+- Fixed the large-row/large-column wrapping
+- Small adjustments to make the options menu more clear
+- Improvements to right-click actions for paladins on Classic
+
+CT_RaidAssist (8.2.5.2) 2019-09-26
+- Raid frames may now grow upward or left
+
+CT_RaidAssist (8.2.5.1) 2019-09-23
+- Small fix to tooltip when using languages other than enUS
+- Added German localization, courtesy of CurseForge user dynaletik
+
+CT_RaidAssist (8.2.0.9) 2019-09-10
+- Small fix for some classes in Clasic to cast buffs shortly after login
+- Small adjustments to make it easier to see how to move raid frames
+- Integrating localization via CurseForge
+
+CT_RaidAssist (8.2.0.8) 2019-09-01
+- Fixed the use of modifier keys for buffing and decursing
+
+CT_RaidAssist (8.2.0.7) 2019-08-29
+- Added check for disconnected raid members
+
+CT_RaidAssist (8.2.0.5) 2019-08-21
+- Complete re-write of CTRA, using modern WoW API to simplify the code
+- Added configurable "windows" similar to CT_BuffMod
+- Added options for sorting by role such as tank and healer
+- Right-clicking frames now adds buffs or removes debuffs
+- Dropping legacy features (mostly the slash commands) because its 2019
+
+CT_RaidAssist (8.2.0.1) 2019-06-25
+- Compatibility with WoW Classic and WoW Retail editions
+- Updated now-depreciated lua functions for future compatibility
+- Ready checks now extended when you are afk during a raid
+- PlaySoundFile() updated for 8.2.0
+
+CT_RaidAssist (8.1.5.2) 2019-04-20
+- Simplifed in-game changelog (/ralog) to reduce bloat
+
+CT_RaidAssist (8.1.5.1) 2019-04-09
+- Raid frames now mark tanks, healers and dps
+- Custom raid frames integrated with Blizzard UI /readycheck
+- Removed /rardy, /rarly, and /ravote to reduce bloat
+
+CT_RaidAssist (8.1.0.3) 2019-01-04
+- Added dependency in TOC file to CT_Library (for Lib_UIDropDownMenu)
+
+CT_RaidAssist (8.0.1.5) 2018-08-21
+- Updated class buff icons to BFA
+- Added demon-hunter group
+- Fixed HasSoulstone() error
+
+CT_RaidAssist (8.0.1.3) 2018-07-27
+- Changing some legacy code to avoid future taint issues.
+- Updated SendAddonMessage() for 8.0.1
+
+CT_RaidAssist (8.0.1.1) 2018-07-17
+- Further updates for 8.0.1
+
+CT_RaidAssist (8.0.1.0) 2018-07-17
+- Updated for 8.0.1
+
+CT_RaidAssist (7.3.2.0) 2017-12-30
+- Updated for 7.3.2.
+
+CT_RaidAssist (7.3.0.0) 2017-09-03
+- Updated for 7.3.0.
+
+CT_RaidAssist (7.2.0.0) 2017-04-18
+- Updated for 7.2.0.
+
+CT_RaidAssist (7.1.0.0) 2016-12-11
+- Updated for 7.1.0.
+
+CT_RaidAssist (7.0.3.1) 2016-07-23
+- Editbox fixes.
+
+CT_RaidAssist (7.0.3.0) 2016-07-22
+- Updated to 7.0.3.
+
+CT_RaidAssist (6.2.3.0) 2015-10-24
+- Updated to 6.2.3.
+
+CT_RaidAssist (6.1.0.0) 2015-03-13
+- Updated to 6.1.0.
+
+CT_RaidAssist (6.0.2.0) 2014-10-15
+- Updated to 6.0.2.
+
+CT_RaidAssist (5.4.7.0) 2014-05-16
+- Updated to 5.4.7.
+- Library updates.
+
+CT_RaidAssist (5.4.2) 2013-12-21
+- Library fix.
+
+CT_RaidAssist (5.4) 2013-12-12
+- Updated for the WoW 5.4 patch.
+
+CT_RaidAssist (5.3) 2013-05-24
+- Updated for the WoW 5.3 patch.
+
+CT_RaidAssist (5.2) 2013-03-09
+- Updated for the WoW 5.2 patch.
+
+CT_RaidAssist (5.0101) 2012-12-10
+- Updated for the WoW 5.1 patch.
+
+CT_RaidAssist (5.0004) 2012-08-30
+- Bug fix: Fixed an error when entering the game.
+
+CT_RaidAssist (5.0003) 2012-08-30
+- Bug fix: Changed when dropdown menus are initialized to avoid tainting CompactRaidFrame1 when it gets created.
+- Bug fix: Declared some variables as local.
+- Bug fix: An error could occur when selecting or unselecting individual buffs in the CT_RaidAssist "Buff Options" window.
+
+CT_RaidAssist (5.0002) 2012-08-28
+- Release version for WoW 5.
+- Added support for the Monk class.
+- Removed spells that are no longer in the game.
+- Updated spells that have changed.
+
+CT_RaidAssist (5.0001) 2012-08-27
+- Beta version for WoW 5.
+
+CT_RaidAssist (4.0301) 2011-11-27
+- Updated for the WoW 4.3 patch.
+- Now shortens health and max health values shown on raid frames when they are over 10,000.
+- Fixed a bug that caused raid frames to be incorrectly positioned when "Show groups horizontally" was toggled.
+
+CT_RaidAssist (4.0201) 2011-10-26
+- Fixed positioning issues with the Emergency Monitor when its scale was not 100%.
+
+CT_RaidAssist (4.0200) 2011-06-28
+- Updated version numbers for the WoW 4.2 patch.
+
+CT_RaidAssist (4.0100) 2011-04-26
+- Updated Version numbers for the WoW 4.1 patch.
+- Due to a change in WoW 4.1, addons must now register for specific addon prefixes in order to receive those types of addon to addon messages.
+- This version of CT_RaidAssist now registers for the "CTRA" prefix in order to enable receiving of CT_RaidAssist addon messages (such as setting main tanks).
+- Older versions of CT_RaidAssist may not be able to receive any CT_RaidAssist addon messages unless at least one of your addons registers for the "CTRA" prefix: RegisterAddonMessagePrefix("CTRA")
+
+CT_RaidAssist (4.006) 2011-02-03
+- Fixed a problem when trying to assign main tank status to a player with an Alt-135 character in their name.
+
+CT_RaidAssist (4.005) 2010-11-17
+- Fixed a problem that was causing some raid frames to be positioned at the top left of the screen due to a change in the 4.0.3 WoW patch.
+- Main tanks and player targets are once again being sorted in the order they were added now that the 4.0.3 WoW patch has re-implemented the ability to do so.
+- Added an option to sort main tanks alphabetically.
+- Added an option to sort player targets alphabetically.
+
+CT_RaidAssist (4.004) 2010-10-29
+- Fixed a problem where the raid frame positions were not being restored properly when joining a raid.
+
+CT_RaidAssist (4.003) 2010-10-23
+- Due to a change made by Blizzard, it is not currently possible for the main tanks to always be displayed in the order that they were assigned, so the tanks are now being sorted by name.
+- Fixed a problem that was causing the main tank targets to sometimes be displayed beside the wrong main tank players.
+- Fixed a problem that was causing you to select the main tank rather than the tank's target when clicking on a main tank target frame.
+- Fixed a problem that was causing everyone to appear to be out of range.
+- Fixed AFK and DND detection.
+- Localized spell names are now being obtained using spell id numbers and GetSpellInfo().
+- Now uses the correct color for the hunter's power bar.
+- Updated the reagents checked for by the /rareg command.
+- Changed Rebirth cooldown to 30 minutes.
+- Changed Soulstone cooldown to 15 minutes.
+- Changed Reincarnation cooldown to 30 minutes.
+- Updated the names of the spells used by healing classes to detect if a raid member is in range.
+- Updated the types of debuffs that each class can cure.
+- The resurrection monitor now also watches for the "Revive" spell.
+- Added "Prayer of Mending" to the buff options window.
+- Removed spells that are no longer in the game.
+
+CT_RaidAssist (4.002)
+- WoW 4.0 patch version for the live realms.
+
+CT_RaidAssist (4.001)
+- WoW 4.0 patch test version for the PTR realms.
+
+CT_RaidAssist (3.303)
+- Miscellaneous internal changes.
+
+CT_RaidAssist (3.302)
+- Fixed a chat frame error.
+
+CT_RaidAssist (3.301)
+- Added the command /ctraid as an alternative to the existing /raoptions and /ctra commands.
+- Fixed a debuff display issue that was occuring when a new debuff replaced an existing debuff on a player and the number of debuffs didn't change.
+- Fixed a problem involving the names of players on the same server as you. This was causing some CTRA messages in the addon channel to be ignored.
+- Raid target icons are now displayed on all raid frames (if the option to show the icons is enabled in CT_RaidAssist). This can be useful when used in combination with a boss fight addon that places raid target icons on players that get certain debuffs.
+
+CT_RaidAssist (3.300)
+
+- Updated for the WoW 3.3 patch.
+- Changed the cooldown time for the Druid's Rebirth spell from 30 to 20 minutes.
+- CT_RaidAssist no longer uses the 'RAID' addon channel while in a battleground. This prevents CT_RaidAssist from causing a 'You aren't in a party.' message to appear in the chat window. If you still get that message, then you probably have another addon that is using the 'RAID' addon channel in a battleground.
+- The names of players from other servers should now be handled correctly while in a battleground, and their raid frames should now update correctly.
+- Fixed a bug that could sometimes cause raid frames to not update correctly after a player was moved from one group to another, or the sorting method was changed.
+- Some variables and functions which were global are now correctly declared as local.
+- Updated CT_Library.lua to version 3.005.
+
+CT_Libary.lua (3.005)
+
+Settings import
+- Fixed a problem with the settings import feature in the CTMod Control Panel where it was not properly importing frame positions.
+- Fixed a problem where there would be more than one "Settings Import" item listed in the CTMod Control Panel when more than one version of CT_Library.lua was encountered.
+- The settings import window now defaults to the first character on the first server that has importable options.
+- Added the ability to delete settings.
+
+Slash command
+- Added the /ctmod command as an alternative to the existing /ct command. Either one will open the CTMod Control Panel.
+- Added code to allow direct access to an addon's options window via a slash command (refer to individual addons for any slash commands that may have been added).
+
+General
+- The scrollbar in the options window resets to the top when you select a different addon.
+- The message at the top of the CTMod Control panel now mentions the slash commands that can be used to open it.
+- Some variables and functions which were global are now correctly declared as local.
+- Updated CT_Library.lua to version 3.005.
+
+-----
+
+CT_RaidAssist (3.200)
+- Updated for the WoW 3.2 patch.
+
+CT_RaidAssist (3.019)
+- The range checking option now uses a 40 yard range if you are a druid, priest, paladin, or shaman (these classes have 40 yard healing spells).
+
+CT_RaidAssist (3.018)
+- Updated for the WoW 3.1 patch.
+- Corrected a problem that was preventing Dalaran Intellect and Dalaran Brilliance from appearing on raid frames.
+
+CT_RaidAssist (3.016)
+- Added support for the Dalaran Intellect and Dalaran Brilliance spells.
+- Added an option to enable range checking for players and pets in the raid. This can be found in the 'Alpha Frame' section of the 'Additional options' window.
+
+CT_RaidAssist (3.015)
+- Added the shaman talent spell Cleanse Spirit as being capable of removing diseases, posions, and curses.
+
+CT_RaidAssist (3.014)
+- Now displays the version number at the top of the options window.
+- Added a menu item to the options window which will take you to the group and class selection window.
+- Changed the priest reagent checked by /rareg to Devout Candle.
+- Changed the druid reagent checked by /rareg to Wild Spineleaf.
+- Added the druid spells Lifebloom and Wild Growth to the buff list.
+
+CT_RaidAssist (3.013)
+- The emergency monitor no longer disappears while in combat in a raid.
+- Made some changes to prevent errors caused by addons that hook the ChatFrame_OnEvent function and fail to pass on all of the proper values.
+
+CT_RaidAssist (3.012)
+
+General:
+- Updated work with the WoW 3.0.3 patch.
+- Now supports all 10 classes including Death Knights.
+- Should no longer cause 'action blocked by an addon' error messages during combat.
+
+Raid Frames:
+- The CT raid window now has two tabs ('Players' and 'Show'). The 'Show' tab is used to select which raid frames to show.
+- You can now configure which group frames to show when sorting by group, and which class frames to show when sorting by class.
+- You can now use different raid frame positions for each sort type. The default is to use the same positions for both sort types.
+
+Main Tank/Player Targets:
+- Added an option to show raid target icons on MT and PT Targets.
+- When setting Main Tanks via the CT raid window, the right click menu now shows who is currently assigned to each spot.
+- MT Target, MT Target Target, and PT Target frames will now show "OFFLINE, "Feign Death", and "SoR" (Spirit of Redemption) status values when applicable.
+
+Raid Status window:
+- Added a new menu item, 'Not in zone', which will display how many raid members are not in the same zone that you are.
+- Added a new menu item, 'Hide count if zero', which will hide count values (AFK, PVP, etc) that are zero.
+
+Resurrection Monitor:
+- Now sorts the lines by corpse name.
+- If someone else is rezzing the same corpse that you are, then the color of their corpse's name will match yours.
+- If someone else is rezzing the same corpse that you have targeted but are not yet rezzing, then the color of their corpse's name will be brown.
+- Added an option to hide the resurrection monitor until it is needed (when a player with CTRA rezzes someone).
+
+Slash Commands:
+- Added /ctra as an alternative to /raoptions.
+- No longer limits the maximum level you can use in the /rainvite or /razinvite commands.
+- Added shorter alternatives to the existing /raloot keywords: ffa, rr, m, g, nbg.
+- The /rahelp window has been updated.
+- The /ralog window has been udpated.
+
+CT_RaidAssist_MTPlayers (3.0) (Bundled with CT_RaidAssist)
+- Adds a Main Tank Players group (MT Players) and an Main Tank Pets group (MT Pets) to the Main Tank Targets (MT Targets) group.
+- Right click on the title of the MT Targets, MT Players, or MT Pets groups to change the settings.
+- By default, the MT Pets group is not shown unless a Main Tank has a pet.
+- The MT Players group shows the health, mana, and buffs of the players who are the Main Tanks.
+- The MT Pets group shows the health and mana of the Main Tanks' pets (if any).
+- Each group can be enabled or disabled.
+- Each group can be joined to the MT Targets group (they line up horizontally), or they can be positioned independently of each other.

@@ -1,0 +1,15 @@
+## Interface: 110100, 120000
+## Version: 12.0.0
+## Title: CTMod Midnight - MapMod
+## Notes: Pins the World Map with points of interest and herb/ore nodes
+## DefaultState: Enabled
+## Author: Dahk (DDCorkum) using earlier work by Cide, TS, Resike; Midnight community port
+## SavedVariables: CT_MapMod_Notes, CT_MapModOptions
+## Dependencies: CT_Library
+## Group: CT_Library
+## X-Part-Of: CT-Library
+
+CT_MapMod.xml
+CT_MapMod.lua
+CT_MapMod_ExpansionData.lua
+localization.lua

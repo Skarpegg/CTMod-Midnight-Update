@@ -1,0 +1,12 @@
+## Interface: 110100, 120000
+## Version: 12.0.0
+## Title: CTMod Midnight - Timer
+## Author: Cide & TS (Original CTMod); Midnight community port
+## Notes: Shows a timer that counts both up and down.
+## DefaultState: Enabled
+## SavedVariables: CT_TimerOptions
+## Dependencies: CT_Library
+## Group: CT_Library
+## X-Part-Of: CT-Library
+
+CT_Timer.xml

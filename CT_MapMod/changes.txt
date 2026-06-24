@@ -1,0 +1,376 @@
+CT_MapMod (12.0.0) 2026-06-22
+- Update for WoW: Midnight (interface 120000)
+- Reworked map-pin click / drag handling for the modern MapCanvas pin system
+- Use the shared CT_Library.getSpellName helper for profession detection
+
+CT_MapMod (11.0.2.4) 2024-08-23
+- Herb and ore updates
+
+CT_MapMod (11.0.2.3) 2024-08-18
+- Herb and ore updates
+
+CT_MapMod (11.0.2.2) 2024-08-18
+- Updates for WoW: The War Within
+
+CT_MapMod (10.2.0.2) 2023-11-15
+- Updates for Emerald Dream herbs/ore (Dynaletik)
+
+CT_MapMod (10.1.7.1) 2023-11-04
+- Updates for Zaralek cavern herbs/ore (danke schön, Dynaletik)
+
+CT_MapMod (10.0.5.2) 2023-01-29
+- Classic taxi map
+
+CT_MapMod (10.0.2.5) 2023-01-01
+- Correcting the spelling of WotLK Adder's Tongue
+
+CT_MapMod (10.0.2.4) 2022-12-26
+- Hide flypoints when using Dragonflight special teleports
+
+CT_MapMod (10.0.2.2) 2022-12-02
+- Dragonflight herbalism and mining
+
+CT_MapMod (10.0.2.1) 2022-11-20
+- Dragonflight herbalism and mining
+
+CT_MapMod (9.2.0.4) 2022-10-17
+- Dragonflight herbalism
+
+CT_MapMod (9.2.0.1) 2022-09-26
+- Partial update for Classic WotLK
+
+CT_MapMod (9.1.0.6) 2021-09-06
+- Resolving a class-only addon conflict with Leatrix Maps BCC.
+
+CT_MapMod (9.1.0.5) 2021-09-01
+- Small change for BCC 2.5.2
+
+CT_MapMod (9.1.0.3) 2021-08-09
+- Control panel improvements
+
+CT_MapMod (9.1.0.2) 2021-06-30
+- Another one.  Danke.
+
+CT_MapMod (9.1.0.1) 2021-06-20
+- Fix to deDE localization (danke Dynaletik)
+
+CT_MapMod (9.0.5.6) 2021-05-13
+- Refactoring to align with changes in CT_Library 9.0.5.6
+
+CT_MapMod (9.0.5.5) 2021-05-07
+- Classic and TBC only: added more polish to displaying undiscovered flight paths.
+
+CT_MapMod (9.0.5.3) 2021-04-18
+- Classic and TBC only: opening the options menu from inside the fullscreen map will cause the menu to pop in front
+- Undiscovered flight paths updated for TBC and now on by default in all game editions
+- Other compatibility changes for TBC Classic
+
+CT_MapMod (9.0.2.4) 2021-01-17
+- Added custom icons for Shadowlands herbs
+- Cleaned up the options menu a little
+
+CT_MapMod (9.0.2.2) 2020-12-06
+- Shadowlands localization, and Elethium nodes in the Maw
+
+CT_MapMod (9.0.2.1) 2020-11-20
+- New option to show undiscovered flight paths at flight masters (off by default)
+- Fix to the default pin size for herbs and ore (14); it was wrongly the same as user notes (24)
+- Added support for detecting most mining nodes in zhCH (谢谢: 萌丶汉丶纸)
+
+CT_MapMod (9.0.1.1) 2020-09-26
+- Cosmetic and performance improvements; also further integration to waypoints
+- CT_MapMod:GetDataProvider() is now CT_MapMod:NewDataProvider()
+
+CT_MapMod (8.3.7.2) 2020-09-05
+- Integration with the future Shadowlands waypoint system (usable on 9.0 PTR and Beta)
+
+CT_MapMod (8.3.7.1) 2020-07-24
+- Shadowlands BackdropTemplate compatibility
+- Visual improvements to the note editing panel
+
+CT_MapMod (8.3.0.11) 2020-06-13
+- Added publicly-scoped CT_MapMod:GetDataProvider() for other addons
+
+CT_MapMod (8.3.0.8) 2020-04-13
+- Correction to prevent conflicts with other addons
+
+CT_MapMod (8.3.0.7) 2020-03-08
+- Performance improvements using C_Timer
+- Fixed a logic error affecting herbs and ore without a description
+
+CT_MapMod (8.3.0.6) 2020-02-17
+- Fixed an issue affecting players with Anchor's Weed pins
+
+CT_MapMod (8.3.0.5) 2020-02-14
+- Added options to track platinum and anchor's weed
+- Cleaner integration of the note edit panel with the pins themselves
+- Performance improvements for displaying coords on the map and auto-gathering
+- Localization
+
+CT_MapMod (8.3.0.3) 2020-01-16
+- Fix to error inside WoD garrison
+- Adding more support for German herbs, ore
+
+CT_MapMod (8.2.5.9) 2019-12-18
+- TOC fix
+
+CT_MapMod (8.2.5.2) 2019-09-29
+- Classic auto-detection of gathering professions in French and German
+
+CT_MapMod (8.2.5.1) 2019-09-23
+- Added German localization provided by user dynaletik (Danke!)
+
+CT_MapMod (8.2.0.8) 2019-08-31
+- Fixed "Where am I?" button in Classic
+
+CT_MapMod (8.2.0.7) 2019-08-30
+- Fixed addon conflict with "Mapster" (Classic)
+
+CT_MapMod (8.2.0.4) 2019-06-28
+- Adding new herbs and ore from WoW 8.2
+
+CT_MapMod (8.2.0.1) 2019-06-22
+- Added German translations provided by user taubenhaucher (Danke!)
+
+CT_MapMod (8.1.5.3) 2019-06-02
+- Compatibility with WoW Classic and Retail editions
+- Re-introducing language localization for FR and DE
+- Herb and ore dropdown lists broken up for easier navigation
+- No longer backwards compatible with 7.3 and earlier
+
+CT_MapMod (8.1.5.2) 2019-05-04
+- Auto-gathering now ignores Anchor Weed appearing in lieu of other herbs
+- Notes can now be dragged to new positions on the map
+- Pins added to contintent maps may now also appear in flight maps
+
+CT_MapMod (8.1.5.1) 2019-04-03
+- Depreciated WorldMapTooltip for GameTooltip to prevent future errors
+
+CT_MapMod (8.1.0.0) 2018-12-11
+- More control over placement of UI elements added to WorldMapFrame
+
+CT_MapMod (8.0.1.7) 2018-09-26
+- Small fix to disabling "Where am I?" button
+
+CT_MapMod (8.0.1.5) 2018-08-25
+- Further updates for new BFA Zones
+- Added at transparency (alpha) option for pins
+- Some buttons on the map can be moved, for compatibility with other addons
+
+CT_MapMod (8.0.1.4) 2018-08-11
+- Completely re-written from the ground up
+- Backwards compatible with notes from 7.3
+
+CT_MapMod (8.0.1.0) 2018-07-17
+- Temporarily disabled all functionality to avoid errors, pending major rewrite
+
+CT_MapMod (7.3.2.0) 2017-12-30
+- Updated for 7.3.2.
+
+CT_MapMod (7.3.0.0) 2017-09-03
+- Updated for 7.3.0.
+
+CT_MapMod (7.2.0.0) 2017-04-18
+- Updated for 7.2.0.
+
+CT_MapMod (7.1.0.0) 2016-12-11
+- Updated for 7.1.0.
+
+CT_MapMod (7.0.3.1) 2016-07-23
+- Editbox fixes.
+
+CT_MapMod (7.0.3.0) 2016-07-22
+- Updated to 7.0.3.
+
+CT_MapMod (6.2.3.0) 2015-10-24
+- Updated to 6.2.3.
+
+CT_MapMod (6.1.0.0) 2015-03-13
+- Updated to 6.1.0.
+- Added a function to auto create notes.
+
+CT_MapMod (6.0.3.0) 2014-12-11
+- Coordinates and Note button fixes from older configs.
+- Zone name fixes for POI creation.
+- Added upvalues.
+
+CT_MapMod (6.0.2.2) 2014-10-17
+- Note filtering frame strata fix.
+
+CT_MapMod (6.0.2.1) 2014-10-16
+- Note creation should properly work again.
+
+CT_MapMod (6.0.2.0) 2014-10-15
+- Updated to 6.0.2.
+
+CT_MapMod (5.4.7.0) 2014-05-16
+- Updated to 5.4.7.
+- Library updates.
+
+CT_MapMod (5.4.2.1) 2013-12-30
+- Changed library to a standalone module.
+
+CT_MapMod (5.4.2) 2013-12-21
+- Library fix.
+
+CT_MapMod (5.4) 2013-12-12
+- Updated for the WoW 5.4 patch.
+
+CT_MapMod (5.3) 2013-05-24
+- Updated for the WoW 5.3 patch.
+
+CT_MapMod (5.2) 2013-03-09
+- Updated for the WoW 5.2 patch.
+
+CT_MapMod (5.0101) 2012-12-10
+- Updated for the WoW 5.1 patch.
+
+CT_MapMod (5.0004) 2012-09-23
+- Added map icons for Mists of Pandaria herbs and minerals.
+
+CT_MapMod (5.0003) 2012-08-30
+- Bug fix: Changed when dropdown menus are initialized to avoid tainting CompactRaidFrame1 when it gets created.
+
+CT_MapMod (5.0002) 2012-08-28
+- Release version for WoW 5.
+
+CT_MapMod (5.0001) 2012-08-19
+- Beta version for WoW 5.
+
+CT_MapMod (4.0301) 2011-11-27
+- Updated for the WoW 4.3 patch.
+
+CT_MapMod (4.0200) 2011-06-28
+- Updated version numbers for the WoW 4.2 patch.
+- Added text to the options window describing which slash commands can be used.
+- Fixed some text that was not wrapping in the options window.
+
+CT_MapMod (4.0100) 2011-04-26
+- Updated for the WoW 4.1 patch.
+- Updated CT_Library.lua to version 4.0100.
+- Added icons for Cataclysm herbs and minerals.
+- The single "gather" option has been split into separate options for herbs and minerals.
+
+CT_MapMod (4.003)
+- The Notes button and coordinates can now be moved anywhere on the screen.
+- To move the Notes button, shift left-click it. When done, left-click the button again.
+- To move the coordinates, unlock them via the Notes button menu, and then left-click and drag them.
+- You can now select the position of the note count text relative to the Notes button (left, top, right, bottom).
+- The addon maintains a separate Note button position, coordinate position, and note count position for both the small and full size map windows.
+- Added a menu item to reset the Notes button position for the curent map size.
+- Added a menu item to reset the the coordinates position for the current map size.
+- Added a menu item to hide the Notes button tooltip.
+- Added a menu item to hide the coordinates.
+- Now displays the coordinates to one decimal place.
+
+CT_MapMod (4.002)
+- WoW 4.0 patch version for the live realms.
+- Updated CT_Library.lua to version 4.002.
+
+CT_MapMod (4.001)
+- WoW 4.0 patch test version for the PTR realms.
+
+CT_MapMod (3.306)
+- Fixed a bug that was preventing incoming whispers from appearing in chat frames other than the General chat frame.
+- Sending the same note to a player more than once will no longer cause multiple notes to be added.
+- Using 'create note at player' more than once without moving will no longer cause multiple notes to be added.
+- Added an option to enable/disable the receiving of notes from other players (default is disabled).
+
+CT_MapMod (3.305)
+- The button used to access the CT_MapMod menu has been renamed 'Notes', and it is now located at the right side of the title bar on the World Map window.
+- The game's 'Track Quest' option is no longer being moved from its default location at the bottom left corner of the World Map window.
+- Changing the opacity of the World Map now also affects the player coordinates, cursor coordinates, note counts, and note icons.
+- Editing the note filter now displays a dialog window at the center of the map.
+- CT_MapMod now appears in the list of addons shown in the CTMod Control Panel (/ct).
+
+CT_MapMod (3.304)
+- Fixed an bug that was causing an error message if you opened the World Map and clicked on the CT_MapMod button in a zone that did not contain any notes.
+
+CT_MapMod (3.303)
+- Updated to work with the WoW 3.3.3 patch.
+- The text on the "Options" button at the bottom of the world map has been changed to "CT_MapMod", and the tooltip has been updated.
+- Added a new menu item to the CT_MapMod menu: "Create note at player"
+- Added a new menu item to the CT_MapMod menu: "Edit last note added to this map"
+- The "New note on player" button has been removed from the bottom of the World Map. To create a new note at the player's position, Ctrl left-click on the "CT_MapMod" button (or use the CT_MapMod menu).
+- The "CT_MapMod" button is now disabled while editing a note.
+
+CT_MapMod (3.302)
+- Fixed an issue where the wrong map notes were sometimes displayed when the downsized world map and the small zone map were both displayed at the same time.
+- The opacity of the items on the bottom border of the world map now change when you alter the world map's opacity.
+
+CT_MapMod (3.301)
+- Fixed a problem where it would show the wrong map notes if you clicked on the "Show map" button in the Quest Log, or the "?" button in the Objectives window.
+
+CT_MapMod (3.300)
+
+- Updated for the WoW 3.3 patch.
+- The cursor coordinates are now only shown when the cursor is over the actual map.
+- When the world map is not full size, the word "Cursor:" is not shown in order to save some space.
+- The "Filter" button, "Display notes" button, and "Auto gather herbs/veins" checkbox have been combined into a single "Options" button to save some space for when the map window is small.
+- Map note tooltips now include a line describing how to edit the note.
+- Closing, minimizing, or maximizing the map window while the Edit Map Note window is open, or while editing the filter text, will cancel the edit.
+- Updated CT_Library.lua to version 3.005.
+
+CT_Libary.lua (3.005)
+
+Settings import
+- Fixed a problem with the settings import feature in the CTMod Control Panel where it was not properly importing frame positions.
+- Fixed a problem where there would be more than one "Settings Import" item listed in the CTMod Control Panel when more than one version of CT_Library.lua was encountered.
+- The settings import window now defaults to the first character on the first server that has importable options.
+- Added the ability to delete settings.
+
+Slash command
+- Added the /ctmod command as an alternative to the existing /ct command. Either one will open the CTMod Control Panel.
+- Added code to allow direct access to an addon's options window via a slash command (refer to individual addons for any slash commands that may have been added).
+
+General
+- The scrollbar in the options window resets to the top when you select a different addon.
+- The message at the top of the CTMod Control panel now mentions the slash commands that can be used to open it.
+- Some variables and functions which were global are now correctly declared as local.
+
+-----
+
+CT_MapMod (3.200)
+- Updated for the WoW 3.2 patch.
+
+CT_MapMod (3.006)
+- Updated for the WoW 3.1 patch.
+- Updated CT_Library.lua to version 3.004.
+- Reduced the minimum distance required between herb/ore nodes.
+- Added artwork for Burning Crusade and Wrath of the Lich King herb and ore map nodes (thanks to CTProfiles.net user MelFromHel for providing the artwork and related changes).
+- Existing herb and ore map notes that were using the default artwork will now automatically update to the new artwork when the map is displayed.
+
+CT_Library.lua (3.004)
+- Fixed a nil value error when the client's locale was not recognized.
+
+CT_MapMod (3.004)
+- Fixed a bug which caused a "table index is nil" error if you tried to create a note on the map of the world.
+- You can no longer Ctrl-Click on the map to create a new note when the note details window is already open.
+- The "Create note on player" button is now disabled when viewing maps other than the current zone, or on maps where notes cannot be created.
+- The CT_MapMod text on the magnifying glass button now includes information on how to edit an note.
+- The CT_MapMod text on the magnifying glass button now only appears on maps where you can create notes.
+- The "Display Notes" menu no longer closes each time you click an item in the menu.
+- There is no longer a 250 note limit per map.
+- The cursor & player coordinates are now displayed on the title bar at the left end.
+- The number of notes is now displayed on the title bar at the right end (displayed/total).
+
+CT_MapMod (3.003)
+- Updated CT_Library.lua to version 3.003.
+
+CT_MapMod (3.002)
+- Updated CT_Library.lua to version 3.002.
+
+CT_Library (3.002)
+- Fixed a bug that was causing some text to be aligned incorrectly in some of the addons.
+- Corrected a spelling mistake on the CTMod Control panel window.
+
+CT_MapMod (3.001)
+- Updated CT_Library.lua
+
+CT_MapMod (3.000)
+- Updated for the WoW 3.0 patch.
+- Moved the "Display notes" menu to the lower part of the screen.
+- Moved the "Notes filter" button to the left.
+- The filter edit box is now wider.
+- Should now recognize more types of mining nodes.
+- Added the Isle of Quel'Danas and all Northrend zone names. Herb gathering and mining in these zones should now be recorded on the map.

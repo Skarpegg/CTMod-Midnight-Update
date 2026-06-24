@@ -1,0 +1,20 @@
+# Operating system files
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Claude Code local project state (not for distribution)
+.claude/
+
+# Editor / IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# WoW addon backups & local artifacts (should never be committed)
+*.lua.x
+*.bak
+*.orig
+WTF/

@@ -1,0 +1,14 @@
+## Interface: 110100, 120000
+## Version: 12.0.0
+## Title: CTMod Midnight - BuffMod
+## Author: Cide & TS (Original CTMod); Midnight community port
+## Notes: Customizable buff display.
+## DefaultState: Enabled
+## SavedVariables: CT_BuffModOptions
+## Dependencies: CT_Library
+## Group: CT_Library
+## X-Part-Of: CT-Library
+
+CT_BuffMod.xml
+CT_BuffMod.lua
+localization.lua

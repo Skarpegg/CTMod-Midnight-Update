@@ -1,0 +1,1593 @@
+<Ui xmlns="http://www.blizzard.com/wow/ui/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.blizzard.com/wow/ui/
+..\FrameXML\UI.xsd">
+	<Script file="CT_UnitFrameOptions.lua"/>
+	<Button name="CT_UnitFramesOptionsBoxSelectionButtonTemplate" inherits="UIPanelButtonTemplate" virtual="true">
+		<Scripts>
+			<OnClick inherit="prepend" function="CT_UnitFrameOptions_SetOptionsFrame" />
+			<OnShow function="CT_UnitFrameOptionsBoxSelectionButton_OnShow" />
+		</Scripts>
+	</Button>
+	<CheckButton name="CT_UnitFramesOptionsCheckButtonTemplate" virtual="true">
+		<Size>
+			<AbsDimension x="26" y="26" />
+		</Size>
+		<HitRectInsets>
+			<AbsInset left="0" right="-100" top="0" bottom="0"/>
+		</HitRectInsets>
+		<Scripts>
+			<OnClick>
+				if ( self:GetChecked() ) then
+					PlaySound(SOUNDKIT.IG_MAINMENU_OPTION_CHECKBOX_ON);
+				else
+					PlaySound(SOUNDKIT.IG_MAINMENU_OPTION_CHECKBOX_OFF);
+				end
+				BlizzardOptionsPanel_CheckButton_OnClick(self);
+			</OnClick>
+			<OnEnter>
+				if ( self.tooltipText ) then
+					GetAppropriateTooltip():SetOwner(self, self.tooltipOwnerPoint or "ANCHOR_RIGHT");
+					GetAppropriateTooltip():SetText(self.tooltipText, nil, nil, nil, nil, true);
+				end
+				if ( self.tooltipRequirement ) then
+					GetAppropriateTooltip():AddLine(self.tooltipRequirement, 1.0, 1.0, 1.0, true);
+					GetAppropriateTooltip():Show();
+				end
+			</OnEnter>
+			<OnLeave>
+				GetAppropriateTooltip():Hide();
+			</OnLeave>
+		</Scripts>
+		<NormalTexture file="Interface\Buttons\UI-CheckBox-Up"/>
+		<PushedTexture file="Interface\Buttons\UI-CheckBox-Down"/>
+	 	<HighlightTexture file="Interface\Buttons\UI-CheckBox-Highlight" alphaMode="ADD"/>
+		<CheckedTexture file="Interface\Buttons\UI-CheckBox-Check"/>
+		<DisabledCheckedTexture file="Interface\Buttons\UI-CheckBox-Check-Disabled"/>		
+	</CheckButton>
+	<CheckButton name="CT_UnitFramesOptionsRadioButtonTemplate" virtual="true">
+		<Size>
+			<AbsDimension x="20" y="20"/>
+		</Size>
+		<Layers>
+			<Layer level="ARTWORK">
+				<FontString inherits="GameFontNormalSmall" name="$parentName">
+					<Anchors>
+						<Anchor point="LEFT" relativePoint="RIGHT" relativeTo="$parent">
+							<Offset>
+								<AbsDimension x="0" y="0"/>
+							</Offset>
+						</Anchor>
+					</Anchors>
+					<Color r="1" g="1" b="1"/>
+				</FontString>
+			</Layer>
+		</Layers>
+		<NormalTexture name="$parentNormalTexture" file="Interface\Buttons\UI-RadioButton">
+			<TexCoords left="0" right="0.25" top="0" bottom="1"/>
+		</NormalTexture>
+		<DisabledTexture name="$parentDisabledTexture" file="Interface\Buttons\UI-RadioButton">
+			<TexCoords left="0" right="0.25" top="0" bottom="1"/>
+		</DisabledTexture>
+		<PushedTexture name="$parentPushedTexture" file="Interface\Buttons\UI-RadioButton">
+			<TexCoords left="0.25" right="0.5" top="0" bottom="1"/>
+		</PushedTexture>
+		<HighlightTexture name="$parentHighlightTexture" file="Interface\Buttons\UI-RadioButton" alphaMode="ADD">
+			<TexCoords left="0.51" right="0.75" top="0" bottom="1"/>
+		</HighlightTexture>
+		<CheckedTexture name="$parentCheckedTexture" file="Interface\Buttons\UI-RadioButton">
+			<TexCoords left="0.25" right="0.5" top="0" bottom="1"/>
+		</CheckedTexture>
+		<DisabledCheckedTexture name="$parentDisabledCheckedTexture" file="Interface\Buttons\UI-RadioButton">
+			<TexCoords left="0.25" right="0.5" top="0" bottom="1"/>
+		</DisabledCheckedTexture>
+		<Scripts>
+			<OnClick>
+				CT_UnitFramesOptions_Radio_OnClick(self);
+			</OnClick>
+			<OnLoad>
+				CT_UnitFramesOptions_Radio_OnLoad(self);
+			</OnLoad>
+		</Scripts>
+	</CheckButton>
+	<Frame name="CT_UnitFramesOptionsFrameSelectionTemplate" virtual="true">
+		<Size>
+			<AbsDimension x="270" y="20"/>
+		</Size>
+		<Layers>
+			<Layer level="ARTWORK">
+				<FontString name="$parentName" inherits="GameFontNormalSmall">
+					<Anchors>
+						<Anchor point="LEFT"/>
+					</Anchors>
+				</FontString>
+			</Layer>
+		</Layers>
+		<Frames>
+			<CheckButton name="$parentRadio1" id="1" inherits="CT_UnitFramesOptionsRadioButtonTemplate"> <!-- None -->
+				<Anchors>
+					<Anchor point="LEFT">
+						<Offset>
+							<AbsDimension x="115" y="0"/>
+						</Offset>
+					</Anchor>
+				</Anchors>
+			</CheckButton>
+			<CheckButton name="$parentRadio2" id="2" inherits="CT_UnitFramesOptionsRadioButtonTemplate"> <!-- Percent -->
+				<Anchors>
+					<Anchor point="LEFT" relativeTo="$parentRadio1" relativePoint="RIGHT">
+						<Offset>
+							<AbsDimension x="32" y="0"/>
+						</Offset>
+					</Anchor>
+				</Anchors>
+			</CheckButton>
+			<CheckButton name="$parentRadio3" id="3" inherits="CT_UnitFramesOptionsRadioButtonTemplate"> <!-- Deficit -->
+				<Anchors>
+					<Anchor point="LEFT" relativeTo="$parentRadio2" relativePoint="RIGHT">
+						<Offset>
+							<AbsDimension x="48" y="0"/>
+						</Offset>
+					</Anchor>
+				</Anchors>
+			</CheckButton>
+			<CheckButton name="$parentRadio4" id="4" inherits="CT_UnitFramesOptionsRadioButtonTemplate"> <!-- Values (Current/Maximum) -->
+				<Anchors>
+					<Anchor point="LEFT" relativeTo="$parentRadio3" relativePoint="RIGHT">
+						<Offset>
+							<AbsDimension x="40" y="0"/>
+						</Offset>
+					</Anchor>
+				</Anchors>
+			</CheckButton>
+			<CheckButton name="$parentRadio5" id="5" inherits="CT_UnitFramesOptionsRadioButtonTemplate"> <!-- Current -->
+				<Anchors>
+					<Anchor point="LEFT" relativeTo="$parentRadio4" relativePoint="RIGHT">
+						<Offset>
+							<AbsDimension x="40" y="0"/>
+						</Offset>
+					</Anchor>
+				</Anchors>
+			</CheckButton>
+			<Button name="$parentColorSwatch">
+				<Size>
+					<AbsDimension x="16" y="16"/>
+				</Size>
+				<Anchors>
+					<Anchor point="LEFT" relativePoint="RIGHT" relativeTo="$parentRadio5">
+						<Offset>
+							<AbsDimension x="48" y="0"/>
+						</Offset>
+					</Anchor>
+				</Anchors>
+				<Layers>
+					<Layer level="BACKGROUND">
+						<Texture name="$parentBG">
+							<Size>
+								<AbsDimension x="14" y="14"/>
+							</Size>
+							<Color r="1.0" g="1.0" b="1.0"/>
+							<Anchors>
+								<Anchor point="CENTER"/>
+							</Anchors>
+						</Texture>
+					</Layer>
+				</Layers>
+				<Scripts>
+					<OnClick>
+						CloseMenus();
+						CT_UnitFrameOptions_ColorSwatch_ShowColorPicker(self, CT_UnitFramesOptionsFrame);
+					</OnClick>
+					<OnEnter>
+						_G[self:GetName().."BG"]:SetVertexColor(NORMAL_FONT_COLOR.r, NORMAL_FONT_COLOR.g, NORMAL_FONT_COLOR.b);
+					</OnEnter>
+					<OnLeave>
+						_G[self:GetName().."BG"]:SetVertexColor(HIGHLIGHT_FONT_COLOR.r, HIGHLIGHT_FONT_COLOR.g, HIGHLIGHT_FONT_COLOR.b);
+					</OnLeave>
+				</Scripts>
+				<NormalTexture name="$parentNormalTexture" file="Interface\ChatFrame\ChatFrameColorSwatch"/>
+			</Button>
+		</Frames>
+		<Scripts>
+			<OnLoad>
+				CT_UnitFramesOptions_Selection_OnLoad(self);
+			</OnLoad>
+		</Scripts>
+	</Frame>
+	<Frame name="CT_UnitFramesOptionsBoxTemplate" virtual="true">
+		<Size>
+			<AbsDimension x="460" y="275"/>
+		</Size>
+		<Anchors>
+			<Anchor point="TOPLEFT">
+				<Offset>
+					<AbsDimension x="20" y="-90"/>
+				</Offset>
+			</Anchor>
+		</Anchors>
+		<Layers>
+			<Layer level="ARTWORK">
+				<FontString name="$parentName" inherits="GameFontNormal">
+					<Anchors>
+						<Anchor point="TOP">
+							<Offset>
+								<AbsDimension x="0" y="12"/>
+							</Offset>
+						</Anchor>
+					</Anchors>
+				</FontString>
+			</Layer>
+		</Layers>
+		<Frames>
+			<Frame name="$parentSelection1" id="1" inherits="CT_UnitFramesOptionsFrameSelectionTemplate">
+				<Anchors>
+					<Anchor point="TOPLEFT">
+						<Offset>
+							<AbsDimension x="10" y="-5"/>
+						</Offset>
+					</Anchor>
+				</Anchors>
+			</Frame>
+			<Frame name="$parentSelection2" id="2" inherits="CT_UnitFramesOptionsFrameSelectionTemplate">
+				<Anchors>
+					<Anchor point="TOPLEFT">
+						<Offset>
+							<AbsDimension x="10" y="-25"/>
+						</Offset>
+					</Anchor>
+				</Anchors>
+			</Frame>
+		</Frames>
+		<Scripts>
+			<OnLoad>
+				Mixin(self, BackdropTemplateMixin or {});
+				self:SetBackdrop({
+					bgFile = "Interface\\Tooltips\\UI-Tooltip-Background",
+					edgeFile = "Interface\\Tooltips\\UI-Tooltip-Border",
+					tile = true,
+					tileSize = 16,
+					edgeSize = 16,
+					insets = { left = 5, right = 5, top = 5, bottom = 5 },
+				});
+				self:SetBackdropColor(0, 0, 0, 0.5);
+				CT_UnitFramesOptions_Box_OnLoad(self);
+			</OnLoad>
+		</Scripts>
+	</Frame>
+
+	<Frame name="CT_UnitFramesOptionsFrame" parent="UIParent" movable="true" hidden="true" frameStrata="DIALOG" toplevel="true" clampedToScreen="true">
+		<Size>
+			<AbsDimension x="500" y="426"/>
+		</Size>
+
+		<Anchors>
+			<Anchor point="CENTER"/>
+		</Anchors>
+		
+		<Layers>
+			<Layer level="ARTWORK">
+				<FontString name="$parentTitle" text="CT_UnitFrames Options" inherits="GameFontNormal">
+					<Anchors>
+						<Anchor point="TOP">
+							<Offset>
+								<AbsDimension x="0" y="-15"/>
+							</Offset>
+						</Anchor>
+					</Anchors>
+				</FontString>
+			</Layer>
+		</Layers>
+
+		<Frames>
+			<Button name="$parentCloseButton" hidden="false">
+				<Size>
+					<AbsDimension x="42" y="42"/>
+				</Size>
+				<Anchors>
+					<Anchor point="TOPRIGHT"/>
+				</Anchors>
+				<Scripts>
+					<OnClick>
+						self:GetParent():Hide();
+					</OnClick>
+				</Scripts>
+				<NormalTexture file="Interface\Buttons\UI-Panel-MinimizeButton-Up"/>
+				<PushedTexture file="Interface\Buttons\UI-Panel-MinimizeButton-Down"/>
+				<HighlightTexture file="Interface\Buttons\UI-Panel-MinimizeButton-Highlight" alphaMode="ADD"/>
+			</Button>
+			<CheckButton name="$parentOneColorHealthCB" hidden="false" inherits="CT_UnitFramesOptionsCheckButtonTemplate">
+				<HitRectInsets>
+					<AbsInset left="0" right="0" top="0" bottom="0"/>
+				</HitRectInsets>
+				<Size>
+					<AbsDimension x="24" y="24"/>
+				</Size>
+				<Anchors>
+					<Anchor point="BOTTOMLEFT" relativePoint="BOTTOMLEFT">
+						<Offset>
+							<AbsDimension x="270" y="34"/>
+						</Offset>
+					</Anchor>
+				</Anchors>
+				<Scripts>
+					<OnClick>
+						CT_UnitFramesOptions_OneColorHealth_CB_OnClick(self, self:GetChecked());
+					</OnClick>
+				</Scripts>
+				<Layers>
+					<Layer level="ARTWORK">
+						<FontString name="$parentName" inherits="GameFontNormalSmall" text="Do not change health bar color">
+							<Anchors>
+								<Anchor point="LEFT" relativePoint="RIGHT">
+									<Offset>
+										<AbsDimension x="4" y="1"/>
+									</Offset>
+								</Anchor>
+							</Anchors>
+							<Color r="1" g="1" b="1"/>
+						</FontString>
+					</Layer>
+				</Layers>
+			</CheckButton>
+			<CheckButton name="$parentLargeBreakUpCB" hidden="false" inherits="CT_UnitFramesOptionsCheckButtonTemplate">
+				<HitRectInsets>
+					<AbsInset left="0" right="0" top="0" bottom="0"/>
+				</HitRectInsets>
+				<Size>
+					<AbsDimension x="24" y="24"/>
+				</Size>
+				<Anchors>
+					<Anchor point="BOTTOMLEFT" relativePoint="BOTTOMLEFT">
+						<Offset>
+							<AbsDimension x="35" y="34"/>
+						</Offset>
+					</Anchor>
+				</Anchors>
+				<Scripts>
+					<OnClick>
+						CT_UnitFramesOptions_LargeBreakUp_CB_OnClick(self, self:GetChecked());
+					</OnClick>
+				</Scripts>
+				<Layers>
+					<Layer level="ARTWORK">
+						<FontString name="$parentName" inherits="GameFontNormalSmall" text="Break up large numbers">
+							<Anchors>
+								<Anchor point="LEFT" relativePoint="RIGHT">
+									<Offset>
+										<AbsDimension x="4" y="1"/>
+									</Offset>
+								</Anchor>
+							</Anchors>
+							<Color r="1" g="1" b="1"/>
+						</FontString>
+					</Layer>
+				</Layers>
+			</CheckButton>
+			<CheckButton name="$parentLargeAbbreviateCB" hidden="false" inherits="CT_UnitFramesOptionsCheckButtonTemplate">
+				<HitRectInsets>
+					<AbsInset left="0" right="0" top="0" bottom="0"/>
+				</HitRectInsets>
+				<Size>
+					<AbsDimension x="24" y="24"/>
+				</Size>
+				<Anchors>
+					<Anchor point="BOTTOMLEFT" relativePoint="BOTTOMLEFT">
+						<Offset>
+							<AbsDimension x="35" y="9"/>
+						</Offset>
+					</Anchor>
+				</Anchors>
+				<Scripts>
+					<OnClick>
+						CT_UnitFramesOptions_LargeAbbreviate_CB_OnClick(self, self:GetChecked());
+					</OnClick>
+				</Scripts>
+				<Layers>
+					<Layer level="ARTWORK">
+						<FontString name="$parentName" inherits="GameFontNormalSmall" text="Abbreviate large numbers">
+							<Anchors>
+								<Anchor point="LEFT" relativePoint="RIGHT">
+									<Offset>
+										<AbsDimension x="4" y="1"/>
+									</Offset>
+								</Anchor>
+							</Anchors>
+							<Color r="1" g="1" b="1"/>
+						</FontString>
+					</Layer>
+				</Layers>
+			</CheckButton>
+			<CheckButton name="$parentMakeFontLikeRetailCB" hidden="false" inherits="CT_UnitFramesOptionsCheckButtonTemplate">
+				<HitRectInsets>
+					<AbsInset left="0" right="0" top="0" bottom="0"/>
+				</HitRectInsets>
+				<Size>
+					<AbsDimension x="24" y="24"/>
+				</Size>
+				<Anchors>
+					<Anchor point="BOTTOMLEFT" relativePoint="BOTTOMLEFT">
+						<Offset>
+							<AbsDimension x="270" y="9"/>
+						</Offset>
+					</Anchor>
+				</Anchors>
+				<Scripts>
+					<OnClick>
+						CT_UnitFramesOptions_MakeFontLikeRetail_CB_OnClick(self, self:GetChecked());
+					</OnClick>
+					<OnLoad>
+						if (TextStatusBarText:GetFont() == "Fonts\\FRIZQT__.TTF") then
+							-- 2.3.0 onwards, but not the 2.5.1 TBC Classic Beta
+							self:Hide();
+						end
+					</OnLoad>
+
+				</Scripts>
+				<Layers>
+					<Layer level="ARTWORK">
+						<FontString name="$parentName" inherits="GameFontNormalSmall" text="Use retail font on bars">
+							<Anchors>
+								<Anchor point="LEFT" relativePoint="RIGHT">
+									<Offset>
+										<AbsDimension x="4" y="1"/>
+									</Offset>
+								</Anchor>
+							</Anchors>
+							<Color r="1" g="1" b="1"/>
+						</FontString>
+					</Layer>
+				</Layers>
+			</CheckButton>
+			<Button name="$parentPlayerOptions" inherits="CT_UnitFramesOptionsBoxSelectionButtonTemplate" text="Player" id="1" />
+			<Button name="$parentPartyOptions" inherits="CT_UnitFramesOptionsBoxSelectionButtonTemplate" text="Party" id="2" />
+			<Button name="$parentTargetOptions" inherits="CT_UnitFramesOptionsBoxSelectionButtonTemplate" text="Target" id="3" />
+			<Button name="$parentAssistOptions" inherits="CT_UnitFramesOptionsBoxSelectionButtonTemplate" text="Assist" id="4" />
+			<Button name="$parentFocusOptions" inherits="CT_UnitFramesOptionsBoxSelectionButtonTemplate" text="Focus" id="5" />
+			<Button name="$parentPetOptions" inherits="CT_UnitFramesOptionsBoxSelectionButtonTemplate" text="Pet" id="6" />
+			<Frame name="$parentBox1" id="1" inherits="CT_UnitFramesOptionsBoxTemplate" hidden="true">
+				<Layers>
+					<Layer level="ARTWORK">
+						<FontString name="$parentLock" inherits="GameFontNormal" text="To unlock, lock, or reset this frame, right click the player frame's portrait and open the game's Move Frame menu.">
+							<Anchors>
+								<Anchor point="BOTTOM">
+									<Offset>
+										<AbsDimension x="0" y="30"/>
+									</Offset>
+								</Anchor>
+							</Anchors>
+							<Size>
+								<AbsDimension x="420" y="30"/>
+							</Size>
+						</FontString>
+					</Layer>
+				</Layers>
+				<Frames>
+					<Frame name="$parentSelection3" id="3" inherits="CT_UnitFramesOptionsFrameSelectionTemplate">
+						<Anchors>
+							<Anchor point="TOPLEFT">
+								<Offset>
+									<AbsDimension x="10" y="-45"/>
+								</Offset>
+							</Anchor>
+						</Anchors>
+					</Frame>
+					<Frame name="$parentSelection4" id="4" inherits="CT_UnitFramesOptionsFrameSelectionTemplate">
+						<Anchors>
+							<Anchor point="TOPLEFT">
+								<Offset>
+									<AbsDimension x="10" y="-65"/>
+								</Offset>
+							</Anchor>
+						</Anchors>
+					</Frame>
+					<CheckButton name="$parentPlayerTextLeftCB" id="18" hidden="false" inherits="CT_UnitFramesOptionsCheckButtonTemplate">
+						<HitRectInsets>
+							<AbsInset left="0" right="0" top="0" bottom="0"/>
+						</HitRectInsets>
+						<Size>
+							<AbsDimension x="24" y="24"/>
+						</Size>
+						<Anchors>
+							<Anchor point="TOPLEFT">
+								<Offset>
+									<AbsDimension x="236" y="-85"/>
+								</Offset>
+							</Anchor>
+						</Anchors>
+						<Scripts>
+							<OnClick>
+								CT_UnitFramesOptions_Box_CB_OnClick(self);
+							</OnClick>
+						</Scripts>
+						<Layers>
+							<Layer level="ARTWORK">
+								<FontString name="$parentName" inherits="GameFontNormalSmall">
+									<Anchors>
+										<Anchor point="LEFT" relativePoint="RIGHT">
+											<Offset>
+												<AbsDimension x="4" y="0"/>
+											</Offset>
+										</Anchor>
+									</Anchors>
+									<Color r="1" g="1" b="1"/>
+								</FontString>
+							</Layer>
+						</Layers>
+					</CheckButton>
+					<CheckButton name="$parentPlayerCoordsRightCB" id="63" hidden="false" inherits="CT_UnitFramesOptionsCheckButtonTemplate">
+						<HitRectInsets>
+							<AbsInset left="0" right="0" top="0" bottom="0"/>
+						</HitRectInsets>
+						<Size>
+							<AbsDimension x="24" y="24"/>
+						</Size>
+						<Anchors>
+							<Anchor point="TOPLEFT">
+								<Offset>
+									<AbsDimension x="25" y="-85"/>
+								</Offset>
+							</Anchor>
+						</Anchors>
+						<Scripts>
+							<OnClick>
+								CT_UnitFramesOptions_Box_CB_OnClick(self);
+							</OnClick>
+						</Scripts>
+						<Layers>
+							<Layer level="ARTWORK">
+								<FontString name="$parentName" inherits="GameFontNormalSmall">
+									<Anchors>
+										<Anchor point="LEFT" relativePoint="RIGHT">
+											<Offset>
+												<AbsDimension x="4" y="0"/>
+											</Offset>
+										</Anchor>
+									</Anchors>
+									<Color r="1" g="1" b="1"/>
+								</FontString>
+							</Layer>
+						</Layers>
+					</CheckButton>
+					<Slider name="$parentTextSpacing" inherits="OptionsSliderTemplate">
+						<Size>
+							<AbsDimension x="400" y="17"/>
+						</Size>
+						<Anchors>
+							<Anchor point="TOP" relativePoint="TOP">
+								<Offset>
+									<AbsDimension x="0" y="-150"/>
+								</Offset>
+							</Anchor>
+						</Anchors>
+						<Scripts>
+							<OnLoad inherit="prepend">
+								_G[self:GetName().."Text"]:SetText("");
+								_G[self:GetName().."High"]:SetText("40");
+								_G[self:GetName().."Low"]:SetText("-40");
+								self:SetMinMaxValues(-40, 40);
+								self:SetValueStep(0.1);
+								self.tooltipText = CT_UFO_TEXTSPACING_HELP;
+							</OnLoad>
+							<OnShow>
+								self:SetValue(CT_UnitFramesOptions.playerTextSpacing or 0);
+							</OnShow>
+							<OnValueChanged>
+								CT_UnitFramesOptions.playerTextSpacing = self:GetValue();
+								_G[self:GetName().."Text"]:SetText(CT_UFO_RIGHTSPACING .. format("%0.1f", self:GetValue()));
+								CT_UnitFrames:AnchorPlayerFrameSideText();
+							</OnValueChanged>
+						</Scripts>
+					</Slider>
+				</Frames>
+			</Frame>
+
+			<Frame name="$parentBox2" id="2" inherits="CT_UnitFramesOptionsBoxTemplate" hidden="true">
+				<Frames>
+					<Frame name="$parentSelection3" id="3" inherits="CT_UnitFramesOptionsFrameSelectionTemplate">
+						<Anchors>
+							<Anchor point="TOPLEFT">
+								<Offset>
+									<AbsDimension x="10" y="-45"/>
+								</Offset>
+							</Anchor>
+						</Anchors>
+					</Frame>
+					<Frame name="$parentSelection4" id="4" inherits="CT_UnitFramesOptionsFrameSelectionTemplate">
+						<Anchors>
+							<Anchor point="TOPLEFT">
+								<Offset>
+									<AbsDimension x="10" y="-65"/>
+								</Offset>
+							</Anchor>
+						</Anchors>
+					</Frame>
+					<CheckButton name="$parentPartyClassColorCB" id="65" hidden="false" inherits="CT_UnitFramesOptionsCheckButtonTemplate">
+						<HitRectInsets>
+							<AbsInset left="0" right="0" top="0" bottom="0"/>
+						</HitRectInsets>
+						<Size>
+							<AbsDimension x="24" y="24"/>
+						</Size>
+						<Anchors>
+							<Anchor point="TOPLEFT">
+								<Offset>
+									<AbsDimension x="25" y="-85"/>
+								</Offset>
+							</Anchor>
+						</Anchors>
+						<Scripts>
+							<OnClick>
+								CT_UnitFramesOptions_Box_CB_OnClick(self);
+							</OnClick>
+						</Scripts>
+						<Layers>
+							<Layer level="ARTWORK">
+								<FontString name="$parentName" inherits="GameFontNormalSmall">
+									<Anchors>
+										<Anchor point="LEFT" relativePoint="RIGHT">
+											<Offset>
+												<AbsDimension x="4" y="0"/>
+											</Offset>
+										</Anchor>
+									</Anchors>
+									<Color r="1" g="1" b="1"/>
+								</FontString>
+							</Layer>
+						</Layers>
+					</CheckButton>
+					<Slider name="$parentSlider" inherits="OptionsSliderTemplate">
+						<Size>
+							<AbsDimension x="400" y="17"/>
+						</Size>
+						<Anchors>
+							<Anchor point="CENTER" relativePoint="TOP">
+								<Offset>
+									<AbsDimension x="0" y="-135"/>
+								</Offset>
+							</Anchor>
+						</Anchors>
+						<Scripts>
+							<OnLoad inherit="prepend">
+								CT_PartyFrameSlider_OnLoad(self);
+							</OnLoad>
+							<OnShow>
+								self:SetValue(CT_UnitFramesOptions.partyTextSize or 3);
+							</OnShow>
+							<OnValueChanged>
+								CT_UnitFramesOptions.partyTextSize = self:GetValue();
+								_G[self:GetName().."Text"]:SetText(CT_UFO_PARTYTEXTSIZE .. " = "..self:GetValue()+6);
+								CT_UnitFramesOptions_Radio_Update();
+								CT_UnitFrames_PartyStatusBarText:SetFont("Fonts\\FRIZQT__.TTF", self:GetValue()+6, "OUTLINE");
+							</OnValueChanged>
+						</Scripts>
+					</Slider>
+					<Slider name="$parentTextSpacing" inherits="OptionsSliderTemplate">
+						<Size>
+							<AbsDimension x="400" y="17"/>
+						</Size>
+						<Anchors>
+							<Anchor point="TOP" relativePoint="TOP">
+								<Offset>
+									<AbsDimension x="0" y="-205"/>
+								</Offset>
+							</Anchor>
+						</Anchors>
+						<Scripts>
+							<OnLoad inherit="prepend">
+								_G[self:GetName().."Text"]:SetText("");
+								_G[self:GetName().."High"]:SetText("40");
+								_G[self:GetName().."Low"]:SetText("-40");
+								self:SetMinMaxValues(-40, 40);
+								self:SetValueStep(0.1);
+								self.tooltipText = CT_UFO_TEXTSPACING_HELP;
+							</OnLoad>
+							<OnShow>
+								self:SetValue(CT_UnitFramesOptions.partyTextSpacing or 9);
+							</OnShow>
+							<OnValueChanged>
+								CT_UnitFramesOptions.partyTextSpacing = self:GetValue();
+								_G[self:GetName().."Text"]:SetText(CT_UFO_RIGHTSPACING .. format("%0.1f", self:GetValue()));
+								CT_UnitFrames:AnchorPartyFrameSideText();
+							</OnValueChanged>
+						</Scripts>
+					</Slider>
+				</Frames>
+			</Frame>
+
+			<Frame name="$parentBox3" id="3" inherits="CT_UnitFramesOptionsBoxTemplate" hidden="true">
+				<Layers>
+					<Layer level="ARTWORK">
+						<FontString name="$parentLock" inherits="GameFontNormal" text="To unlock, lock, or reset this frame, or to show buffs on top of the frame, right click the target frame's portrait and open the game's Move Frame menu.">
+							<Anchors>
+								<Anchor point="BOTTOM">
+									<Offset>
+										<AbsDimension x="0" y="15"/>
+									</Offset>
+								</Anchor>
+							</Anchors>
+							<Size>
+								<AbsDimension x="420" y="45"/>
+							</Size>
+						</FontString>
+					</Layer>
+				</Layers>
+				<Frames>
+					<!-- Box3Selection5, then Box3Selection3, then Box3Selection4.  Change made in 8.2.5.1 -->
+					<Frame name="$parentSelection3" id="3" inherits="CT_UnitFramesOptionsFrameSelectionTemplate">
+						<Anchors>
+							<Anchor point="TOPLEFT">
+								<Offset>
+									<AbsDimension x="10" y="-65"/>
+								</Offset>
+							</Anchor>
+						</Anchors>
+					</Frame>
+					<Frame name="$parentSelection4" id="4" inherits="CT_UnitFramesOptionsFrameSelectionTemplate">
+						<Anchors>
+							<Anchor point="TOPLEFT">
+								<Offset>
+									<AbsDimension x="10" y="-85"/>
+								</Offset>
+							</Anchor>
+						</Anchors>
+					</Frame>
+					<Frame name="$parentSelection5" id="5" inherits="CT_UnitFramesOptionsFrameSelectionTemplate">
+						<Anchors>
+							<Anchor point="TOPLEFT">
+								<Offset>
+									<AbsDimension x="10" y="-45"/>
+								</Offset>
+							</Anchor>
+						</Anchors>
+					</Frame>
+					<CheckButton name="$parentClassFrameCB" id="12" hidden="false" inherits="CT_UnitFramesOptionsCheckButtonTemplate">
+						<HitRectInsets>
+							<AbsInset left="0" right="0" top="0" bottom="0"/>
+						</HitRectInsets>
+						<Size>
+							<AbsDimension x="24" y="24"/>
+						</Size>
+						<Anchors>
+							<Anchor point="TOPLEFT">
+								<Offset>
+									<AbsDimension x="6" y="-105"/>
+								</Offset>
+							</Anchor>
+						</Anchors>
+						<Scripts>
+							<OnClick>
+								CT_UnitFramesOptions_Box_CB_OnClick(self);
+							</OnClick>
+						</Scripts>
+						<Layers>
+							<Layer level="ARTWORK">
+								<FontString name="$parentName" inherits="GameFontNormalSmall">
+									<Anchors>
+										<Anchor point="LEFT" relativePoint="RIGHT">
+											<Offset>
+												<AbsDimension x="4" y="0"/>
+											</Offset>
+										</Anchor>
+									</Anchors>
+									<Color r="1" g="1" b="1"/>
+								</FontString>
+							</Layer>
+						</Layers>
+					</CheckButton>
+					<CheckButton name="$parentTargetTextRightCB" id="18" hidden="false" inherits="CT_UnitFramesOptionsCheckButtonTemplate">
+						<HitRectInsets>
+							<AbsInset left="0" right="0" top="0" bottom="0"/>
+						</HitRectInsets>
+						<Size>
+							<AbsDimension x="24" y="24"/>
+						</Size>
+						<Anchors>
+							<Anchor point="TOPLEFT">
+								<Offset>
+									<AbsDimension x="236" y="-105"/>
+								</Offset>
+							</Anchor>
+						</Anchors>
+						<Scripts>
+							<OnClick>
+								CT_UnitFramesOptions_Box_CB_OnClick(self);
+							</OnClick>
+						</Scripts>
+						<Layers>
+							<Layer level="ARTWORK">
+								<FontString name="$parentName" inherits="GameFontNormalSmall">
+									<Anchors>
+										<Anchor point="LEFT" relativePoint="RIGHT">
+											<Offset>
+												<AbsDimension x="4" y="0"/>
+											</Offset>
+										</Anchor>
+									</Anchors>
+									<Color r="1" g="1" b="1"/>
+								</FontString>
+							</Layer>
+						</Layers>
+					</CheckButton>
+					<CheckButton name="$parentShowToTCB" id="64" hidden="false" inherits="CT_UnitFramesOptionsCheckButtonTemplate">
+						<HitRectInsets>
+							<AbsInset left="0" right="0" top="0" bottom="0"/>
+						</HitRectInsets>
+						<Size>
+							<AbsDimension x="24" y="24"/>
+						</Size>
+						<Anchors>
+							<Anchor point="TOPLEFT">
+								<Offset>
+									<AbsDimension x="6" y="-130"/>
+								</Offset>
+							</Anchor>
+						</Anchors>
+						<Scripts>
+							<OnClick>
+								CT_UnitFramesOptions_Box_CB_OnClick(self);
+							</OnClick>
+							<OnEnter>
+								GameTooltip:SetOwner(self, "ANCHOR_TOPLEFT");
+								GameTooltip:SetText("Requires |cFFFF9999/console reloadui |rto take effect");
+								GameTooltip:Show();
+							</OnEnter>
+							<OnLeave>
+								GameTooltip:Hide();
+							</OnLeave>
+						</Scripts>
+						<Layers>
+							<Layer level="ARTWORK">
+								<FontString name="$parentName" inherits="GameFontNormalSmall">
+									<Anchors>
+										<Anchor point="LEFT" relativePoint="RIGHT">
+											<Offset>
+												<AbsDimension x="4" y="0"/>
+											</Offset>
+										</Anchor>
+									</Anchors>
+									<Color r="1" g="1" b="1"/>
+								</FontString>
+							</Layer>
+						</Layers>
+					</CheckButton>
+					<Slider name="$parentTextSpacing" inherits="OptionsSliderTemplate">
+						<Size>
+							<AbsDimension x="400" y="17"/>
+						</Size>
+						<Anchors>
+							<Anchor point="TOP" relativePoint="TOP">
+								<Offset>
+									<AbsDimension x="0" y="-175"/>
+								</Offset>
+							</Anchor>
+						</Anchors>
+						<Scripts>
+							<OnLoad inherit="prepend">
+								_G[self:GetName().."Text"]:SetText("");
+								_G[self:GetName().."High"]:SetText("40");
+								_G[self:GetName().."Low"]:SetText("-40");
+								self:SetMinMaxValues(-40, 40);
+								self:SetValueStep(0.1);
+								self.tooltipText = CT_UFO_TEXTSPACING_HELP;
+							</OnLoad>
+							<OnShow>
+								self:SetValue(CT_UnitFramesOptions.targetTextSpacing or 0);
+							</OnShow>
+							<OnValueChanged>
+								CT_UnitFramesOptions.targetTextSpacing = self:GetValue();
+								_G[self:GetName().."Text"]:SetText(CT_UFO_LEFTSPACING .. format("%0.1f", self:GetValue()));
+								CT_UnitFrames:AnchorTargetFrameSideText();
+							</OnValueChanged>
+						</Scripts>
+					</Slider>
+				</Frames>
+			</Frame>
+
+			<Frame name="$parentBox4" id="4" inherits="CT_UnitFramesOptionsBoxTemplate" hidden="true">
+				<Frames>
+					<Frame name="$parentSelection3" id="3" inherits="CT_UnitFramesOptionsFrameSelectionTemplate">
+						<Anchors>
+							<Anchor point="TOPLEFT">
+								<Offset>
+									<AbsDimension x="10" y="-45"/>
+								</Offset>
+							</Anchor>
+						</Anchors>
+					</Frame>
+					<Frame name="$parentSelection4" id="4" inherits="CT_UnitFramesOptionsFrameSelectionTemplate">
+						<Anchors>
+							<Anchor point="TOPLEFT">
+								<Offset>
+									<AbsDimension x="10" y="-65"/>
+								</Offset>
+							</Anchor>
+						</Anchors>
+					</Frame>
+					<Frame name="$parentSelection5" id="5" inherits="CT_UnitFramesOptionsFrameSelectionTemplate">
+						<Anchors>
+							<Anchor point="TOPLEFT">
+								<Offset>
+									<AbsDimension x="10" y="-85"/>
+								</Offset>
+							</Anchor>
+						</Anchors>
+					</Frame>
+					<CheckButton name="$parentDisplayCB" id="14" hidden="false" inherits="CT_UnitFramesOptionsCheckButtonTemplate">
+						<HitRectInsets>
+							<AbsInset left="0" right="0" top="0" bottom="0"/>
+						</HitRectInsets>
+						<Size>
+							<AbsDimension x="24" y="24"/>
+						</Size>
+						<Anchors>
+							<Anchor point="TOPLEFT">
+								<Offset>
+									<AbsDimension x="6" y="-105"/>
+								</Offset>
+							</Anchor>
+						</Anchors>
+						<Scripts>
+							<OnClick>
+								CT_UnitFramesOptions_Box_CB_OnClick(self);
+							</OnClick>
+						</Scripts>
+						<Layers>
+							<Layer level="ARTWORK">
+								<FontString name="$parentName" inherits="GameFontNormalSmall" text="Display this frame">
+									<Anchors>
+										<Anchor point="LEFT" relativePoint="RIGHT">
+											<Offset>
+												<AbsDimension x="4" y="0"/>
+											</Offset>
+										</Anchor>
+									</Anchors>
+									<Color r="1" g="1" b="1"/>
+								</FontString>
+							</Layer>
+						</Layers>
+					</CheckButton>
+					<CheckButton name="$parentLockCB" id="3" hidden="false" inherits="CT_UnitFramesOptionsCheckButtonTemplate">
+						<HitRectInsets>
+							<AbsInset left="0" right="0" top="0" bottom="0"/>
+						</HitRectInsets>
+						<Size>
+							<AbsDimension x="24" y="24"/>
+						</Size>
+						<Anchors>
+							<Anchor point="TOPLEFT">
+								<Offset>
+									<AbsDimension x="6" y="-125"/>
+								</Offset>
+							</Anchor>
+						</Anchors>
+						<Scripts>
+							<OnClick>
+								CT_UnitFramesOptions_Lock_CB_OnClick(self, self:GetChecked(), self:GetID());
+							</OnClick>
+						</Scripts>
+						<Layers>
+							<Layer level="ARTWORK">
+								<FontString name="$parentName" inherits="GameFontNormalSmall" text="Lock this frame">
+									<Anchors>
+										<Anchor point="LEFT" relativePoint="RIGHT">
+											<Offset>
+												<AbsDimension x="4" y="0"/>
+											</Offset>
+										</Anchor>
+									</Anchors>
+									<Color r="1" g="1" b="1"/>
+								</FontString>
+							</Layer>
+						</Layers>
+					</CheckButton>
+					<CheckButton name="$parentTargetofAssistCB" id="15" hidden="false" inherits="CT_UnitFramesOptionsCheckButtonTemplate">
+						<HitRectInsets>
+							<AbsInset left="0" right="0" top="0" bottom="0"/>
+						</HitRectInsets>
+						<Size>
+							<AbsDimension x="24" y="24"/>
+						</Size>
+						<Anchors>
+							<Anchor point="TOPLEFT">
+								<Offset>
+									<AbsDimension x="236" y="-105"/>
+								</Offset>
+							</Anchor>
+						</Anchors>
+						<Scripts>
+							<OnClick>
+								CT_UnitFramesOptions_Box_CB_OnClick(self);
+							</OnClick>
+						</Scripts>
+						<Layers>
+							<Layer level="ARTWORK">
+								<FontString name="$parentName" inherits="GameFontNormalSmall">
+									<Anchors>
+										<Anchor point="LEFT" relativePoint="RIGHT">
+											<Offset>
+												<AbsDimension x="4" y="0"/>
+											</Offset>
+										</Anchor>
+									</Anchors>
+									<Color r="1" g="1" b="1"/>
+								</FontString>
+							</Layer>
+						</Layers>
+					</CheckButton>
+					<CheckButton name="$parentAssistCastbarCB" id="16" hidden="false" inherits="CT_UnitFramesOptionsCheckButtonTemplate">
+						<HitRectInsets>
+							<AbsInset left="0" right="0" top="0" bottom="0"/>
+						</HitRectInsets>
+						<Size>
+							<AbsDimension x="24" y="24"/>
+						</Size>
+						<Anchors>
+							<Anchor point="TOPLEFT">
+								<Offset>
+									<AbsDimension x="236" y="-125"/>
+								</Offset>
+							</Anchor>
+						</Anchors>
+						<Scripts>
+							<OnClick>
+								CT_UnitFramesOptions_Box_CB_OnClick(self);
+							</OnClick>
+						</Scripts>
+						<Layers>
+							<Layer level="ARTWORK">
+								<FontString name="$parentName" inherits="GameFontNormalSmall">
+									<Anchors>
+										<Anchor point="LEFT" relativePoint="RIGHT">
+											<Offset>
+												<AbsDimension x="4" y="0"/>
+											</Offset>
+										</Anchor>
+									</Anchors>
+									<Color r="1" g="1" b="1"/>
+								</FontString>
+							</Layer>
+						</Layers>
+					</CheckButton>
+					<CheckButton name="$parentAssistTextRightCB" id="18" hidden="false" inherits="CT_UnitFramesOptionsCheckButtonTemplate">
+						<HitRectInsets>
+							<AbsInset left="0" right="0" top="0" bottom="0"/>
+						</HitRectInsets>
+						<Size>
+							<AbsDimension x="24" y="24"/>
+						</Size>
+						<Anchors>
+							<Anchor point="TOPLEFT">
+								<Offset>
+									<AbsDimension x="236" y="-145"/>
+								</Offset>
+							</Anchor>
+						</Anchors>
+						<Scripts>
+							<OnClick>
+								CT_UnitFramesOptions_Box_CB_OnClick(self);
+							</OnClick>
+						</Scripts>
+						<Layers>
+							<Layer level="ARTWORK">
+								<FontString name="$parentName" inherits="GameFontNormalSmall">
+									<Anchors>
+										<Anchor point="LEFT" relativePoint="RIGHT">
+											<Offset>
+												<AbsDimension x="4" y="0"/>
+											</Offset>
+										</Anchor>
+									</Anchors>
+									<Color r="1" g="1" b="1"/>
+								</FontString>
+							</Layer>
+						</Layers>
+					</CheckButton>
+					<CheckButton name="$parentAssistBuffsOnTopCB" id="19" hidden="false" inherits="CT_UnitFramesOptionsCheckButtonTemplate">
+						<HitRectInsets>
+							<AbsInset left="0" right="0" top="0" bottom="0"/>
+						</HitRectInsets>
+						<Size>
+							<AbsDimension x="24" y="24"/>
+						</Size>
+						<Anchors>
+							<Anchor point="TOPLEFT">
+								<Offset>
+									<AbsDimension x="236" y="-165"/>
+								</Offset>
+							</Anchor>
+						</Anchors>
+						<Scripts>
+							<OnClick>
+								CT_UnitFramesOptions_Box_CB_OnClick(self);
+							</OnClick>
+						</Scripts>
+						<Layers>
+							<Layer level="ARTWORK">
+								<FontString name="$parentName" inherits="GameFontNormalSmall" text="Shows buffs on top">
+									<Anchors>
+										<Anchor point="LEFT" relativePoint="RIGHT">
+											<Offset>
+												<AbsDimension x="4" y="0"/>
+											</Offset>
+										</Anchor>
+									</Anchors>
+									<Color r="1" g="1" b="1"/>
+								</FontString>
+							</Layer>
+						</Layers>
+					</CheckButton>
+					<Slider name="$parentTextSpacing" inherits="OptionsSliderTemplate">
+						<Size>
+							<AbsDimension x="400" y="17"/>
+						</Size>
+						<Anchors>
+							<Anchor point="TOP" relativePoint="TOP">
+								<Offset>
+									<AbsDimension x="0" y="-205"/>
+								</Offset>
+							</Anchor>
+						</Anchors>
+						<Scripts>
+							<OnLoad inherit="prepend">
+								_G[self:GetName().."Text"]:SetText("");
+								_G[self:GetName().."High"]:SetText("40");
+								_G[self:GetName().."Low"]:SetText("-40");
+								self:SetMinMaxValues(-40, 40);
+								self:SetValueStep(0.1);
+								self.tooltipText = CT_UFO_TEXTSPACING_HELP;
+							</OnLoad>
+							<OnShow>
+								self:SetValue(CT_UnitFramesOptions.assistTextSpacing or 0);
+							</OnShow>
+							<OnValueChanged>
+								CT_UnitFramesOptions.assistTextSpacing = self:GetValue();
+								_G[self:GetName().."Text"]:SetText(CT_UFO_LEFTSPACING .. format("%0.1f", self:GetValue()));
+								CT_UnitFrames:AnchorAssistFrameSideText();
+							</OnValueChanged>
+						</Scripts>
+					</Slider>
+					<Button name="$parentResetPosition" inherits="UIPanelButtonTemplate" text="Reset position">
+						<Size>
+							<AbsDimension x="140" y="21"/>
+						</Size>
+						<Anchors>
+							<Anchor point="BOTTOM" relativePoint="BOTTOM">
+								<Offset>
+									<AbsDimension x="0" y="13"/>
+								</Offset>
+							</Anchor>
+						</Anchors>
+						<Scripts>
+							<OnClick>
+								CT_UnitFrames_ResetPosition("CT_AssistFrame_Drag");
+								CT_UnitFrames_ResetDragLink("CT_AssistFrame_Drag");
+							</OnClick>
+						</Scripts>
+					</Button>
+				</Frames>
+			</Frame>
+
+			<Frame name="$parentBox5" id="5" inherits="CT_UnitFramesOptionsBoxTemplate" hidden="true">
+				<Frames>
+					<Frame name="$parentSelection3" id="3" inherits="CT_UnitFramesOptionsFrameSelectionTemplate">
+						<Anchors>
+							<Anchor point="TOPLEFT">
+								<Offset>
+									<AbsDimension x="10" y="-45"/>
+								</Offset>
+							</Anchor>
+						</Anchors>
+					</Frame>
+					<Frame name="$parentSelection4" id="4" inherits="CT_UnitFramesOptionsFrameSelectionTemplate">
+						<Anchors>
+							<Anchor point="TOPLEFT">
+								<Offset>
+									<AbsDimension x="10" y="-65"/>
+								</Offset>
+							</Anchor>
+						</Anchors>
+					</Frame>
+					<Frame name="$parentSelection5" id="5" inherits="CT_UnitFramesOptionsFrameSelectionTemplate">
+						<Anchors>
+							<Anchor point="TOPLEFT">
+								<Offset>
+									<AbsDimension x="10" y="-85"/>
+								</Offset>
+							</Anchor>
+						</Anchors>
+					</Frame>
+					<CheckButton name="$parentDisplayCB" id="14" hidden="false" inherits="CT_UnitFramesOptionsCheckButtonTemplate">
+						<HitRectInsets>
+							<AbsInset left="0" right="0" top="0" bottom="0"/>
+						</HitRectInsets>
+						<Size>
+							<AbsDimension x="24" y="24"/>
+						</Size>
+						<Anchors>
+							<Anchor point="TOPLEFT">
+								<Offset>
+									<AbsDimension x="6" y="-105"/>
+								</Offset>
+							</Anchor>
+						</Anchors>
+						<Scripts>
+							<OnClick>
+								CT_UnitFramesOptions_Box_CB_OnClick(self);
+							</OnClick>
+						</Scripts>
+						<Layers>
+							<Layer level="ARTWORK">
+								<FontString name="$parentName" inherits="GameFontNormalSmall" text="Display this frame">
+									<Anchors>
+										<Anchor point="LEFT" relativePoint="RIGHT">
+											<Offset>
+												<AbsDimension x="4" y="0"/>
+											</Offset>
+										</Anchor>
+									</Anchors>
+									<Color r="1" g="1" b="1"/>
+								</FontString>
+							</Layer>
+						</Layers>
+					</CheckButton>
+					<CheckButton name="$parentLockCB" id="4" hidden="false" inherits="CT_UnitFramesOptionsCheckButtonTemplate">
+						<HitRectInsets>
+							<AbsInset left="0" right="0" top="0" bottom="0"/>
+						</HitRectInsets>
+						<Size>
+							<AbsDimension x="24" y="24"/>
+						</Size>
+						<Anchors>
+							<Anchor point="TOPLEFT">
+								<Offset>
+									<AbsDimension x="6" y="-125"/>
+								</Offset>
+							</Anchor>
+						</Anchors>
+						<Scripts>
+							<OnClick>
+								CT_UnitFramesOptions_Lock_CB_OnClick(self, self:GetChecked(), self:GetID());
+							</OnClick>
+						</Scripts>
+						<Layers>
+							<Layer level="ARTWORK">
+								<FontString name="$parentName" inherits="GameFontNormalSmall" text="Lock this frame">
+									<Anchors>
+										<Anchor point="LEFT" relativePoint="RIGHT">
+											<Offset>
+												<AbsDimension x="4" y="0"/>
+											</Offset>
+										</Anchor>
+									</Anchors>
+									<Color r="1" g="1" b="1"/>
+								</FontString>
+							</Layer>
+						</Layers>
+					</CheckButton>
+					<CheckButton name="$parentHideStdFocusCB" id="17" hidden="false" inherits="CT_UnitFramesOptionsCheckButtonTemplate">
+						<HitRectInsets>
+							<AbsInset left="0" right="0" top="0" bottom="0"/>
+						</HitRectInsets>
+						<Size>
+							<AbsDimension x="24" y="24"/>
+						</Size>
+						<Anchors>
+							<Anchor point="TOPLEFT">
+								<Offset>
+									<AbsDimension x="6" y="-145"/>
+								</Offset>
+							</Anchor>
+						</Anchors>
+						<Scripts>
+							<OnClick>
+								CT_UnitFramesOptions_Box_CB_OnClick(self);
+							</OnClick>
+						</Scripts>
+						<Layers>
+							<Layer level="ARTWORK">
+								<FontString name="$parentName" inherits="GameFontNormalSmall" text="Hide standard focus frame">
+									<Anchors>
+										<Anchor point="LEFT" relativePoint="RIGHT">
+											<Offset>
+												<AbsDimension x="4" y="0"/>
+											</Offset>
+										</Anchor>
+									</Anchors>
+									<Color r="1" g="1" b="1"/>
+								</FontString>
+							</Layer>
+						</Layers>
+					</CheckButton>
+					<CheckButton name="$parentTargetofFocusCB" id="15" hidden="false" inherits="CT_UnitFramesOptionsCheckButtonTemplate">
+						<HitRectInsets>
+							<AbsInset left="0" right="0" top="0" bottom="0"/>
+						</HitRectInsets>
+						<Size>
+							<AbsDimension x="24" y="24"/>
+						</Size>
+						<Anchors>
+							<Anchor point="TOPLEFT">
+								<Offset>
+									<AbsDimension x="236" y="-105"/>
+								</Offset>
+							</Anchor>
+						</Anchors>
+						<Scripts>
+							<OnClick>
+								CT_UnitFramesOptions_Box_CB_OnClick(self);
+							</OnClick>
+						</Scripts>
+						<Layers>
+							<Layer level="ARTWORK">
+								<FontString name="$parentName" inherits="GameFontNormalSmall">
+									<Anchors>
+										<Anchor point="LEFT" relativePoint="RIGHT">
+											<Offset>
+												<AbsDimension x="4" y="0"/>
+											</Offset>
+										</Anchor>
+									</Anchors>
+									<Color r="1" g="1" b="1"/>
+								</FontString>
+							</Layer>
+						</Layers>
+					</CheckButton>
+					<CheckButton name="$parentFocusCastbarCB" id="16" hidden="false" inherits="CT_UnitFramesOptionsCheckButtonTemplate">
+						<HitRectInsets>
+							<AbsInset left="0" right="0" top="0" bottom="0"/>
+						</HitRectInsets>
+						<Size>
+							<AbsDimension x="24" y="24"/>
+						</Size>
+						<Anchors>
+							<Anchor point="TOPLEFT">
+								<Offset>
+									<AbsDimension x="236" y="-125"/>
+								</Offset>
+							</Anchor>
+						</Anchors>
+						<Scripts>
+							<OnClick>
+								CT_UnitFramesOptions_Box_CB_OnClick(self);
+							</OnClick>
+						</Scripts>
+						<Layers>
+							<Layer level="ARTWORK">
+								<FontString name="$parentName" inherits="GameFontNormalSmall">
+									<Anchors>
+										<Anchor point="LEFT" relativePoint="RIGHT">
+											<Offset>
+												<AbsDimension x="4" y="0"/>
+											</Offset>
+										</Anchor>
+									</Anchors>
+									<Color r="1" g="1" b="1"/>
+								</FontString>
+							</Layer>
+						</Layers>
+					</CheckButton>
+					<CheckButton name="$parentFocusTextRightCB" id="18" hidden="false" inherits="CT_UnitFramesOptionsCheckButtonTemplate">
+						<HitRectInsets>
+							<AbsInset left="0" right="0" top="0" bottom="0"/>
+						</HitRectInsets>
+						<Size>
+							<AbsDimension x="24" y="24"/>
+						</Size>
+						<Anchors>
+							<Anchor point="TOPLEFT">
+								<Offset>
+									<AbsDimension x="236" y="-145"/>
+								</Offset>
+							</Anchor>
+						</Anchors>
+						<Scripts>
+							<OnClick>
+								CT_UnitFramesOptions_Box_CB_OnClick(self);
+							</OnClick>
+						</Scripts>
+						<Layers>
+							<Layer level="ARTWORK">
+								<FontString name="$parentName" inherits="GameFontNormalSmall">
+									<Anchors>
+										<Anchor point="LEFT" relativePoint="RIGHT">
+											<Offset>
+												<AbsDimension x="4" y="0"/>
+											</Offset>
+										</Anchor>
+									</Anchors>
+									<Color r="1" g="1" b="1"/>
+								</FontString>
+							</Layer>
+						</Layers>
+					</CheckButton>
+					<CheckButton name="$parentFocusBuffsOnTopCB" id="19" hidden="false" inherits="CT_UnitFramesOptionsCheckButtonTemplate">
+						<HitRectInsets>
+							<AbsInset left="0" right="0" top="0" bottom="0"/>
+						</HitRectInsets>
+						<Size>
+							<AbsDimension x="24" y="24"/>
+						</Size>
+						<Anchors>
+							<Anchor point="TOPLEFT">
+								<Offset>
+									<AbsDimension x="236" y="-165"/>
+								</Offset>
+							</Anchor>
+						</Anchors>
+						<Scripts>
+							<OnClick>
+								CT_UnitFramesOptions_Box_CB_OnClick(self);
+							</OnClick>
+						</Scripts>
+						<Layers>
+							<Layer level="ARTWORK">
+								<FontString name="$parentName" inherits="GameFontNormalSmall" text="Show buffs on top">
+									<Anchors>
+										<Anchor point="LEFT" relativePoint="RIGHT">
+											<Offset>
+												<AbsDimension x="4" y="0"/>
+											</Offset>
+										</Anchor>
+									</Anchors>
+									<Color r="1" g="1" b="1"/>
+								</FontString>
+							</Layer>
+						</Layers>
+					</CheckButton>
+					<Slider name="$parentTextSpacing" inherits="OptionsSliderTemplate">
+						<Size>
+							<AbsDimension x="400" y="17"/>
+						</Size>
+						<Anchors>
+							<Anchor point="TOP" relativePoint="TOP">
+								<Offset>
+									<AbsDimension x="0" y="-205"/>
+								</Offset>
+							</Anchor>
+						</Anchors>
+						<Scripts>
+							<OnLoad inherit="prepend">
+								_G[self:GetName().."Text"]:SetText("");
+								_G[self:GetName().."High"]:SetText("40");
+								_G[self:GetName().."Low"]:SetText("-40");
+								self:SetMinMaxValues(-40, 40);
+								self:SetValueStep(0.1);
+								self.tooltipText = CT_UFO_TEXTSPACING_HELP;
+							</OnLoad>
+							<OnShow>
+								self:SetValue(CT_UnitFramesOptions.focusTextSpacing or 0);
+							</OnShow>
+							<OnValueChanged>
+								CT_UnitFramesOptions.focusTextSpacing = self:GetValue();
+								_G[self:GetName().."Text"]:SetText(CT_UFO_LEFTSPACING .. format("%0.1f", self:GetValue()));
+								CT_UnitFrames:AnchorFocusFrameSideText();
+							</OnValueChanged>
+						</Scripts>
+					</Slider>
+					<Button name="$parentResetPosition" inherits="UIPanelButtonTemplate" text="Reset position">
+						<Size>
+							<AbsDimension x="140" y="21"/>
+						</Size>
+						<Anchors>
+							<Anchor point="BOTTOM" relativePoint="BOTTOM">
+								<Offset>
+									<AbsDimension x="0" y="13"/>
+								</Offset>
+							</Anchor>
+						</Anchors>
+						<Scripts>
+							<OnClick>
+								CT_UnitFrames_ResetPosition("CT_FocusFrame_Drag");
+								CT_UnitFrames_ResetDragLink("CT_FocusFrame_Drag");
+							</OnClick>
+						</Scripts>
+					</Button>
+				</Frames>
+			</Frame>
+
+			<Frame name="$parentBox6" id="6" inherits="CT_UnitFramesOptionsBoxTemplate" hidden="true">
+				<Frames>
+					<Frame name="$parentSelection3" id="3" inherits="CT_UnitFramesOptionsFrameSelectionTemplate">
+						<Anchors>
+							<Anchor point="TOPLEFT">
+								<Offset>
+									<AbsDimension x="10" y="-45"/>
+								</Offset>
+							</Anchor>
+						</Anchors>
+					</Frame>
+					<Frame name="$parentSelection4" id="4" inherits="CT_UnitFramesOptionsFrameSelectionTemplate">
+						<Anchors>
+							<Anchor point="TOPLEFT">
+								<Offset>
+									<AbsDimension x="10" y="-65"/>
+								</Offset>
+							</Anchor>
+						</Anchors>
+					</Frame>
+					<Slider name="$parentSlider" inherits="OptionsSliderTemplate">
+						<Size>
+							<AbsDimension x="400" y="17"/>
+						</Size>
+						<Anchors>
+							<Anchor point="CENTER" relativePoint="TOP">
+								<Offset>
+									<AbsDimension x="0" y="-135"/>
+								</Offset>
+							</Anchor>
+						</Anchors>
+						<Scripts>
+							<OnLoad inherit="prepend">
+								CT_PetFrameSlider_OnLoad(self);
+							</OnLoad>
+							<OnShow>
+								self:SetValue(CT_UnitFramesOptions.petTextSize or 3);
+							</OnShow>
+							<OnValueChanged>
+								CT_UnitFramesOptions.petTextSize = self:GetValue();
+								_G[self:GetName().."Text"]:SetText(CT_UFO_PARTYTEXTSIZE .. " = "..self:GetValue()+6);
+								CT_UnitFramesOptions_Radio_Update();
+								CT_UnitFrames_PetStatusBarText:SetFont("Fonts\\FRIZQT__.TTF", self:GetValue()+6, "OUTLINE");
+							</OnValueChanged>
+						</Scripts>
+					</Slider>
+					<Slider name="$parentTextSpacing" inherits="OptionsSliderTemplate">
+						<Size>
+							<AbsDimension x="400" y="17"/>
+						</Size>
+						<Anchors>
+							<Anchor point="TOP" relativePoint="TOP">
+								<Offset>
+									<AbsDimension x="0" y="-180"/>
+								</Offset>
+							</Anchor>
+						</Anchors>
+						<Scripts>
+							<OnLoad inherit="prepend">
+								_G[self:GetName().."Text"]:SetText("");
+								_G[self:GetName().."High"]:SetText("40");
+								_G[self:GetName().."Low"]:SetText("-40");
+								self:SetMinMaxValues(-40, 40);
+								self:SetValueStep(0.1);
+								self.tooltipText = CT_UFO_TEXTSPACING_HELP;
+							</OnLoad>
+							<OnShow>
+								self:SetValue(CT_UnitFramesOptions.petTextSpacing or GetPetHappiness and 15 or 0 );
+							</OnShow>
+							<OnValueChanged>
+								CT_UnitFramesOptions.petTextSpacing = self:GetValue();
+								_G[self:GetName().."Text"]:SetText(CT_UFO_RIGHTSPACING .. format("%0.1f", self:GetValue()));
+								CT_UnitFrames:AnchorPetFrameSideText();
+							</OnValueChanged>
+						</Scripts>
+					</Slider>
+				</Frames>
+			</Frame>
+
+		</Frames>
+
+		<Scripts>
+			<OnLoad>
+				CT_UnitFrameOptions_OnLoad(self);
+			</OnLoad>
+			<OnEvent>
+				CT_UnitFrameOptions_OnEvent(self, event, ...);
+			</OnEvent>
+			<OnMouseDown>
+				if ( button == "LeftButton" ) then
+					self:StartMoving();
+				end
+			</OnMouseDown>
+			<OnMouseUp>
+				if ( button == "LeftButton" ) then
+					self:StopMovingOrSizing();
+				end
+			</OnMouseUp>
+			<OnHide>
+				PlaySound(1115);
+				self:StopMovingOrSizing();
+			</OnHide>
+			<OnShow>
+				PlaySound(1115);
+			</OnShow>
+		</Scripts>
+	</Frame>
+</Ui>

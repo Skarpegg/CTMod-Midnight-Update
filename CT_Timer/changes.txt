@@ -1,0 +1,160 @@
+CT_Timer (12.0.0) 2026-06-22
+- Update for WoW: Midnight (interface 120000)
+
+CT_Timer (10.2.0.3) 2023-11-17
+- SetAlpha() now strictly requires value in the range 0 to 1
+
+CT_Timer (9.1.0.3) 2021-09-03
+- Control panel improvements
+
+CT_Timer (9.0.5.6) 2021-05-13
+- Refactoring to align with changes in CT_Library 9.0.5.6
+
+CT_Timer (8.3.0.7) 2019-02-24
+- Reduced CPU usage using C_Timer
+
+CT_Timer (8.3.0.5) 2019-02-10
+- Reduced CPU usage
+- Localization
+
+CT_Timer (8.0.1.0) 2018-07-17
+- Updated for 8.0.1
+
+CT_Timer (7.3.2.0) 2017-12-30
+- Updated for 7.3.2.
+
+CT_Timer (7.3.0.0) 2017-09-03
+- Updated for 7.3.0.
+
+CT_Timer (7.1.0.0) 2016-12-11
+- Updated for 7.1.0.
+
+CT_Timer (7.0.3.1) 2016-07-23
+- Editbox fixes.
+
+CT_Timer (7.0.3.0) 2016-07-22
+- Updated to 7.0.3.
+
+CT_Timer (6.2.3.0) 2015-10-24
+- Updated to 6.2.3.
+
+CT_Timer (6.1.0.0) 2015-03-13
+- Updated to 6.1.0.
+
+CT_Timer (6.0.2.0) 2014-10-15
+- Updated to 6.0.2.
+
+CT_Timer (5.4.7.0) 2014-05-16
+- Updated to 5.4.7.
+- Library updates.
+
+CT_Timer (5.4.2.1) 2013-12-30
+- Changed library to a standalone module.
+
+CT_Timer (5.4.2) 2013-12-21
+- Library fix.
+
+CT_Timer (5.4) 2013-12-12
+- Updated for the WoW 5.4 patch.
+
+CT_Timer (5.3) 2013-05-24
+- Updated for the WoW 5.3 patch.
+
+CT_Timer (5.2) 2013-03-09
+- Updated for the WoW 5.2 patch.
+
+CT_Timer (5.0101) 2012-12-10
+- Updated for the WoW 5.1 patch.
+
+CT_Timer (5.0002) 2012-08-28
+- Release version for WoW 5.
+
+CT_Timer (5.0001) 2012-08-19
+- Beta version for WoW 5.
+
+CT_Timer (4.0301) 2011-11-27
+- Updated for the WoW 4.3 patch.
+
+CT_Timer (4.0200) 2011-06-28
+- Updated version numbers for the WoW 4.2 patch.
+
+CT_Timer (4.0100) 2011-04-26
+- Updated for the WoW 4.1 patch.
+- Updated CT_Library.lua to version 4.0100.
+
+CT_Timer (4.003) 2010-11-22
+- Existing CT_Timer settings will be reset to default values the first time you use this version of the addon.
+- All CT_Timer options are now configured directly in the CTMod control panel. Type /ct and then click on CT_Timer.
+- CT_Timer settings are now saved per character.
+- CT_Timer settings can now be imported from another character that is using CT_Timer 4.003 or later via the CTMod control panel's 'Import settings' menu item.
+- You can open the CT_Timer options window directly by typing /cttimer.
+- There is now a button to reset the timer window's position to the center of the screen.
+- There is now a button to reset all of the CT_Timer options.
+- The position of the timer window is now remembered even if you disable the CT_Timer addon.
+
+CT_Timer (4.002)
+- WoW 4.0 patch version for the live realms.
+- Updated CT_Library.lua to version 4.002.
+
+CT_Timer (4.001)
+- WoW 4.0 patch test version for the PTR realms.
+
+CT_Timer (3.301)
+- Added a missing reference to CT_Library.lua. This fixes the error "attempt to index global 'CT_Library' (a nil value)" that was occurring when CT_Timer was the first CTMod addon to load.
+
+CT_Timer (3.300)
+
+- Updated for the WoW 3.3 patch.
+- CT_Timer now appears in the list of addons in the CTMod Control Panel.
+- Now displays a basic options window in the CTMod Control Panel. It describes the slash commands available, provides a button to open/close the CT_Timer window, and provides a button to open the CT_Timer options window.
+- The CT_Timer window can no longer be dragged off screen.
+- Updated CT_Library.lua to version 3.005.
+
+CT_Libary.lua (3.005)
+
+Settings import
+- Fixed a problem with the settings import feature in the CTMod Control Panel where it was not properly importing frame positions.
+- Fixed a problem where there would be more than one "Settings Import" item listed in the CTMod Control Panel when more than one version of CT_Library.lua was encountered.
+- The settings import window now defaults to the first character on the first server that has importable options.
+- Added the ability to delete settings.
+
+Slash command
+- Added the /ctmod command as an alternative to the existing /ct command. Either one will open the CTMod Control Panel.
+- Added code to allow direct access to an addon's options window via a slash command (refer to individual addons for any slash commands that may have been added).
+
+General
+- The scrollbar in the options window resets to the top when you select a different addon.
+- The message at the top of the CTMod Control panel now mentions the slash commands that can be used to open it.
+- Some variables and functions which were global are now correctly declared as local.
+- Updated CT_Library.lua to version 3.005.
+
+-----
+
+CT_Timer (3.200)
+- Updated for the WoW 3.2 patch.
+
+CT_Timer (3.006)
+- Updated for the WoW 3.1 patch.
+- Updated CT_Library.lua to version 3.004.
+
+CT_Library.lua (3.004)
+- Fixed a nil value error when the client's locale was not recognized.
+
+CT_Timer (3.004)
+- Updated CT_Library.lua to version 3.003.
+
+CT_Timer (3.003)
+- Updated CT_Library.lua to version 3.002.
+
+CT_Library (3.002)
+- Fixed a bug that was causing some text to be aligned incorrectly in some of the addons.
+- Corrected a spelling mistake on the CTMod Control panel window.
+
+CT_Timer (3.002)
+- Updated CT_Library.lua
+
+CT_Timer (3.001)
+- Left clicking the timer no longer causes an error.
+
+CT_Timer (3.000)
+- Updated for the WoW 3.0 patch.

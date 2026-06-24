@@ -1,0 +1,386 @@
+CT_MailMod (12.0.0) 2026-06-22
+- Update for WoW: Midnight (interface 120000)
+
+CT_MailMod (11.1.0.1) 2025-02-27
+- Further avoiding crafting orders to avoid getting hung
+
+CT_MailMod (11.0.2.5) 2024-09-19
+- Fix for tooltip with mail having multiple attachments
+- Fix for mail opening getting hung on crafting orders
+
+CT_MailMod (11.0.2.2) 2024-08-18
+- Updates for WoW: The War Within
+
+CT_MailMod (10.2.7.1) 2024-05-15
+- Update to closing mailbox in Classic with CT_MailMod
+
+CT_MailMod (10.0.7.1) 2023-03-19
+- Fixed a logging error
+
+CT_MailMod (10.0.5.1) 2023-01-25
+- Fixed adding items to mail with alt-click
+
+CT_MailMod (10.0.2.5) 2023-01-21
+- Minor refactoring to align with CT_Core and CT_Library
+- Multiple-item tooltip update for WotLK Classic 3.4.1
+
+CT_MailMod (10.0.2.2) 2022-11-22
+- Responding to when the mailbox closes in Dragonflight
+
+CT_MailMod (10.0.0.3) 2022-11-03
+- Preventing bag frame taint
+- Inbox size appears over title bar
+
+CT_MailMod (9.2.0.4) 2022-10-21
+- Multi-item tooltips in Dragonflight
+
+CT_MailMod (9.2.0.3) 2022-10-13
+- Updates for WoW Dragonflight
+
+CT_MailMod (9.1.5.1) 2021-11-02
+- Shift-click to only open mail from the auction house.
+
+CT_MailMod (9.1.0.6) 2021-09-09
+- Resolving an error that appears during a fresh install
+
+CT_MailMod (9.1.0.3) 2021-08-16
+- Restoring the account-wide log
+- Avoiding logging the same message twice
+- Estimating when mail was actually sent, versus the timestamp when openned
+
+CT_MailMod (9.1.0.2) 2021-06-30
+- Better implementation of the OpenAllButton override.
+
+CT_MailMod (9.1.0.1) 2021-06-29
+- Removing the mouse scroll-wheel feature, as this is now part of the default UI since WoW 6.1.0
+- Overriding the OpenAllButton to do CT_MailMod parsing first, so the mail log is updated.
+
+CT_MailMod (9.0.5.6) 2021-05-13
+- Refactoring to align with changes in CT_Library 9.0.5.6
+
+CT_MailMod (9.0.5.3) 2021-04-02
+- Change to LibUIDropDownMenu-4.0 integration from 9.0.5.2
+
+CT_MailMod (9.0.5.2) 2020-03-09
+- Compatibility with LibUIDropDownMenu-4.0 now used by Titan Panel (see CT_Library_TitanPlugin.lua)
+
+CT_MailMod (9.0.1.1) 2020-10-07
+- Improvements to the /maillog UI: search filtering, prominent item stack counts, and more rows display at once.
+- Fix to logging the stack quantity on outgoing ("sent") mail; updating for an API change made in 7.0.3
+
+CT_MailMod (8.3.0.7) 2020-03-25
+- Added option to prevent editboxes from losing focus during common tasks
+- Localization, courtesy of 萌丶汉丶纸 (zhCH)
+
+CT_MailMod (8.3.0.5) 2020-02-10
+- WoW Retail 8.3.0 changed the maximum mailbox size and introduced new API
+
+CT_MailMod (8.3.0.1) 2020-01-12
+- Resolve conflict with Classic Guild Bank addon
+
+CT_MailMod (8.2.5.9) 2019-12-18
+- Minor code cleanup; nothing substantive
+
+CT_MailMod (8.2.5.8) 2019-12-15
+- Small fix to tooltips in the mail log
+- More localization support
+
+CT_MailMod (8.2.5.7) 2019-12-08
+- Timestamps and tooltips added to the mail log
+- Localization, courtesy of imposeren (ruRU)
+
+CT_MailMod (8.2.5.5) 2019-10-18
+- Fix to text on the open/return buttons after actions performed
+- Further localization
+- Reducing filesize using Blizzard textures instead of custom ones
+
+CT_MailMod (8.2.5.4) 2019-10-12
+- Adding more French localization
+
+CT_MailMod (8.2.0.8) 2019-08-31
+- Improved tooltip when receiving battle pets in the inbox
+
+CT_MailMod (8.2.0.3) 2019-06-27
+- Cleaning up 8.2.0.1
+
+CT_MailMod (8.2.0.1) 2019-06-15
+- Incorporating community-based localization via CurseForge
+- More informative handling of overflowing inbox (>50 items)
+
+CT_MailMod (8.1.0.2) 2019-01-02
+- Added option to hide the checkboxes and open/close buttons at top
+- Restored option to hide the log button at top
+
+CT_MailMod (8.0.1.5) 2018-08-15
+- Aesthetic adjustment to open mail frame
+
+CT_MailMod (8.0.1.3) 2018-07-28
+- Fixed and improved auto-complete filters
+
+CT_MailMod (8.0.1.0) 2018-07-17
+- Updated for 8.0.1
+
+CT_MailMod (7.3.2.0) 2017-12-30
+- Updated for 7.3.2.
+
+CT_MailMod (7.3.0.0) 2017-09-03
+- Updated for 7.3.0.
+
+CT_MailMod (7.2.0.0) 2017-04-18
+- Updated for 7.2.0.
+
+CT_MailMod (7.1.0.0) 2016-12-11
+- Updated for 7.1.0.
+
+CT_MailMod (7.0.3.2) 2016-08-05
+- Mail tooltip fix.
+
+CT_MailMod (7.0.3.1) 2016-07-23
+- Editbox fixes.
+- Mail tooltip and mail log fixes.
+
+CT_MailMod (7.0.3.0) 2016-07-22
+- Updated to 7.0.3.
+- Should handle big strings now without an issue.
+
+CT_MailMod (6.2.3.0) 2015-10-24
+- Updated to 6.2.3.
+
+CT_MailMod (6.1.0.0) 2015-03-13
+- Updated to 6.1.0.
+
+CT_MailMod (6.0.2.0) 2014-10-15
+- Updated to 6.0.2.
+
+CT_MailMod (5.4.7.0) 2014-05-16
+- Updated to 5.4.7.
+- Library updates.
+
+CT_MailMod (5.4.2.1) 2013-12-30
+- Changed library to a standalone module.
+
+CT_MailMod (5.4.2) 2013-12-21
+- Library fix.
+
+CT_MailMod (5.4) 2013-12-12
+- Updated for the WoW 5.4 patch.
+
+CT_MailMod (5.3) 2013-05-24
+- Updated for the WoW 5.3 patch.
+
+CT_MailMod (5.2) 2013-03-09
+- Updated for the WoW 5.2 patch.
+
+CT_MailMod (5.0101) 2012-12-10
+- Updated for the WoW 5.1 patch.
+
+CT_MailMod (5.0003) 2012-08-30
+- The tooltip for an inbox message will now show icons for the 11th and 12th attachments.
+
+CT_MailMod (5.0002) 2012-08-28
+- Release version for WoW 5.
+
+CT_MailMod (5.0001) 2012-08-19
+- Beta version for WoW 5.
+
+CT_MailMod (4.0301) 2011-11-27
+- Updated for the WoW 4.3 patch.
+
+CT_MailMod (4.0200) 2011-06-28
+- Updated version numbers for the WoW 4.2 patch.
+- Added "Open only the backpack" and "Close all bags" options for when the mailbox opens.
+- Added an option to delete all of the mail log entries.
+- Fixed some text that was not wrapping in the options window.
+
+CT_MailMod (4.0100) 2011-04-26
+- Updated for the WoW 4.1 patch.
+- Updated CT_Library.lua to version 4.0100.
+- The "open all bags" option has been updated to work with WoW 4.1 changes.
+
+CT_MailMod (4.006) 2010-11-22
+- Added an option to hide the 'Mail Log' button that appears at the bottom of the Inbox window. The /maillog command can be used to open the mail log window at any time without using the button.
+
+CT_MailMod (4.005) 2010-11-13
+- Added an option to log sent mail.
+- Added an option to change the color of the mail log window.
+- Added a tip that describes how to change the width of the subject column by resizing the mail log window.
+- Added a tip that describes how to resize the mail log window by dragging the left or right edges of the window.
+- Added a texture to the bottom right corner of the mail log window to visually indicate that the window can be resized.
+
+CT_MailMod (4.004) 2010-10-31
+- A side effect of the CT_MailMod 4.003 bag changes was that if the backpack was already open before you opened the mailbox, then the game's CloseAllBags() function left the backpack open when you closed the mailbox. If the 'Close all bags...' option is enabled, CT_MailMod will now close the backpack if it is still open after CloseAllBags() has finished.
+
+CT_MailMod (4.003) 2010-10-27
+- Changed the 'Open all bags ...' option to avoid problems with addons that display the contents of all bags in a single window.
+
+CT_MailMod (4.002)
+- WoW 4.0 patch version for the live realms.
+- Updated CT_Library.lua to version 4.002.
+
+CT_MailMod (4.001)
+- WoW 4.0 patch test version for the PTR realms.
+
+CT_MailMod (3.306)
+- Added options to configure auto-completion of the Send To name.
+
+CT_MailMod (3.305)
+- Made a change to prevent an error if the game returns a nil item link when CT_MailMod tries to display the tooltip of a message containing attached items.
+
+CT_MailMod (3.304)
+- Removed the programming in CT_MailMod that was moving the "C.O.D." text from the bottom of a message icon to the top. It was no longer needed since Blizzard is now displaying the text at the top of the icon.
+- Fixed some text in the options window that was being truncated.
+
+CT_MailMod (3.303)
+- Fixed a problem when alt-clicking a message checkbox where it would sometimes not properly match similar subjects ending with or without a quantity.
+
+CT_MailMod (3.302)
+- When Alt-clicking a message checkbox for a message with a subject formatted like "Frostweave Cloth (20)" it no longer ignores the text prior to the number in brackets when finding other messages with similar subjects.
+- Made some changes to an prevent error caused when other addons that hook certain script handlers fail to pass the required parameters.
+
+CT_MailMod (3.301)
+- The 'open all bags when mailbox opens' option now specifically opens the backpack, even though the game normally opens the backpack anyway. This should force the backpack open for anyone who's backpack was not opening for some reason.
+
+CT_MailMod (3.300)
+
+General
+- Updated for the WoW 3.3 patch.
+- Added options to open and close all bags when you use the mailbox.
+- Added an option to display a message when the mailbox closes that shows how much your money has changed.
+- Added the /ctmail command which can be used to directly open the CT_MailMod options window.
+- The CT_MailMod options can also be accessed by clicking the large round picture located in the upper left corner of the mailbox window.
+- When you take items from a mail, delete a mail, or return a mail, the addon will disable certain buttons to prevent them from being used until the requested action has finished processing.
+- If the server is taking too long to respond to a request from the addon, the current action may timeout causing the processing to be cancelled. The default timeout period is 30 seconds.
+- You can manually cancel the processing of an action at any time by clicking the Cancel button on the Inbox window, or by closing the mailbox.
+- Updated CT_Library.lua to version 3.005.
+
+Inbox
+- Added an option to enable mouse wheel scrolling in the inbox.
+- Added an option to display long message subjects as two lines of text.
+- If you right-click on the "Prev" button it will take you to the first inbox page.
+- If you right-click on the "Next" button it will take you to the last inbox page.
+- Added an option to display the message number above each message's checkbox.
+- The text indicating that you have a lot of mail in your inbox is now displayed in the chat window when the mailbox opens, instead of at the top of the inbox window.
+- Added an option to display the number of messages in the inbox (on the left side of the inbox window title).
+- Added an option to display a "Mailbox" button showing the number of messages remaining in the mailbox (on the right side of the inbox window title). These are the messages that the game is not currently showing in the inbox.
+- When there are less than 50 messages in the inbox and there are messages available in the mailbox, clicking the "Mailbox" button will cause the addon to wait for the game to download more messages into the inbox.
+
+Message expiry buttons (inbox)
+- Added an option to display a message expiry button below the message expiry time for each message.
+- A button with an arrow on it will appear below the expiry time if a message can be returned. Clicking the button will log and return the message.
+- A button with an cross on it will appear below the expiry time if a message can be deleted. Clicking the button will log and delete the message.
+
+Selecting messages (inbox)
+- Now displays the number of selected messages below the "Select All" checkbox.
+- Added an option to show message checkbox tooltips.
+- Message checkboxes will now only be shown on lines containing a message.
+- To select messages with similar subjects, Alt left-click a message's checkbox.
+- To unselect messages with similar subjects, Alt right-click a message's checkbox.
+- To select all messages from the same sender, Ctrl left-click a message's checkbox.
+- To unselect all messages from the same sender, Ctrl right-click a message's checkbox.
+- To select a range of messages, Shift click one checkbox and then Shift left-click a second one.
+- To unselect a range of messages, Shift click one checkbox and then Shift right-click a second one.
+- By default, selecting (or unselecting) messages adds to (or removes from) the selection list.
+- Added an option to clear the selection list before selecting a sender.
+- Added an option to clear the selection list before selecting a range.
+
+Processing selected messages (inbox)
+- Added a button at the top of the inbox window to return selected messages.
+- When the "Open" or "Return" button is clicked it will change into a "Cancel" button that can clicked to canel the processing of the selected messages.
+- Fixed a problem where the addon would sometimes open selected messages out of order, or suddenly stop opening messages.
+- When automatically opening multiple selected messages, the oldest message is now opened first. This also causes the selected messages to appear in the mail log in the same relative order that they were in the inbox.
+- Automatically retrieving items from a message should no longer cause "item not found" or "database" error messages.
+
+Message icons (inbox)
+- Added an option to show all attachments in message icon tooltips. Note: The game only supports displaying 10 icons in tooltips so the 11th and 12th items in the tooltip will not have an icon.
+- You can now use Ctrl click on a message icon to return the message to the sender.
+- You can still use Alt click on a message icon to take the contents of the message (Shift click will also work).
+- The left or right mouse button can be used when doing a Ctrl click, Shift click, or Alt click on a message.
+- Moved the "C.O.D." text that is displayed on a mail icon, to the top of the icon. This prevents it from being partially covered up if an item count is displayed at the bottom of the icon.
+
+Open Mail window
+- Now logs items and money taken from the Open Mail window.
+- Now logs mail that is deleted from the Open Mail window.
+- Now logs mail that is returned from the Open Mail window.
+- While an attachment is being taken, any other attachment that is clicked will be marked (the icon color changes) and added to the processing queue.
+- Clicking a marked attachment will unmark it and remove it from the queue, as long as it is not the item currently being taken.
+
+Mail log
+- The /maillog command and the "Mail Log" button will now toggle the mail log window open/closed.
+- Messages with no sender now show the player name as "Unknown" in the mail log.
+- Added an option to log all mail that you return.
+- Added an option to log all mail that you delete.
+- Added an option to log all mail that you open.
+- Now displays "Open", "Return", or "Delete" in the first column to indicate the type of log entry.
+- No longer logs all items and money in a message before anything is taken in case an inventory full or similar error occurs.
+- Attachments taken from the mail in the Open Mail window are logged after each item is successfully taken.
+- Attachments taken from closed mail in the Inbox are logged after everything in a mail is successfully taken.
+- Errors are now logged on the same line as the mail information to which the error applies.
+- When multiple messages are processed, they now appear in the log in the same relative order that they were in the inbox.
+- Added an option to change the scale of the mail log window.
+- Logs the amount of money paid when the first item in a COD mail is taken.
+- Logs the amount of money in a COD mail that you return.
+- COD amounts are displayed in the mail log's money column using red text (Non-COD amounts are shown using white text).
+
+Sending mail
+- Added an option to an item to the Send Mail window when you Alt left-click an item. If you are looking at the Inbox tab, then it will automatically switch to the Send Mail tab before adding the item.
+- Added an option to replace a blank subject with the amount of money being sent.
+
+CT_Libary.lua (3.005)
+
+Settings import
+- Fixed a problem with the settings import feature in the CTMod Control Panel where it was not properly importing frame positions.
+- Fixed a problem where there would be more than one "Settings Import" item listed in the CTMod Control Panel when more than one version of CT_Library.lua was encountered.
+- The settings import window now defaults to the first character on the first server that has importable options.
+- Added the ability to delete settings.
+
+Slash command
+- Added the /ctmod command as an alternative to the existing /ct command. Either one will open the CTMod Control Panel.
+- Added code to allow direct access to an addon's options window via a slash command (refer to individual addons for any slash commands that may have been added).
+
+General
+- The scrollbar in the options window resets to the top when you select a different addon.
+- The message at the top of the CTMod Control panel now mentions the slash commands that can be used to open it.
+- Some variables and functions which were global are now correctly declared as local.
+
+CT_MailMod (3.200)
+- Updated for the WoW 3.2 patch.
+
+CT_MailMod (3.009)
+- The width of the mail log window can now be changed by dragging its left or right border. Resizing the window will affect the width of the subject column.
+- If the mail log window is open when CT_MailMod is opening mail, new log entries will be displayed as they are added.
+
+CT_MailMod (3.008)
+- Updated for the WoW 3.1 patch.
+- Updated CT_Library.lua to version 3.004.
+
+CT_Library.lua (3.004)
+- Fixed a nil value error when the client's locale was not recognized.
+
+CT_MailMod (3.006)
+- Fixed an error that could occur if you used Alt-Right-Click, or the "Open selected" button, to open an email where at least one of the attachments had previously been manually removed.
+
+CT_MailMod (3.005)
+- Fixed a bug in the mail log which sometimes caused an error when certain lines of the log were displayed.
+- Fixed a bug in the mail log which was causing item icons to not display properly when scrolling through the log.
+- Fixed a bug in the mail log which caused log scrolling to slow down the more you scrolled through it.
+- Updated CT_Library.lua to version 3.003.
+
+CT_MailMod (3.004)
+- Updated CT_Library.lua to version 3.002.
+
+CT_Library (3.002)
+- Fixed a bug that was causing some text to be aligned incorrectly in some of the addons.
+- Corrected a spelling mistake on the CTMod Control panel window.
+
+CT_MailMod (3.003)
+- The option to block trades while the mailbox is open should now work properly.
+
+CT_MailMod (3.002)
+- Updated CT_Library.lua
+
+CT_MailMod (3.001)
+- Fixed a couple of bugs.
+- Alt-Left click on an inventory item should now initiate a trade with the targeted person.
+
+CT_MailMod (3.000)
+- Updated for the WoW 3.0 patch.

@@ -1,0 +1,35 @@
+<Ui xmlns="http://www.blizzard.com/wow/ui/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.blizzard.com/wow/ui/
+..\FrameXML\UI.xsd">
+	<Script file="CT_PetFrame.lua"/>
+	<Frame name="CT_PlayerFrame" parent="PetFrame">
+		<Layers>
+			<Layer level="OVERLAY">
+				<FontString name="CT_PetHealthRight" inherits="GameFontNormalSmall" text="">
+					<Anchors>
+						<Anchor point="LEFT" relativeTo="PetFrame" relativePoint="TOPRIGHT">
+							<Offset>
+								<AbsDimension x="3" y="1"/>
+							</Offset>
+						</Anchor>
+					</Anchors>
+					<FontHeight>
+						<AbsValue val="9"/>
+					</FontHeight>
+				</FontString>
+				<FontString name="CT_PetManaRight" inherits="GameFontNormalSmall" text="">
+					<Anchors>
+						<Anchor point="LEFT" relativeTo="PetFrame" relativePoint="TOPRIGHT">
+							<Offset>
+								<AbsDimension x="3" y="-9"/>
+							</Offset>
+						</Anchor>
+					</Anchors>
+					<FontHeight>
+						<AbsValue val="9"/>
+					</FontHeight>
+				</FontString>
+				
+			</Layer>
+		</Layers>
+	</Frame>
+</Ui>

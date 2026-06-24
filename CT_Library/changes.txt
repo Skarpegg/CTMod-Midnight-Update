@@ -1,0 +1,233 @@
+CT_Library (12.0.0) 2026-06-22
+- Update for WoW: Midnight (interface 120000)
+- Added shared Midnight compatibility helpers on CT_Library: safeValue (secret-value sanitizer), safeBool (secret-boolean sanitizer), getSpellName, DebuffTypeColor fallback, getMerchantItemInfo, isSpellOverlayed
+- regEvent now tolerates events that no longer exist on the current client instead of erroring
+
+CT_Library (11.0.2.2) 2024-08-18
+- Updates for WoW: The War Within
+
+CT_Library (10.1.0.2) 2023-07-07
+- Library update
+
+CT_Library (10.1.0.1) 2023-05-05
+- Bugfix to Titan Panel integration
+- Migrating the minimap button to the new addon list
+
+CT_Library (10.0.5.1) 2023-01-23
+- Added getGameVersionAndPatch() to complement getGameVersion()
+
+CT_Library (10.0.2.5) 2023-01-04
+- Minor refactoring to improve performance
+
+CT_Library (10.0.2.3) 2022-12-10
+- Library update
+
+CT_Library (10.0.2.2) 2022-12-01
+- Labels no longer automatically localize using global variable names
+
+CT_Library (10.0.0.4) 2022-11-12
+- Fix to checkbuttons appearing checked when they are not
+
+CT_Library (9.2.0.4) 2022-10-23
+- Adding a temporary warning when opening the control panel regarding ongoing taint issues in WoW Dragonflight
+
+CT_Library (9.2.0.2) 2022-10-01
+- Library updates for Dragonflight
+- Added lib:afterCombat() to automate doing something once outside combat lockdown
+
+CT_Library (9.1.0.6) 2021-09-09
+- Minor code cleanup; nothing substantive.
+
+CT_Library (9.1.0.5) 2021-09-01
+- Improved lib:hookWhenFirstLoaded() to automate the task of ensuring that a trigger exists; returns false when it doesn't.
+
+CT_Library (9.1.0.3) 2021-08-16
+- Added vertically-collapsible frames to make options menus in the CT control panel more dynamic
+- Removed the first argument from showModuleOptions() because it wasn't really useful
+- Adding frame templates to standardize repetitive elements in the control panel
+
+CT_Library (9.1.0.2) 2021-07-01
+- Added lib:hookWhenFirstLoaded() to simplify the common task of hooking a frame once and only once after it is loaded on demand
+
+CT_Library (9.0.5.5) 2021-05-02
+- Adopting the CT_Module-Classic.toc and CT_Module-BCC.toc format so that a single package will work in all three game editions
+
+CT_Library (9.0.5.3) 2021-04-02
+- Changes to how 9.0.5.2 integrated Titan Panel (LibUIDropDownMenu-4.0) updates, to resolve other issues with optional arguments
+- Updates to how 8.3.0.1 avoids drop down taint, using foxlit's new TaintLess library
+
+CT_Library (9.0.5.2) 2021-03-09
+- All TOCs marked with X-Part-Of for integration to "Addon Control Panel" by Sylvanaar
+- Compatibility with LibUIDropDownMenu-4.0 now used by Titan Panel
+
+CT_Library (9.0.5.1) 2021-02-26
+- Improvements to importing and exporting settings
+
+CT_Library (9.0.2.4) 2021-02-03
+- Small change to accomodate a module calling lib:unregEvent("ADDON_LOADED")
+
+CT_Library (9.0.1.2) 2020-10-26
+- Added means to import/export settings with different accounts via the clipboard
+
+CT_Library (9.0.1.1) 2020-10-01
+- Updated for Shadowlands
+
+CT_Library (8.3.7.2) 2020-09-14
+- More tooltip automation used with the CTRA options panel
+
+CT_Library (8.3.7.1) 2020-07-24
+- Shadowlands BackdropTemplate compatibility
+
+CT_Libarary (8.3.0.11) 2020-06-20
+- Adding a utility function for encounterIDs (used by CT_RaidAssist)
+
+CT_Library (8.3.0.9) 2020-06-07
+- Added flexibility for modules to simultaneously support Classic, Retail and Beta/PTR
+- Small adjustments to improve efficiency
+
+CT_Library (8.3.0.8) 2020-03-31
+- Small fixes to color swatches
+
+CT_Library (8.3.0.7) 2020-03-28
+- Performance improvements using C_Timer to replace OnUpdate
+- Fix to titan plugin and minimap button using protected-visibility code
+- The control panel is now fully usable in combat (reversing 8.2.0.5 and more stable than 8.2.5.5)
+- The control panel may now be minimized to more easily move bars around the screen
+- More control over font sizes to support different localizations and prevent overflow
+
+CT_Library (8.3.0.5) 2020-02-09
+- Changes to help other modules use code that mimics "public", "protected" and "public" visibility
+
+CT_Library (8.3.0.3) 2020-01-18
+- Avoid lua errors when missing a string of localised text
+
+CT_Library (8.3.0.1) 2019-01-12
+- No longer using LibUIDropDownMenu; replacing with foxlit's workarounds published at Townlong Yak
+- Added tool for modules to resolve conflicts with other addons
+
+CT_Library (8.2.5.9) 2019-12-18
+- Minor code cleanup; nothing substantive
+
+CT_Library (8.2.5.8) 2019-12-15
+- Even more control over font string width and alignment
+
+CT_Library (8.2.5.7) 2019-12-08
+- Minor correction to tooltip placement near objects with scaling
+- Added more alignments for font strings
+- Localization update
+
+CT_Library (8.2.5.6) 2019-11-08
+- Further fixes to prevent combat-error bugs in the control panel
+- Another small tooltip enhancement
+
+CT_Library (8.2.5.5) 2019-10-14
+- Further tooltip changes to simplify code in all other modules
+- Fix made to close button so the control panel can stay open in combat
+
+CT_Library (8.2.5.4) 2019-10-11
+- Added more tooltip functionality, corresponding with CTRA changes
+
+CT_Library (8.2.5.1) 2019-09-23
+- Library updates
+- Added support for bookmarks in module options (see CT_Core 8.2.5.1)
+- Added German translations provided by user dynaletik (Danke!)
+
+CT_Library (8.2.0.5) 2019-08-14
+- getOption(option) and setOption(option, ...) now accept "option" or option() as a parameter
+- The control panel is now slightly more opaque to improve readability
+- The control panel closes before entering combat
+
+CT_Library (8.2.0.1) 2019-06-22
+- Incorporated minimap icon from CT_Core for Titan integration
+- Added German translations provided by user taubenhaucher (Danke!)
+
+CT_Library (8.1.5.4) 2019-06-07
+- Introducing localization support
+- Added a sort of "help file"
+- Added optional TitanPanel integration
+
+CT_Library (8.1.5.3) 2019-05-29
+- Compatibility with WoW Classic and Retail editions
+
+CT_Library (8.1.5.2) 2019-04-15
+- Edited a comment for clarity (no change to executable code)
+
+CT_Library (8.1.5.1) 2019-04-05
+- Library update to LibUIDropDownMenu-2.0
+- Fixed error when trying to drag custom bars while in combat
+
+CT_Library (8.1.0.2) 2018-12-22
+- Library updates
+
+CT_Library (8.1.0.1) 2018-12-15
+- Changed TOC for all modules to match post-patch hotfix
+
+CT_Library (8.0.1.4) 2017-08-11
+- Library updates
+- Resolves additional battleground queuing taint from options panel
+- Corrects single-selection dropdowns (ie. radiobuttons)
+- Corrects min/max labels on sliders
+
+CT_Library (8.0.1.3) 2018-07-28
+- Library updates
+- Incorporates foxlit's fix for BG queuing taint from dropdown menus
+- Supports multiple-selection dropdowns (ie. checkboxes)
+
+CT_Library (8.0.1.0) 2018-07-17
+- Updated for 8.0.1
+
+CT_Library (7.3.2.0) 2017-12-30
+- Updated for 7.3.2.
+
+CT_Library (7.3.0.0) 2017-09-03
+- Updated for 7.3.0.
+
+CT_Library (7.2.0.0) 2017-04-18
+- Updated for 7.2.0.
+
+CT_Library (7.1.0.0) 2016-12-11
+- Updated for 7.1.0.
+
+CT_Library (7.0.3.2) 2016-08-05
+- Library updates.
+
+CT_Library (7.0.3.1) 2016-07-23
+- Editbox fixes.
+
+CT_Library (7.0.3.0) 2016-07-22
+- Updated to 7.0.3.
+
+CT_Library (6.2.3.0) 2015-10-24
+- Updated to 6.2.3.
+
+CT_Library (6.1.0.0) 2015-03-13
+- Updated to 6.1.0.
+
+CT_Library (6.0.3.0) 2014-12-11
+- Version and toc bump.
+
+CT_Library (6.0.2.2) 2014-10-17
+- Fixed the import issues.
+
+CT_Library (6.0.2.0) 2014-10-15
+- Updated to 6.0.2.
+
+CT_Library (5.4.7.0) 2014-05-16
+- Updated to 5.4.7.
+- Rescaling the UI Scale or the game itself in windowed mode now won't cause the bars to move randomly.
+
+CT_Library (5.4.2.2) 2013-12-21
+- Added more upvalues.
+
+CT_Library (5.4.2) 2013-12-21
+- Library fix.
+
+CT_Library (5.4) 2013-12-12
+- Updated for the WoW 5.4 patch.
+- Minor changes.
+
+CT_Library (5.3) 2013-05-24
+- Updated for the WoW 5.3 patch.
+
+CT_Library (5.2) 2013-03-09
+- Updated for the WoW 5.2 patch.

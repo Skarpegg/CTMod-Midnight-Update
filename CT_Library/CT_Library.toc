@@ -1,0 +1,20 @@
+## Interface: 110100, 120000
+## Version: 12.0.0
+## Title: CTMod Midnight - Library
+## Notes: Required for all CTMod modules
+## DefaultState: Enabled
+## Author: Cide, TS, Resike, Dahk; Midnight community port
+## AddonCompartmentFunc: CTMod_OnAddonCompartmentClick
+## AddonCompartmentFuncOnEnter: CTMod_OnAddonCompartmentEnter
+## AddonCompartmentFuncOnLeave: CTMod_OnAddonCompartmentLeave
+## IconTexture: Interface\Addons\CT_Library\Images\minimapIcon
+
+Libs\LibStub\LibStub.lua
+Libs\TaintLess.xml
+Libs\LibDeflate.lua
+Libs\Ace3\AceSerializer-3.0.lua
+
+CT_Library.lua
+localization.lua
+CT_Library_TitanPlugin.lua
+

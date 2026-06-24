@@ -1,0 +1,170 @@
+CT_ExpenseHistory (12.0.0) 2026-06-22
+- Update for WoW: Midnight (interface 120000)
+- GetMerchantItemInfo (removed) -> C_MerchantFrame.GetItemInfo, via the shared CT_Library adapter
+
+CT_ExpenseHistory (11.0.2.2) 2024-08-18
+- Updates for WoW: The War Within
+
+CT_ExpenseHistory (9.2.0.3) 2022-10-19
+- Repair cost tracking in Dragonflight
+
+CT_ExpenseHistory (9.2.0.2) 2022-09-30
+- Updates for WoW Dragonflight
+
+CT_ExpenseHistory (9.0.5.3) 2021-04-15
+- Minor code cleanup; nothing substantive
+
+CT_ExpenseHistory (8.3.7.1) 2020-07-19
+- Shadowlands BackdropTemplate compatibility
+- Correcting the French translations
+
+CT_ExpenseHistory (8.3.0.1) 2019-01-01
+- Correcting the Russian and German translations
+
+CT_ExpenseHistory (8.2.5.9) 2019-12-18
+- Minor code cleanup; nothing substantive
+
+CT_ExpenseHistory (8.2.5.6) 2019-10-28
+- Adding Russian translations by CurseForge user imposeren
+
+CT_ExpenseHistory (8.0.1.0) 2018-07-17
+- Updated for 8.0.1
+
+CT_ExpenseHistory (7.3.2.0) 2017-12-30
+- Updated for 7.3.2.
+
+CT_ExpenseHistory (7.3.0.0) 2017-09-03
+- Updated for 7.3.0.
+
+CT_ExpenseHistory (7.2.0.0) 2017-04-18
+- Updated for 7.2.0.
+
+CT_ExpenseHistory (7.1.0.0) 2016-12-11
+- Updated for 7.1.0.
+
+CT_ExpenseHistory (7.0.3.1) 2016-07-23
+- Editbox fixes.
+
+CT_ExpenseHistory (7.0.3.0) 2016-07-22
+- Updated to 7.0.3.
+
+CT_ExpenseHistory (6.2.3.0) 2015-10-24
+- Updated to 6.2.3.
+
+CT_ExpenseHistory (6.1.0.0) 2015-03-13
+- Updated to 6.1.0.
+
+CT_ExpenseHistory (6.0.2.0) 2014-10-15
+- Updated to 6.0.2.
+
+CT_ExpenseHistory (5.4.7.0) 2014-05-16
+- Updated to 5.4.7.
+- Library updates.
+
+CT_ExpenseHistory (5.4.2.1) 2013-12-30
+- Changed library to a standalone module.
+
+CT_ExpenseHistory (5.4.2) 2013-12-21
+- Library fix.
+
+CT_ExpenseHistory (5.4) 2013-12-12
+- Updated for the WoW 5.4 patch.
+
+CT_ExpenseHistory (5.3) 2013-05-24
+- Updated for the WoW 5.3 patch.
+
+CT_ExpenseHistory (5.2) 2013-03-09
+- Updated for the WoW 5.2 patch.
+
+CT_ExpenseHistory (5.0101) 2012-12-10
+- Updated for the WoW 5.1 patch.
+
+CT_ExpenseHistory (5.0003) 2012-08-30
+- Bug fix: Changed when dropdown menus are initialized to avoid tainting CompactRaidFrame1 when it gets created.
+
+CT_ExpenseHistory (5.0002) 2012-08-28
+- Release version for WoW 5.
+
+CT_ExpenseHistory (5.0001) 2012-08-19
+- Beta version for WoW 5.
+
+CT_ExpenseHistory (4.0301) 2011-11-27
+- Updated for the WoW 4.3 patch.
+
+CT_ExpenseHistory (4.0200) 2011-06-28
+- Updated version numbers for the WoW 4.2 patch.
+
+CT_ExpenseHistory (4.0100) 2011-04-26
+- Updated for the WoW 4.1 patch.
+- Updated CT_Library.lua to version 4.0100.
+
+CT_ExpenseHistory (4.002)
+- WoW 4.0 patch version for the live realms.
+- Updated CT_Library.lua to version 4.002.
+
+CT_ExpenseHistory (4.001)
+- WoW 4.0 patch test version for the PTR realms.
+
+CT_ExpenseHistory (3.300)
+
+- Updated for the WoW 3.3 patch.
+- The option window can no longer be dragged off screen.
+- Added the /cteh command which can be used to open the CT_ExpenseHistory window.
+- Now displays a basic options window in the CTMod Control Panel. It describes the slash commands available, and provides a button to open the CT_ExpenseHistory window.
+- Updated CT_Library.lua to version 3.005.
+
+CT_Libary.lua (3.005)
+
+Settings import
+- Fixed a problem with the settings import feature in the CTMod Control Panel where it was not properly importing frame positions.
+- Fixed a problem where there would be more than one "Settings Import" item listed in the CTMod Control Panel when more than one version of CT_Library.lua was encountered.
+- The settings import window now defaults to the first character on the first server that has importable options.
+- Added the ability to delete settings.
+
+Slash command
+- Added the /ctmod command as an alternative to the existing /ct command. Either one will open the CTMod Control Panel.
+- Added code to allow direct access to an addon's options window via a slash command (refer to individual addons for any slash commands that may have been added).
+
+General
+- The scrollbar in the options window resets to the top when you select a different addon.
+- The message at the top of the CTMod Control panel now mentions the slash commands that can be used to open it.
+- Some variables and functions which were global are now correctly declared as local.
+
+-----
+
+CT_ExpenseHistory (3.200)
+- Updated for the WoW 3.2 patch.
+
+CT_ExpenseHistory (3.005)
+- Updated for the WoW 3.1 patch.
+- Updated CT_Library.lua to version 3.004.
+
+CT_Library.lua (3.004)
+- Fixed a nil value error when the client's locale was not recognized.
+
+CT_ExpenseHistory (3.003)
+- Added the following ammunition: felbane slugs, hellfire shot, mysterious arrow, mysterious shell.
+- Updated CT_Library.lua to version 3.003.
+
+CT_ExpenseHistory (3.002)
+- Added the following reagents: corpse dust, demonic figurine, devout candle, flintweed seed, infernal stone, starleaf seed, symbol of kings, wild quillvine, wild spineleaf.
+- Added the following ammunition: blacksteel throwing dagger, frostbite bullets, jagged throwing axe, terrorshaft arrow.
+- Updated CT_Library.lua to version 3.002.
+
+CT_Library (3.002)
+- Fixed a bug that was causing some text to be aligned incorrectly in some of the addons.
+- Corrected a spelling mistake on the CTMod Control panel window.
+
+CT_ExpenseHistory (3.001)
+- Made some changes to avoid 'action blocked by an addon' messages during combat.
+
+CT_ExpenseHistory (3.000)
+- Updated for the WoW 3.0 patch
+- You can now select a single server or all servers.
+- You can now view the total expenses for a single server.
+- The number shown after the server name is the number of characters that have expense data.
+- The Log tab now shows data just for the selected character on the selected server.
+- Scrolling through the log data is now faster.
+- Now handles death knights, and should work with any new class added in the future.
+- No longer records free flights as an expense.
+

@@ -1,0 +1,22 @@
+## Interface: 40402
+## Version: 12.0.0
+## Title: CTMod Midnight - BarMod
+## Author: Cide & TS (Original CTMod); Midnight community port
+## Notes: Intuitive yet powerful action bar addon.
+## DefaultState: Enabled
+## SavedVariables: CT_BarModOptions
+## Dependencies: CT_Library
+## OptionalDeps: Masque
+## Group: CT_Library
+## X-Part-Of: CT-Library
+
+CT_BarMod.lua
+CT_BarMod_ActionButton.lua
+CT_BarMod_Groups.lua
+CT_BarMod_KeyBindings.lua
+CT_BarMod_Masque.lua
+CT_BarMod_Skins.lua
+CT_BarMod_Use.lua
+CT_BarMod_Shift.lua
+#CT_BarMod_SpellFlyout.lua
+CT_BarMod_Options.lua

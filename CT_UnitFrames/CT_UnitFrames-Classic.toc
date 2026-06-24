@@ -1,0 +1,19 @@
+## Interface: 11506
+## Version: 12.0.0
+## Title: CTMod Midnight - UnitFrames
+## Author: Cide & TS (Original CTMod); Midnight community port
+## Notes: Changes display of hp/mana values and adds a percentage.
+## DefaultState: Enabled
+## SavedVariables: CT_UnitFramesOptions
+## Dependencies: CT_Library
+## Group: CT_Library
+## X-Part-Of: CT-Library
+
+CT_UnitFrames.lua
+CT_PlayerFrame.xml
+CT_TargetFrame.xml
+CT_AssistFrame.xml
+#CT_FocusFrame.xml
+CT_PartyFrame.xml
+CT_PetFrame.xml
+CT_UnitFrameOptions.xml

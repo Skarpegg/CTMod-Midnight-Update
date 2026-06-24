@@ -1,0 +1,50 @@
+<Ui xmlns="http://www.blizzard.com/wow/ui/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.blizzard.com/wow/ui/
+..\FrameXML\UI.xsd">
+	<Script file="localization.lua"/>
+	<Script file="localization.ge.lua"/>
+	<Script file="localization.fr.lua"/>
+	<Script file="CT_PartyBuffs.lua"/>
+	<Button name="CT_PartyBuffButtonTemplate" hidden="true" virtual="true">
+		<Layers>
+			<Layer level="ARTWORK">
+				<Texture parentKey="Icon" setAllPoints="true"/>
+			</Layer>
+		</Layers>
+		<Scripts>
+			<OnEnter function="CT_PartyBuffButton_OnEnter" />
+			<OnLeave>
+				GameTooltip:Hide()
+			</OnLeave>
+		</Scripts>
+	</Button>
+	<Button name="CT_PartyDebuffButtonTemplate" inherits="CT_PartyBuffButtonTemplate" hidden="true" virtual="true">
+		<Layers>
+			<Layer level="ARTWORK">
+				<FontString parentKey="Count" inherits="NumberFontNormalSmall">
+					<Anchors>
+						<Anchor point="BOTTOMRIGHT">
+							<Offset>
+								<AbsDimension x="-1" y="0"/>
+							</Offset>
+						</Anchor>
+					</Anchors>
+				</FontString>
+			</Layer>
+			<Layer level="OVERLAY">
+				<Texture parentKey="Border" file="Interface\Buttons\UI-Debuff-Overlays">
+					<Anchors>
+						<Anchor point="CENTER">
+							<Offset>
+								<AbsDimension x="0" y="0"/>
+							</Offset>
+						</Anchor>
+					</Anchors>
+					<TexCoords left="0.296875" right="0.5703125" top="0" bottom="0.515625"/>
+				</Texture>	
+			</Layer>
+		</Layers>
+		<Scripts>
+			<OnEnter function="CT_PartyDebuffButton_OnEnter" />
+		</Scripts>
+	</Button>
+</Ui>

@@ -1,0 +1,641 @@
+CT_BarMod (12.0.0) 2026-06-22
+- Update for WoW: Midnight (interface 120000)
+- Migrated removed globals: IsSpellOverlayed (-> C_SpellActivationOverlay), GetSpellInfo (-> C_Spell), guarded StartChargeCooldown and the removed main-bar page-number frame
+- Handle the boolean 'enable' return from GetActionCooldown/GetSpellCooldown
+- Action-data reads are now combat-safe (no error spam). Note: live cooldown swipe / count / charges / proc-glow do not display during combat, a secret-value limitation of insecure action bars
+
+CT_BarMod (11.1.0.1) 2025-02-27
+- Updated SpellFlyout code for WoW 11.1
+
+CT_BarMod (11.0.2.3) 2024-08-19
+- Updates for WoW: The War Within
+
+CT_BarMod (11.0.2.2) 2024-08-18
+- Updates for WoW: The War Within
+
+CT_BarMod (11.0.2.1) 2024-07-24
+- Update for The War Within
+
+CT_BarMod (10.2.7.1) 2024-05-15
+- Update for Cata Classic (courtesy: Rob Zak)
+
+CT_BarMod (10.2.0.2) 2023-11-15
+- Update for Classic 1.15.0
+
+CT_BarMod (10.1.7.1) 2023-11-04
+- Restoring overlay glow (fix provided by dratr)
+
+CT_BarMod (10.1.5.1) 2023-07-12
+- Disabling the overlay glow on retail to stop combat errors
+
+CT_BarMod (10.0.7.2) 2023-03-22
+- Compatibility fix to the previous update in Classic Era
+
+CT_BarMod (10.0.5.3) 2023-03-08
+- Spell flyout bugfix and auto-close
+- Bar 12 override bar in WotLK Classic
+
+CT_BarMod (10.0.5.2) 2023-02-04
+- Updated bar 12 (custom action bar) for Dragonflight
+
+CT_BarMod (10.0.2.4) 2022-12-26
+- Pushing spell flyout buttons in front of background texture
+- Maintain control over hidden button slots after dragging from spellbook
+
+CT_BarMod (10.0.2.3) 2022-12-10
+- Securely closing spell flyout to avoid errors in Dragonflight
+
+CT_BarMod (10.0.2.2) 2022-12-04
+- Custom spell flyout button to mitigate taint in Dragonflight
+- Updates to align with CT_BottomBar
+
+CT_BarMod (10.0.0.4) 2022-11-12
+- Restoring the option to hide empty button slots
+- Removing code for the New-Player Experience that is no longer applicable in Dragonflight
+- Updates to align with CT_BottomBar
+
+CT_BarMod (10.0.0.3) 2022-10-29
+- The option to hide unused button slots is no longer available in Retail
+
+CT_BarMod (10.0.0.2) 2022-10-26
+- Restored in WoW Dragonflight
+
+CT_BarMod (9.2.0.4) 2022-10-23
+- Disabled in WoW Dragonflight
+
+CT_BarMod (9.2.0.1) 2021-09-26
+- Updates for Classic WotLK
+
+CT_BarMod (9.1.0.6) 2021-09-09
+- Fixed a bug when configuring bar fading
+
+CT_BarMod (9.1.0.3) 2021-07-02
+- Keybindings will trigger the macro conditional [button:1] instead of [button:31]
+- Restoring compatibility with OmniCC
+
+CT_BarMod (9.1.0.1) 2021-06-25
+- Action bars 7-10 now mimick console variable ActionButtonUseKeyDown
+- Cooldown 'bling' respects bar opacity, ignores unusable abilities, and can be set to ignore the GCD
+- Minor tweaks to improve efficiency
+
+CT_BarMod (9.0.5.7) 2021-05-25
+- No longer overloading GetActionCount() in Burning Crusade Classic
+
+CT_BarMod (9.0.5.6) 2021-05-13
+- Refactoring to align with changes in CT_Library 9.0.5.6
+
+CT_BarMod (9.0.5.3) 2021-02-19
+- Spells requiring reagents now also show properly when using macros
+- Other changes in anticipation of The Burning Crusade Classic
+
+CT_BarMod (9.0.2.4) 2021-02-02
+- Avoiding wasted CPU usage during initial login when player inventory data arrives
+- Optional recharge animation for abilities recharging while off cooldown
+
+CT_BarMod (9.0.2.2) 2020-12-03
+- Hiding ZoneAbilityFrame after an ability is dragged to a custom bar
+
+CT_BarMod (9.0.2.1) 2020-11-15
+- Preventing the game from making default bars reappear when learning new abilities
+
+CT_BarMod (9.0.1.2) 2020-10-25
+- More consistently hides macro names from the default Blizzard action bars
+- Empty space between buttons no longer prevents interacting with the WorldFrame
+- Changing the number of buttons no longer throws an error in Shadowlands
+
+CT_BarMod (9.0.1.1) 2020-10-04
+- Option to have left, right and middle mouse clicks target different units (player, focus, pet)
+- Changes to the ChallengeModeFrame (M+ keystones) in 8.3.0.11 are now optional (default: on).
+- The Shadowlands CovenantSanctumFrame is added to this new option.
+
+CT_BarMod (8.3.7.2) 2020-09-05
+- Custom bars update when spell icons change, such as Shadowlands Covenant abilities
+- Correction to the glow effect on macro buttons since 8.0.1
+
+CT_BarMod (8.3.7.1) 2020-08-21
+- Compatibility changes for Shadowlands 9.0 pre-patch
+
+CT_BarMod (8.3.0.11) 2020-06-21
+- The Mythic+ keystone frame will no longer hide behind custom bar positions
+
+CT_BarMod (8.3.0.10) 2020-06-08
+- Fixed the "hide range dot" and "hide keybindings" options on non-CT bars
+
+CT_BarMod (8.3.0.9) 2020-05-30
+- Range indications update more frequently, but are also more efficient than before
+- Further reductions in CPU usage via event-handling instead of hooksecurefunc for non-CT bars
+- Fixed a mistake introduced in 8.3.0.7 to range indications on non-CT bars
+
+CT_BarMod (8.3.0.8) 2020-02-29
+- Added option to fade bars differently during and outside combat
+
+CT_BarMod (8.3.0.7) 2020-02-22
+- Further integration, reducing cpu usage and showing pushed textures
+
+CT_BarMod (8.3.0.3) 2020-01-20
+- Further integration with /console ActionButtonUseKeyDown
+
+CT_BarMod (8.3.0.1) 2020-01-06
+- Fix to pet battles, relating to 8.2.5.9 and 8.1.5.1
+- Integrated with /console ActionButtonUseKeyDown
+
+CT_BarMod (8.2.5.9) 2019-12-31
+- Reduced memory usage in WoW Classic 1.13.3
+- Reduced CPU usage in all editions
+- Fixes to disappearing key-binding labels on the custom action bar (related to 8.1.5.1)
+
+CT_BarMod (8.2.5.8) 2019-12-13
+- Displays reagent counts on spell buttons in WoW Classic 1.13.3
+
+CT_BarMod (8.2.5.3) 2019-10-01
+- Correction to interactions between CT_BarMod and CT_BottomBar after 8.2.5.2
+
+CT_BarMod (8.2.5.2) 2019-09-28
+- Reengineered the pet shifting to give more control and eliminate buggy behaviour
+
+CT_BarMod (8.2.0.7) 2019-08-28
+- Fixed saving custom keybindings in Classic
+
+CT_BarMod (8.2.0.2) 2019-06-26
+- Fixed SetPoint() error when fewer than 12 buttons shown on a bar
+
+CT_BarMod (8.2.0.1) 2019-06-21
+- Fixed issues observed in WoW Classic
+- Possible fix for keybinding labels disappearing in some circumstances
+
+CT_BarMod (8.1.5.3) 2019-05-29
+- Compatibility with WoW Classic and Retail editions
+
+CT_BarMod (8.1.5.2) 2019-04-15
+- Fixed option sliders that were not showing current and min/max values since 8.0
+
+CT_BarMod (8.1.5.1) 2019-04-03
+- Bar 12 keybindings do not block the override bar used in vehicles and world quests
+
+CT_BarMod (8.1.0.3) 2019-01-08
+- Fixed compatibility issue with MoveEverything addon created by 8.1.0.2
+
+CT_BarMod (8.1.0.2) 2018-12-21
+- Summoning pets no longer creates "dead zones", even without CT_BottomBar's custom pet bar
+- Added clarity to CT_BarMod options for shifting certain bars up/down without CT_BottomBar
+
+CT_BarMod (8.0.1.4) 2018-08-11
+- Now requests user to /console refresh when done changing BarMod options
+- This prevents taint from impacting subsequent gameplay (particularly battleground queuing)
+
+CT_BarMod (8.0.1.2) 2018-07-21
+- Minor tweaks to default positions, to accomodate BottomBar changes
+
+CT_BarMod (8.0.1.0) 2018-07-17
+- Updated for 8.0.1
+- Temporary fixes to CT_BarMod_Shift.lua
+
+CT_BarMod (7.3.2.0) 2017-12-30
+- Updated for 7.3.2.
+
+CT_BarMod (7.3.0.0) 2017-09-03
+- Updated for 7.3.0.
+
+CT_BarMod (7.2.0.0) 2017-04-18
+- Updated for 7.2.0.
+
+CT_BarMod (7.1.0.0) 2016-12-11
+- Updated for 7.1.0.
+
+CT_BarMod (7.0.3.1) 2016-07-23
+- Editbox fixes.
+
+CT_BarMod (7.0.3.0) 2016-07-22
+- Updated to 7.0.3.
+
+CT_BarMod (6.2.3.0) 2015-10-24
+- Updated to 6.2.3.
+- Binding fixes.
+
+CT_BarMod (6.1.0.0) 2015-03-13
+- Updated to 6.1.0.
+- Cooldown swipe edge is disabled for action buttons.
+- Spell flyout menu cooldown fix.
+
+CT_BarMod (6.0.3.0) 2014-12-11
+- Fixed the issue which caused macro names not to show up.
+- Fixed the "Fade when mouse is not over the bar" condition.
+
+CT_BarMod (6.0.2.1) 2014-10-16
+- Fixed out of range coloring issues.
+
+CT_BarMod (6.0.2.0) 2014-10-15
+- Updated to 6.0.2.
+
+CT_BarMod (5.4.7.0) 2014-05-16
+- Updated to 5.4.7.
+- Library updates.
+- Rescaling the UI Scale or the game itself in windowed mode now won't cause the bars to move randomly.
+- "Activate button on key or mouse down" is renamed to "Activate button on key down only" and it's going to ignore mouse button downs.
+- Added an option to "Activate button on key or mouse down" which will registed both button and mouse downs.
+
+CT_BarMod (5.4.2.2) 2014-01-28
+- Drastically reduced CPU usage, when the player has no target.
+- Reduced range check's update internal to 0.5 sec.
+- Changing target now going to update range check instantly.
+- Fixed an issue with some event's function handler.
+- Added more upvalues.
+- Some other minor fixes.
+
+CT_BarMod (5.4.2.1) 2013-12-30
+- Changed library to a standalone module.
+
+CT_BarMod (5.4.2) 2013-12-21
+- Library fix.
+
+CT_BarMod (5.4) 2013-12-12
+- Updated for the WoW 5.4 patch.
+- Minor changes.
+
+CT_BarMod (5.3) 2013-05-24
+- Updated for the WoW 5.3 patch.
+
+CT_BarMod (5.2) 2013-03-09
+- Updated for the WoW 5.2 patch.
+
+CT_BarMod (5.0102) 2012-12-15
+- Updated to prevent cooldown counts from being hidden when they are shown by another addon.
+
+CT_BarMod (5.0101) 2012-12-10
+- Updated for the WoW 5.1 patch.
+- Will now display Blizzard's new "loss of control" cooldown animation on buttons.
+- Will now display the spell alert animation for buttons that have a flyout menu containing an appropriate spell.
+
+CT_BarMod (5.0004) 2012-09-23
+- Fixed a problem related to a bug in Blizzard's FontInstance:SetFont() function that could cause the cooldown count to display incorrectly or cause the game to crash, when the cooldown count style option in CT_BarMod was set to "Plain".
+- Fixed a bug that could cause a button's count value to be displayed when there was nothing assigned to the button.
+
+CT_BarMod (5.0003) 2012-09-06
+- Fixed a bug: Now updates the number of charges displayed on a button when an ability's cooldown finishes.
+- Fixed a bug: Now uses the proper cooldown animation when an ability is on cooldown and there is 1 or more charges remaining.
+
+CT_BarMod (5.0002) 2012-08-28
+- Release version for WoW 5.
+
+Pet battles:
+- Added a "Basic Visibility" option to hide a bar when in a pet battle.
+- Added a "Basic Visibility" option to hide a bar when there is an override bar.
+- When in a pet battle, the main action bar's key bindings can be used to activate the buttons on the pet battle bar.
+
+Stances:
+- When playing as a warrior, bars 7, 8, and 9 are now shown in the options window as 'general purpose'.
+- When playing as a rogue, bar 7 is now shown in the options window as 'stealth, shadow dance'.
+- When playing as a rogue, bar 8 is now shown in the options window as 'general purpose'.
+
+Bar paging (basic options):
+- The Alt, Ctrl, and Shift key options in the Basic Paging options now extend up to action page 14.
+- Refer to the next section for a description of action pages 11 through 14.
+
+Bar paging (advanced):
+- Blizzard made some changes to action bar pages in WoW 5.
+- These changes should not affect you if you are using the basic paging/visibility options for the bars in CT_BarMod.
+- These changes may affect you if you are using the advanced paging/visibility options for the bars in CT_BarMod.
+- Action page 11 used to be associated with the '[bonusbar:5]' macro condition and the vehicle, bonus, and possess abilities.
+- Action page 11 is now associated with multicast abilities (like the totem bar in WoW 4).
+- Action page 12 is new. It is associated with vehicle and possess abilities.
+- Action page 13 is new. It is associated with temporary shapeshift abilities.
+- Action page 14 is new. It is associated with override abilities.
+
+Bar macro conditions (advanced):
+- Blizzard made some changes to action bar related macro conditions in WoW 5.
+- These changes should not affect you if you are using the basic paging/visibility options for the bars in CT_BarMod.
+- These changes may affect you if you are using the advanced paging/visibility options for the bars in CT_BarMod.
+- The macro condition '[vehicleui]' is still used for detecting vehicle abilities (action page 12).
+- Blizzard added the macro condition '[possessbar]' for detecting possess and vehicle abilities (both use action page 12).
+- There is currently no macro condition available for detecting temporary shapeshift abilities (action page 13).
+- Blizzard added the macro condition '[overridebar]' for detecting override abilities (action page 14).
+- Blizzard added the macro condition '[petbattle]' for detecting pet battles (there is no action page number for this).
+- The old macro condition '[bonusbar:5]' no longer works for detecting vehicle, bonus, or possess abilities.
+- You can replace '[bonusbar:5]' with '[vehicleui][overridebar][possessbar]' if you want to detect the same types of abilities as before. However, keep in mind that the override abilities are on a different action page than the vehicle and possess abilities.
+- You can replace '[bonusbar:5]' with '[possessbar]' if you only want to detect possess and vehicle abilities (these both use the same action page).
+- For now, CT_BarMod will automatically replace the text '[bonusbar:5]11' with '[possessbar]12', and '[bonusbar:5]' with '[possessbar]' before using an advanced condition with a bar.
+
+CT_BarMod (5.0001) 2012-08-20
+- Beta version for WoW 5.
+
+CT_BarMod (4.0305) 2012-08-20
+- Fixed not being able to click through the empty parts of the bars.
+
+CT_BarMod (4.0304) 2012-08-06
+
+General
+- Added an option to disable spell alert animations.
+- Added an option to flip a bar horizontally.
+- Added an option to flip a bar vertically.
+- Added an option to make the drag frames always transparent.
+- The two "Advanced conditions" text boxes in the options window are now easier to click on.
+
+Bug fixes
+- Bar 8 in the options window is now labeled as "(general purpose)" instead of "(prowl)" when playing as a druid.
+- Bar 8 in the options window is now labeled as "(shadow dance)" instead of "(general purpose)" when playing as a rogue.
+
+Key bindings
+- Added a new section of options that allow you to use key bindings that are assigned to buttons on the game's default bars.
+- Added an option for bar 3 to use the key bindings from Blizzard's Right Bar.
+- Added an option for bar 4 to use the key bindings from Blizzard's Right Bar 2.
+- Added an option for bar 5 to use the key bindings from Blizzard's Bottom Right Bar.
+- Added an option for bar 6 to use the key bindings from Blizzard's Bottom Left Bar.
+- The option for bar 12 to use the key bindings from Blizzard's Action Bar, has been moved from the Bar 12 Options section into this new section.
+- The keys do not have to be unbound from the buttons on Blizzard's bars.
+
+Skinning buttons
+- CT_BarMod buttons can now be skinned using either CT_BarMod or a non-CTMod addon named Masque (formerly Button Facade).
+- Two basic skins are included with CT_BarMod. You do not need Masque to use these two skins.
+- If Masque is loaded, the two CT_BarMod skins will also be present in Masque's skins menu.
+- The Standard CT_BarMod skin makes the buttons look like they did in previous versions of CT_BarMod.
+- The Alternate CT_BarMod skin eliminates the outer border that can be seen around the buttons in the Standard skin.
+- Added an option to select which skin to apply when using CT_BarMod to skin the buttons.
+- Added an option to show the backdrop texture that is included with the CT_BarMod skins. This option does not apply when using Masque to skin the buttons. The backdrop texture can be seen when a button slot is empty.
+- Added an option to enable support for Masque. When enabled, Masque will skin the buttons instead of CT_BarMod.
+- Added an option to use a skin's non-empty slot texture when showing empty button slots. This might make it easier to see a skin's backdrop texture. This option may have no effect on some skins.
+
+-----
+
+CT_BarMod (4.0303) 2012-01-02
+- Fixed an action button overlay glow issue that could sometimes cause "Action blocked by an addon" errors when in combat.
+
+CT_BarMod (4.0302) 2011-11-29
+- Fixed a bug: CT_BarMod's cooldown timers should now display on Blizzard's action buttons when the "Apply the 'Display cooldown counts' option" is enabled.
+
+CT_BarMod (4.0301) 2011-11-27
+- Updated for the WoW 4.3 patch.
+- Added overlay glow support for macros that contain an appropriate spell or ability.
+
+CT_BarMod (4.0201) 2011-10-26
+- Fixed a bug that caused the bar which was currently selected in the options window to also be updated when you rotated a different bar using a right click.
+- Fixed a bug that caused the Leave Vehicle button on bars 11 and 12 to not work if you were in a vehicle for which Blizzard did not enable the game's second possess button.
+- On bars 11 and 12, the Cancel ability (for things like Mind Control, etc) is now assigned to the 11th button when needed. The Leave Vehicle ability is still assigned to the 12th button.
+
+CT_BarMod (4.0200) 2011-06-28
+- Updated version numbers for the WoW 4.2 patch.
+- Fixed some text that was not wrapping in the options window.
+
+CT_BarMod (4.0100) 2011-04-26
+
+- Updated for the WoW 4.1 patch.
+- Updated CT_Library.lua to version 4.0100.
+- This version includes all the changes that were in the CT_BarMod 4.004 betas.
+
+General
+- Added an option to change the number of buttons that are shown on a CT_BarMod bar. Buttons that are not shown can still be used via key bindings.
+- Added an option to activate CT_BarMod buttons on key (or mouse) down, instead of up. The default is up.
+- Added an option to prevent CT_BarMod bars from being dragged completely off screen.
+- You can now drag buttons to and from CT_BarMod bars while in combat.
+- Added an option to select the modifier key (alt, ctrl, shift) to use in order to drag CT_BarMod buttons when the button lock option is enabled.
+
+Bar 11
+- When you are in a vehicle, the 12th button on bar 11 will be a Leave Vehicle button.
+- When you are controlling something, the 12th button on bar 11 will be a Cancel button.
+- If the Cancel/Leave button is not usable then it will be darkened and the tooltip changed to reflect this.
+
+Bar 12
+- Added a new bar 12 which behaves like the game's main action bar.
+
+- Added an option to enable bar 12. The tooltip for this option provides details about how bar 12 paging works.
+- Added an option to disable the game's main action bar. This option only appears if CT_BottomBar is loaded as well.
+- Added an option to use the same key bindings for bar 12 as the ones used for the game's main action bar. This option does not require you to unbind the keys from the game's main action bar, and you can still bind other keys to the bar 12 buttons.
+
+- When you are in a vehicle, the 12th button on bar 12 will be a Leave Vehicle button.
+- When you are controlling something, the 12th button on bar 12 will be a Cancel button.
+- If the Cancel/Leave button is not usable then it will be darkened and the tooltip changed to reflect this.
+
+Bar 12 button pages
+- You can cycle through six pages of buttons using the game's 'Previous Action Bar' and 'Next Action Bar' commands.
+- These commands can be bound to keys by using the game's Key Bindings window.
+- These commands are also used by the game's main action bar arrow buttons.
+- These commands will ignore specific pages when one or more of the game's four extra action bars are enabled.
+
+- CT_BarMod now includes options to keep the game's extra action bars hidden when they are enabled.
+- More details can be found in the '?' button tooltip in the CT_BarMod options window in the Bar 12 Options section.
+
+Bar paging
+- Each bar now has paging related options that allow you to control which set of buttons are shown on a bar.
+- Added basic paging options for each type of modifier key (alt, ctrl, shift).
+- Added an advanced paging option that lets you specify custom macro conditions to control the paging.
+- More details can be found in the '?' button tooltips in the CT_BarMod options window in the Paging section.
+
+Key bindings
+- You can now assign two bindings per button in CT_BarMod's options window.
+- The current binding number is shown in brackets to the right of the binding.
+- Right-click on a button in the list to see the other binding.
+- If you prefer, you can also now use the game's Key Binding window to assign key bindings.
+
+Miscellaneous
+- When you drag a bar while the options window is open, the tooltip will become hidden until the mouse button is released.
+- Added an option to show drag frames for CT_BottomBar bars. This option only appears if CT_BottomBar is loaded as well.
+- The class specific use for a bar is now shown to the right of the bar name in the options window.
+- You can now disable the options that CT_BarMod applies to the buttons on Blizzard's action bars.
+- Added tooltips to the items in the Button Options list.
+- You can now expand or collapse all headings in the Button Options list by right clicking on a heading.
+
+-----
+
+CT_BarMod (4.003) 2011-02-08
+- Changed the names of some shapeshift button textures so they match the new names now being used by Blizzard in patch 4.0.6.
+
+CT_BarMod (4.002)
+- WoW 4.0 patch version for the live realms.
+
+CT_BarMod (4.001)
+- WoW 4.0 patch test version for the PTR realms.
+- Added support for the new flyout bars associated with some new abilities (warlock "Summon Demon", hunter "Call Pet", mage "Portal", mage "Teleport").
+- The key bindings section in the options window has been renamed to "Button options".
+- You can now configure the direction of the flyout bar for each button that is assigned an ability with a flyout bar.
+- Added support for the new animated glow that the default UI sometimes shows on a button.
+
+CT_BarMod (3.304)
+
+The main changes in this CT_BarMod update are a new Control bar, the ability to change a bar's dimensions, and the use of macro conditions to control bar visibility.
+
+Miscellaneous
+- Using shift left click on a bar's drag frame will now reset that bar's position and orientation to its defaults.
+- Fixed a problem that could cause all spell names to be displayed as "<None>" in the key bindings section of the CT_BarMod options window.
+
+Control bar
+- Added an eleventh bar named the "Control" bar.
+- The game will automatically assign abilities to the buttons on this bar when you are able to control something (vehicles, mind control, etc).
+- The game does not allow you to assign anything to the buttons used on this bar.
+- This bar is disabled by default.
+- When using basic visibility conditions, this bar will be automatically shown and hidden. The addon provides you with some control over when it is hidden.
+- When using advanced visibility conditions, this bar is not automatically shown or hidden. You have complete control over when it is shown and hidden.
+
+General options
+- Added an option to hide the drag frame tooltip.
+- Added an option to control whether drag frames are displayed below, or on top of, the buttons on a bar. The default is to display the drag frame below the buttons.
+
+Bar options
+- The option to hide the bars when in a vehicle is now configured separately for each bar.
+- Added left and right arrow buttons beside the "Select bar" drop down menu to allow you to select the previous or next bar.
+- Added a drop down menu to choose the orientation of the selected bar. This is the same as right clicking on the bar's drag frame.
+- You can now control the opacity that is used if the "Fade when mouse is not over bar" option is enabled.
+
+Bar dimensions
+- You can now change the number of columns or rows used to display the selected bar. This does not change the number of buttons per bar.
+- In "Left to right" orientation you adjust the columns and the addon determines the number of rows needed.
+- In "Top to bottom" orientation you adjust the rows and the addon determines the number of columns needed.
+
+Bar visibility
+- Added two types of visibility conditions whose purpose is to determine if the selected bar is shown or hidden.
+- Only one of these two types of visibility conditions (basic or advanced) can be used.
+- These visibility conditions will only affect bars that are enabled. Disabled bars are automatically hidden.
+
+Basic visibility conditions
+- Added an option to hide the selected bar when in a vehicle.
+- Added an option to hide the selected bar when in combat.
+- Added an option to hide the selected bar when not in combat.
+- The Control bar (if enabled) is automatically shown and hidden as needed when using basic conditions. The options in this section can be used to affect when the bar is hidden.
+
+Advanced visibility conditions
+- Added a multi-line edit box where you can specify macro conditions and actions that will control when the selected bar is shown or hidden.
+- For information on macro conditions, refer to sections 12 through 14 at www.wowpedia.org/Making_a_macro.
+- There are two "?" buttons at the top right of the edit box which will display help tooltips related to macro conditions and how to enter them.
+- The selected bar will not be affected by the conditions in the edit box until you click the "Save" button.
+- The "Test" button will evaluate the conditions in the edit box and display the current action that will be performed on the selected bar.
+- The "Test" button does not save the conditions or affect the visibility of the selected bar.
+- The Control bar (if enabled) is not automatically shown or hidden when using advanced conditions. To test if the Control bar is active, use the [bonusbar:5] condition.
+
+CT_BarMod (3.303)
+- Added a slider to adjust the distance the standard party frames get shifted to the right.
+- Added a slider to adjust the distance the standard focus frame gets shifted to the right.
+
+CT_BarMod (3.302)
+- Fixed an issue where GameTooltip.default was not getting cleared when the mouse was no longer over a button that had no action assigned to it, or the option to hide button tooltips was enabled.
+
+CT_BarMod (3.301)
+- The "shift class/pet/possess/totem bars up" option has been split into four separate options (one for each bar). Disabling an option will prevent CT_BarMod from doing anything to that bar.
+
+CT_BarMod (3.300)
+
+General
+- Updated for the WoW 3.3 patch.
+- Some variables and functions which were global are now correctly declared as local.
+- Updated CT_Library.lua to version 3.005.
+
+Key bindings
+- Made some changes to the way key bindings are handled internally by the addon. This may resolve a problem some people were having with key bindings not always displaying on their buttons.
+- After unbinding a key from a button, the addon will display the next key bound to that button if there are other keys still bound to it.
+- Fixed an issue that sometimes required you to left click twice on a line in the CT_BarMod Key Bindings list before you could change a button.
+- Added key binding support for mouse buttons 16 through 31.
+- Mouse wheel up/down (along with any optional combination of alt, ctrl, shift) can now be bound to any CT_BarMod button.
+- When displaying a keybinding on a button, the word "BUTTON" is shortened to "B".
+- When displaying a keybinding on a button, the word "MOUSEWHEELUP" is shortened to "WU".
+- When displaying a keybinding on a button, the word "MOUSEWHEELDOWN" is shortened to "WD".
+
+Slash command
+- Added the /ctbar command which can be used to directly open the CT_BarMod options window.
+- Added the ability to hide or show any one of the 10 CT_BarMod bars using the /ctbar command. For example, type (without the quotes) "/ctbar hide 2" to hide bar 2, and "/ctbar show 2" to show bar 2.
+
+CT_Libary.lua (3.005)
+
+Settings import
+- Fixed a problem with the settings import feature in the CTMod Control Panel where it was not properly importing frame positions.
+- Fixed a problem where there would be more than one "Settings Import" item listed in the CTMod Control Panel when more than one version of CT_Library.lua was encountered.
+- The settings import window now defaults to the first character on the first server that has importable options.
+- Added the ability to delete settings.
+
+Slash command
+- Added the /ctmod command as an alternative to the existing /ct command. Either one will open the CTMod Control Panel.
+- Added code to allow direct access to an addon's options window via a slash command (refer to individual addons for any slash commands that may have been added).
+
+General
+- The scrollbar in the options window resets to the top when you select a different addon.
+- The message at the top of the CTMod Control panel now mentions the slash commands that can be used to open it.
+- Some variables and functions which were global are now correctly declared as local.
+
+-----
+
+CT_BarMod (3.201)
+- An option to hide action button tooltips has been added.
+- A new group 1 bar has been added. The buttons on the bar correspond to the ones on page 1 of the main action bar. The buttons do not change when you switch forms, stances, etc.
+- The previous groups 1 through 9 have been renamed to be groups 2 through 10. The new group numbers now match the page numbers used by the main action bar. The position and contents of the renamed groups have not changed.
+- When starting a new character, groups 1, 7, 8, 9, and 10 are now hidden by default.
+- For existing characters, the new group 1 bar is hidden by default.
+- Fixed a bug that was not properly updating the appearance of the original button slot when dragging a 'current action' button (such as Battle Stance) or a 'repeatable action' button (such as Attack) from one slot to another.
+- Fixed a bug that was not properly updating the appearance of a 'current action' button (such as Battle Stance) when it was clicked.
+
+CT_BarMod (3.200)
+- Updated for the WoW 3.2 patch.
+- Added keybinding support for mouse buttons 6 to 15.
+- The 'shift up' option now handles the totem bar.
+
+CT_BarMod (3.020)
+- Added an option to control whether or not macro names are displayed on buttons. The default is to display the names.
+
+CT_BarMod (3.019)
+- Changed the way the "hide until mouseover" option works so that you can click things behind an empty button (when the empty button grid is hidden).
+
+CT_BarMod (3.018)
+- Added an option to hide a bar until you move the mouse over it.
+-- This option can be configured per bar in the 'Group Options' section.
+-- The default is disabled (always display the bar).
+
+CT_BarMod (3.017)
+- Some additional fixes to address WoW 3.1 issues.
+- Fixed the problem where the pet bar would move when zoning.
+
+CT_BarMod (3.016)
+- Updated for the WoW 3.1 patch.
+- Updated CT_Library.lua to version 3.004.
+- Fixed a problem that was preventing CT_BarMod bars from being displayed after entering or exiting an instance while on a vehicle.
+
+CT_Library.lua (3.004)
+- Fixed a nil value error when the client's locale was not recognized.
+
+CT_BarMod (3.014)
+- Fixed an error that could occur if you tried to reset the options for all characters.
+
+CT_BarMod (3.013)
+- When a button is assigned a macro containing a #showtooltip line with a stackable item name (for example: #showtooltip Frostweave Cloth), it will now show the number of items in your inventory instead of the macro name. This is the same behavior as the standard UI.
+- All CT_BarMod buttons will now work with the "focus cast key" if you have one defined in the standard interface options.
+- A button's border will now be green if the button contains an equipped item. This is the same behavior as the standard UI.
+- Fixed a problem where the pet or class bar would sometimes not shift up when initially entering the world if the "shift up" option was enabled.
+- When the "shift up" option is enabled, the class bar is no longer being positioned slightly higher than when not in combat.
+- Now takes into account whether or not the reputation and/or experience bars are displayed when the positions of the bars are reset using the "Reset positions" button.
+- Updated CT_Library.lua to version 3.003.
+
+CT_BarMod (3.012)
+- Fixed a bug that was causing the class (shapeshift) bar to move further and further up each time you zoned.
+- Fixed a bug that was preventing the standard range indicator dot from appearing on a button when the option to display key bindings was enabled.
+- Added an option so that you can display the range indicator dot even if the option to display key bindings is disabled.
+- Fixed a bug that could sometimes result in the error "Couldn't find inherited node CT_BarMod_CooldownFont".
+- Updated CT_Library.lua to version 3.002.
+
+CT_Library (3.002)
+- Fixed a bug that was causing some text to be aligned incorrectly in some of the addons.
+- Corrected a spelling mistake on the CTMod Control panel window.
+
+CT_BarMod (3.011)
+- Fixed a bug that was not unscheduling the cooldown update function once all cooldowns had ended.
+- Fixed a bug that was sometimes causing cooldown counts to get stuck and not update.
+
+CT_BarMod (3.010)
+- Shift, Ctrl, and Alt modifiers in macros now work with CT_BarMod key bindings.
+- Fixed items that were causing 'action blocked by an addon' messages.
+- Added an option to shift the standard focus frame to the right.
+- Added a second set of default bar and button positions. This other set is the same as the positions used by the standard UI. Using the standard positions should make it easier to play if you need to disable CT_BarMod for some reason.
+- Added an option to change the default set of bar positions that you are using. Enabling/disabling this option does not change the current position of the bars. To move the bars to the chosen default positions you have to also click the 'Reset group positions' button.
+- Added an option to change the default set of bar positions used when you create a new character.
+- Added a button in the options window to reset the bar positions to the currently selected set of default positions.
+- If the option to shift the pet/class/possess bars up is enabled and you enter combat, then the bars will not shift again until combat ends.
+- Added an option that allows you to choose whether or not you want to hide the CT_BarMod bars when Blizzard's vehicle frame appears. By default, the bars are hidden just like in the standard UI. Refer to the notes below the option for more details.
+- If you are using TitanPanel, CT_BarMod's bottom left and bottom right bars will take into account the height of the bottom TitanPanel bar when you reset the positions of the CT_BarMod bars.
+- Added some color, font, style and size options for the cooldown counts.
+- Added options to reset the CT_BarMod options for your current character or for all characters.
+
+CT_BarMod (3.003)
+- Update CT_Library.lua
+
+CT_BarMod (3.002)
+- You can now use mouse buttons when assigning key bindings.
+- You can now unbind a key from a button. Select the button and then right-click to unbind it.
+
+CT_BarMod (3.001)
+- Disabling the "Display Cooldown Counts" option will now disable it on the game's default action bars as well.
+
+CT_BarMod (3.000)
+- Updated for the WoW 3.0 patch
