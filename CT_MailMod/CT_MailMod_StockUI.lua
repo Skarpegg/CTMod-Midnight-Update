@@ -1266,6 +1266,13 @@ do
 	filterdropdown.Right:ClearAllPoints();
 	filterdropdown.Right:SetPoint("LEFT", SendMailNameEditBox, "RIGHT", 0, 0);
 	filterdropdown.Right	:SetSize(0.001, 0.001);
+	-- Pin the clickable arrow button to the right of the name box; otherwise it keeps
+	-- the template's default placement and drifts down over the subject field.
+	local arrowButton = filterdropdown.Button or _G[(filterdropdown:GetName() or "") .. "Button"];
+	if (arrowButton) then
+		arrowButton:ClearAllPoints();
+		arrowButton:SetPoint("LEFT", SendMailNameEditBox, "RIGHT", -2, 0);
+	end
 	filterdropdown:SetScript("OnEnter", function(...)
 		GameTooltip:SetOwner(filterdropdown, "ANCHOR_TOPLEFT", 35, 10);
 		GameTooltip:SetText(module.text["CT_MailMod/Send/AutoComplete/Heading"]);
