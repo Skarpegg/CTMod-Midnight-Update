@@ -395,7 +395,9 @@ local function configureAuras(self, auraTable, consolidateTable, weaponPosition)
 	if ( weaponPosition ) then
 		local hasMainHandEnchant, hasOffHandEnchant, _;
 -- rng		local hasMainHandEnchant, hasOffHandEnchant, hasRangedEnchant, _;
-		hasMainHandEnchant, _, _, _, hasOffHandEnchant = GetWeaponEnchantInfo();
+		if ( GetWeaponEnchantInfo ) then	-- removed in 12.1.0; leaves enchant flags nil so the block below is skipped
+			hasMainHandEnchant, _, _, _, hasOffHandEnchant = GetWeaponEnchantInfo();
+		end
 -- rng		hasMainHandEnchant, _, _, hasOffHandEnchant, _, _, hasRangedEnchant, _, _ = GetWeaponEnchantInfo();
 
 		for weapon=2,1,-1 do
