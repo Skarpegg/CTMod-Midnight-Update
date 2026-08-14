@@ -278,7 +278,19 @@ function CT_UnitFrameOptions_ColorSwatch_ShowColorPicker(self, frame)
 	frame.swatchFunc = CT_UnitFrameOptions_ColorSwatch_SetColor;
 	frame.cancelFunc = CT_UnitFrameOptions_ColorSwatch_CancelColor;
 	frame.hasOpacity = 1;
-	UIDropDownMenuButton_OpenColorPicker(frame);
+	if ( ColorPickerFrame.SetupColorPickerAndShow ) then
+		-- Modern color picker (Dragonflight+): the standalone OpacitySliderFrame
+		-- no longer exists, so drive it directly instead of via the legacy shim.
+		ColorPickerFrame:SetupColorPickerAndShow({
+			r = frame.r, g = frame.g, b = frame.b,
+			hasOpacity = true, opacity = frame.opacity or 1,
+			swatchFunc = CT_UnitFrameOptions_ColorSwatch_SetColor,
+			opacityFunc = CT_UnitFrameOptions_ColorSwatch_SetOpacity,
+			cancelFunc = CT_UnitFrameOptions_ColorSwatch_CancelColor,
+		});
+	else
+		UIDropDownMenuButton_OpenColorPicker(frame);
+	end
 end
 
 function CT_UnitFrameOptions_ColorSwatch_SetColor()
@@ -302,7 +314,16 @@ function CT_UnitFrameOptions_ColorSwatch_CancelColor()
 end
 
 function CT_UnitFrameOptions_ColorSwatch_SetOpacity()
-	local a = OpacitySliderFrame:GetValue();
+	-- OpacitySliderFrame was removed with the modern ColorPickerFrame; read alpha
+	-- from the picker directly (1 = opaque), falling back for older clients.
+	local a;
+	if ( ColorPickerFrame.GetColorAlpha ) then
+		a = ColorPickerFrame:GetColorAlpha();
+	elseif ( OpacitySliderFrame ) then
+		a = OpacitySliderFrame:GetValue();
+	else
+		a = 1;
+	end
 	local boxId, selectionId = CT_UnitFramesOptionsFrame.boxId, CT_UnitFramesOptionsFrame.selectionId;
 	CT_UnitFramesOptions.styles[boxId][selectionId][5] = a;
 
