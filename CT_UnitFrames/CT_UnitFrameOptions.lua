@@ -116,6 +116,75 @@ function CT_UnitFrameOptions_CreateStatusTextModeDropdown(parent)
 	statusTextModeRefreshText(dd);
 end
 
+-- Midnight: the per-frame text FORMAT radios (None/Percent/Deficit/Values/Current) no longer work --
+-- format is a single global setting (the "Bar text" dropdown above), and beside-bar text can't be
+-- shown at all. Rather than DELETE those controls (so they can be restored if Blizzard re-opens the
+-- API), collapse each on-bar row to a Hide/Show pair and hide the beside-bar rows. Flip this flag to
+-- true to restore the original per-frame style radios untouched.
+local CT_UNITFRAMES_LEGACY_STYLE_OPTIONS = false;
+
+function CT_UnitFrameOptions_CollapseStyleRows()
+	if (CT_UNITFRAMES_LEGACY_STYLE_OPTIONS) then
+		return;
+	end
+	for box = 1, #CT_UnitFramesOptions_NumSelections do
+		local boxName = "CT_UnitFramesOptionsFrameBox" .. box;
+		-- Hide the beside-bar rows (Beside Health = 2, Beside Power = 4): beside text is unsupported.
+		for _, selId in ipairs({2, 4}) do
+			local sel = _G[boxName .. "Selection" .. selId];
+			if (sel) then sel:Hide(); end
+		end
+		-- Hide the beside-text spacing slider (only positioned beside-bar text, which is now gone).
+		local spacing = _G[boxName .. "TextSpacing"];
+		if (spacing) then spacing:Hide(); end
+		-- Collapse the on-bar rows (On/Friendly Health = 1, On Power = 3, Enemy Health = 5) to Hide/Show.
+		local newY = -5;
+		for _, selId in ipairs({1, 3, 5}) do
+			local sel = _G[boxName .. "Selection" .. selId];
+			if (sel) then
+				-- Reposition so the remaining rows are contiguous (no gaps where beside rows were).
+				sel:ClearAllPoints();
+				sel:SetPoint("TOPLEFT", 10, newY);
+				newY = newY - 20;
+				-- Keep only Radio1 (relabelled "Hide") and Radio4 ("Show"); hide the format radios.
+				for _, r in ipairs({2, 3, 5}) do
+					local radio = _G[sel:GetName() .. "Radio" .. r];
+					if (radio) then radio:Hide(); end
+				end
+				local radio1, radio4 = _G[sel:GetName() .. "Radio1"], _G[sel:GetName() .. "Radio4"];
+				if (radio1 and radio4) then
+					radio4:ClearAllPoints();
+					radio4:SetPoint("LEFT", radio1, "RIGHT", 45, 0);	-- sit "Show" right after "Hide"
+					local swatch = _G[sel:GetName() .. "ColorSwatch"];
+					if (swatch) then
+						swatch:ClearAllPoints();
+						swatch:SetPoint("LEFT", radio4, "RIGHT", 50, 0);	-- tuck colour swatch after "Show"
+					end
+				end
+				local hideName = _G[sel:GetName() .. "Radio1Name"];
+				if (hideName) then hideName:SetText("Hide"); end
+				local showName = _G[sel:GetName() .. "Radio4Name"];
+				if (showName) then showName:SetText("Show"); end
+				-- Normalise saved values: any legacy "show" style (Percent/Deficit/Values/Current) ->
+				-- Values(4) so the Show radio reflects state; None(1) stays "Hide".
+				local s = CT_UnitFramesOptions.styles[box] and CT_UnitFramesOptions.styles[box][selId];
+				if (s and s[1] ~= 1) then s[1] = 4; end
+			end
+		end
+	end
+	-- Hide the "Show health/mana on left/right" checkboxes -- they only chose which side the (now
+	-- unavailable) beside-bar text appeared on.
+	for _, cbName in ipairs({
+		"CT_UnitFramesOptionsFrameBox1PlayerTextLeftCB",
+		"CT_UnitFramesOptionsFrameBox3TargetTextRightCB",
+		"CT_UnitFramesOptionsFrameBox4AssistTextRightCB",
+		"CT_UnitFramesOptionsFrameBox5FocusTextRightCB",
+	}) do
+		local cb = _G[cbName];
+		if (cb) then cb:Hide(); end
+	end
+end
+
 -- OnLoad handlers
 function CT_UnitFrameOptions_OnLoad(self)
 	Mixin(self, BackdropTemplateMixin or {});
@@ -129,6 +198,14 @@ function CT_UnitFrameOptions_OnLoad(self)
 	});
 	self:SetBackdropColor(0, 0, 0, 0.8);
 	CT_UnitFrameOptions_CreateStatusTextModeDropdown(self);
+	-- Grow the panel a little and add an info strip below the box explaining the Midnight limitations,
+	-- so the collapsed Hide/Show controls aren't confusing.
+	self:SetHeight(self:GetHeight() + 34);
+	local info = self:CreateFontString(nil, "ARTWORK", "GameFontDisableSmall");
+	info:SetPoint("TOPLEFT", self, "TOPLEFT", 15, -372);
+	info:SetWidth(470);
+	info:SetJustifyH("CENTER");
+	info:SetText("Bar text format is a global setting (\"Bar text\" menu, top-left). Numbers/Percent/Both changes appear after a health change or /reload; Hide/Show and colour are immediate.");
 	self:RegisterEvent("PLAYER_LOGIN");
 	--self:RegisterEvent("VARIABLES_LOADED");
 	self:RegisterEvent("PLAYER_REGEN_ENABLED");
@@ -223,6 +300,7 @@ function CT_UnitFrameOptions_OnEvent(self, event, ...)
 			CT_UnitFramesOptions.styles[1][5] = nil;
 		end
 		
+		CT_UnitFrameOptions_CollapseStyleRows();	-- Midnight: collapse legacy format radios to Hide/Show
 		CT_UnitFramesOptions_Radio_Update();
 	end
 end
