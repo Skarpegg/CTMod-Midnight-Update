@@ -186,15 +186,15 @@ local function CT_TargetFrame_HealthTextStatusBar_UpdateTextString(bar)
 		else
 			style = CT_UnitFramesOptions.styles[3][5];
 		end
-		module:UpdateStatusBarTextString(bar, style, 0)
+		module:ApplyBlizzardBarText(bar, style)
 		CT_UnitFrames_HealthBar_OnValueChanged(bar, tonumber(bar:GetValue()), not CT_UnitFramesOptions.oneColorHealth)
-		module:UpdateBesideBarTextString(bar, CT_UnitFramesOptions.styles[3][2], CT_TargetHealthLeft)	
+		module:UpdateBesideBarTextString(bar, CT_UnitFramesOptions.styles[3][2], CT_TargetHealthLeft)
 	end
 end
 
 local function CT_TargetFrame_ManaTextStatusBar_UpdateTextString(bar)
 	if (CT_UnitFramesOptions) then
-		module:UpdateStatusBarTextString(bar, CT_UnitFramesOptions.styles[3][3], 0)
+		module:ApplyBlizzardBarText(bar, CT_UnitFramesOptions.styles[3][3])
 		module:UpdateBesideBarTextString(bar, CT_UnitFramesOptions.styles[3][4], CT_TargetManaLeft)
 	end
 end
@@ -264,6 +264,7 @@ function module:ShowTargetFrameBarText()
 	-- health maxValue ("attempt to compare secret number value ... tainted by CT_UnitFrames").
 	-- This function only runs on options changes; the bars are kept current by Blizzard's own event
 	-- handling, so we just need to refresh our custom text from their current values.
+	module:ApplyStatusTextMode();	-- global text mode (NUMERIC/PERCENT/BOTH/NONE)
 	CT_TargetFrame_HealthTextStatusBar_UpdateTextString(healthBar);
 	CT_TargetFrame_ManaTextStatusBar_UpdateTextString(manaBar);
 end

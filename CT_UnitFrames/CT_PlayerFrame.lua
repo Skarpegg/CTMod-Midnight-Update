@@ -16,9 +16,13 @@ local healthBar = PlayerFrameHealthBar
 					or PlayerFrame.PlayerFrameContent.PlayerFrameContentMain.HealthBarsContainer.HealthBar
 local manaBar = PlayerFrameManaBar or PlayerFrame.PlayerFrameContent.PlayerFrameContentMain.ManaBarArea.ManaBar
 
+-- Midnight (12.1.0): current health/power are "secret values", so our own FontString can no longer
+-- read them. We let Blizzard's SECURE code fill its built-in bar.TextString and only restyle it
+-- (colour/font) per frame; the display format is global via module:ApplyStatusTextMode(). The taint
+-- rules and shared helpers live in CT_UnitFrames.lua.
 local function CT_PlayerFrame_HealthTextStatusBar_UpdateTextString(bar)
 	if (CT_UnitFramesOptions) then
-		module:UpdateStatusBarTextString(bar, CT_UnitFramesOptions.styles[1][1])
+		module:ApplyBlizzardBarText(bar, CT_UnitFramesOptions.styles[1][1])
 		CT_UnitFrames_HealthBar_OnValueChanged(bar, tonumber(bar:GetValue()), not CT_UnitFramesOptions.oneColorHealth)
 		module:UpdateBesideBarTextString(bar, CT_UnitFramesOptions.styles[1][2], CT_PlayerHealthRight)
 	end
@@ -26,12 +30,13 @@ end
 
 local function CT_PlayerFrame_ManaTextStatusBar_UpdateTextString(bar)
 	if (CT_UnitFramesOptions) then
-		module:UpdateStatusBarTextString(bar, CT_UnitFramesOptions.styles[1][3])
+		module:ApplyBlizzardBarText(bar, CT_UnitFramesOptions.styles[1][3])
 		module:UpdateBesideBarTextString(bar, CT_UnitFramesOptions.styles[1][4], CT_PlayerManaRight)
 	end
 end
 
 module:regEvent("PLAYER_LOGIN", function()
+	module:ApplyStatusTextMode()	-- enable Blizzard's secure status text in the chosen global mode
 	healthBar:HookScript("OnEnter", CT_PlayerFrame_HealthTextStatusBar_UpdateTextString)
 	healthBar:HookScript("OnLeave", CT_PlayerFrame_HealthTextStatusBar_UpdateTextString)
 	healthBar:HookScript("OnValueChanged", CT_PlayerFrame_HealthTextStatusBar_UpdateTextString)
@@ -46,6 +51,7 @@ module:regEvent("PLAYER_LOGIN", function()
 end)
 
 function module:ShowPlayerFrameBarText()
+	module:ApplyStatusTextMode()	-- global text mode (NUMERIC/PERCENT/BOTH/NONE)
 	CT_PlayerFrame_HealthTextStatusBar_UpdateTextString(healthBar)
 	CT_PlayerFrame_ManaTextStatusBar_UpdateTextString(manaBar)
 end

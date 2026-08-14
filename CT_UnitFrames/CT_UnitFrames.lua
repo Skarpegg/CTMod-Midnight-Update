@@ -104,6 +104,48 @@ local prefixedValuesPattern = "%s " .. valuesPattern;
 -- crashing with "attempt to compare secret number value".
 local ctSafeNumber = CT_Library.safeValue;	-- shared secret-value sanitizer (see CT_Library.lua); returns nil when restricted
 
+-- ------------------------------------------------------------------------------------------------
+-- Midnight (12.1.0) status-text model.
+-- Current health/power are "secret values", so our own FontString can no longer read them to draw
+-- the number. Instead we let Blizzard's SECURE code fill its built-in bar.TextString, and we only:
+--   (a) choose the display format GLOBALLY via the status-text CVars (module:ApplyStatusTextMode), and
+--   (b) restyle the FontString cosmetically per frame (module:ApplyBlizzardBarText).
+-- CRITICAL taint rules (do not break these):
+--   * Never write ANY field on a unit bar (showNumeric/showPercentage/etc). It taints the bar and
+--     Blizzard's secure TextStatusBar_UpdateTextStringWithValues then can't compare the secret value
+--     ("attempt to compare ... secret number ... tainted by 'CT_UnitFrames'").
+--   * Never call TextStatusBar_UpdateTextString ourselves; it reads the secret value in our tainted
+--     context and throws. Blizzard refreshes the text on its own (health/power change, or /reload).
+-- Global text mode: "NUMERIC" | "PERCENT" | "BOTH" | "NONE".
+function module:ApplyStatusTextMode()
+	if (not SetCVar) then
+		return;
+	end
+	local mode = (CT_UnitFramesOptions and CT_UnitFramesOptions.statusTextMode) or "NUMERIC";
+	if (mode == "NONE") then
+		SetCVar("statusText", "0");
+	else
+		SetCVar("statusText", "1");
+		SetCVar("statusTextDisplay", mode);		-- NUMERIC / PERCENT / BOTH
+	end
+end
+
+-- Cosmetic restyle only (colour/font) of a bar's secure TextString. `settings` is a styles[][] entry
+-- whose [2]..[5] are r,g,b,a; its [1] (old per-frame style) is ignored -- format is now global.
+-- Visibility and content are governed by ApplyStatusTextMode; here we never touch the bar itself.
+function module:ApplyBlizzardBarText(bar, settings)
+	local textString = bar and bar.TextString;
+	if (not textString) then
+		return;
+	end
+	textString:SetAlpha(1);		-- undo any legacy suppression; NONE mode is handled by the CVar
+	textString:SetFontObject(bar.ctFont or CT_UnitFrames_TextStatusBarText);
+	if (settings) then
+		textString:SetTextColor(settings[2] or 1, settings[3] or 1, settings[4] or 1, settings[5] or 1);
+	end
+end
+-- ------------------------------------------------------------------------------------------------
+
 function module:UpdateStatusBarTextString(textStatusBar, settings, lockShow)
 	-- STEP 1: Avoid taint by creating creating a custom FontString called ctTextString
 	-- STEP 2: Set the text as desired

@@ -50,11 +50,11 @@ end
 local function CT_PartyFrame_TextStatusBar_UpdateTextString(bar)
 	if (CT_UnitFramesOptions) then
 		if (bar.type == "health") then	
-			module:UpdateStatusBarTextString(bar, CT_UnitFramesOptions.styles[2][1])
+			module:ApplyBlizzardBarText(bar, CT_UnitFramesOptions.styles[2][1])
 			CT_UnitFrames_HealthBar_OnValueChanged(bar, tonumber(bar:GetValue()), not CT_UnitFramesOptions.oneColorHealth)
 			module:UpdateBesideBarTextString(bar, CT_UnitFramesOptions.styles[2][2], bar.textRight)
 		else -- if bar.type == "mana"
-			module:UpdateStatusBarTextString(bar, CT_UnitFramesOptions.styles[2][3])
+			module:ApplyBlizzardBarText(bar, CT_UnitFramesOptions.styles[2][3])
 			module:UpdateBesideBarTextString(bar, CT_UnitFramesOptions.styles[2][4], bar.textRight)			
 		end
 	end

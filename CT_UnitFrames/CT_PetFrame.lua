@@ -13,7 +13,7 @@ local module = select(2, ...)
 
 local function CT_PetFrame_HealthTextStatusBar_UpdateTextString(bar)
 	if (CT_UnitFramesOptions) then
-		module:UpdateStatusBarTextString(bar, CT_UnitFramesOptions.styles[6][1])
+		module:ApplyBlizzardBarText(bar, CT_UnitFramesOptions.styles[6][1])
 		CT_UnitFrames_HealthBar_OnValueChanged(bar, tonumber(bar:GetValue()), not CT_UnitFramesOptions.oneColorHealth)
 		module:UpdateBesideBarTextString(bar, CT_UnitFramesOptions.styles[6][2], CT_PetHealthRight)
 	end
@@ -21,7 +21,7 @@ end
 
 local function CT_PetFrame_ManaTextStatusBar_UpdateTextString(bar)
 	if (CT_UnitFramesOptions) then
-		module:UpdateStatusBarTextString(bar, CT_UnitFramesOptions.styles[6][3])
+		module:ApplyBlizzardBarText(bar, CT_UnitFramesOptions.styles[6][3])
 		module:UpdateBesideBarTextString(bar, CT_UnitFramesOptions.styles[6][4], CT_PetManaRight)
 	end
 end
@@ -46,6 +46,7 @@ module:regEvent("PLAYER_LOGIN", function()
 end)
 
 function module:ShowPetFrameBarText()
+	module:ApplyStatusTextMode()	-- global text mode (NUMERIC/PERCENT/BOTH/NONE)
 	CT_PetFrame_HealthTextStatusBar_UpdateTextString(PetFrameHealthBar)
 	CT_PetFrame_ManaTextStatusBar_UpdateTextString(PetFrameManaBar)
 end
