@@ -67,6 +67,55 @@ CT_UnitFramesOptions_NumSelections = {
 	4, 4, 5, 5, 5, 4
 };
 
+-- Global "bar text" mode selector (Midnight).
+-- Current HP/power are secret values, so the on-bar numbers come from Blizzard's secure status text,
+-- whose format is a single GLOBAL CVar. This dropdown drives CT_UnitFramesOptions.statusTextMode ->
+-- module:ApplyStatusTextMode(). Per-frame text COLOUR is still set by the colour swatches. Note: a
+-- format change (Numbers/Percent/Both) becomes visible on the next health/power change or /reload,
+-- because Blizzard only redraws its secure text then; None/hide and colour changes are immediate.
+local STATUS_TEXT_MODES = { "NUMERIC", "PERCENT", "BOTH", "NONE" };
+local STATUS_TEXT_LABELS = { NUMERIC = "Numbers", PERCENT = "Percent", BOTH = "Both", NONE = "None" };
+
+local function statusTextModeRefreshText(dd)
+	local mode = (CT_UnitFramesOptions and CT_UnitFramesOptions.statusTextMode) or "NUMERIC";
+	UIDropDownMenu_SetSelectedValue(dd, mode);
+	UIDropDownMenu_SetText(dd, "Bar text: " .. (STATUS_TEXT_LABELS[mode] or mode));
+end
+
+local function statusTextModeOnClick(self)
+	CT_UnitFramesOptions.statusTextMode = self.value;
+	statusTextModeRefreshText(CT_UnitFramesOptionsStatusTextModeDropDown);
+	CloseDropDownMenus();
+	module:ApplyStatusTextMode();
+	-- Refresh our per-frame restyle now; the numeric/percent format updates on the next health/power
+	-- change or /reload (Blizzard redraws its secure text only then).
+	if (module.ShowPlayerFrameBarText) then module:ShowPlayerFrameBarText(); end
+	if (module.ShowTargetFrameBarText) then module:ShowTargetFrameBarText(); end
+	if (CT_FocusFrame and module.ShowFocusFrameBarText) then module:ShowFocusFrameBarText(); end
+	if (module.ShowPetFrameBarText) then module:ShowPetFrameBarText(); end
+end
+
+function CT_UnitFrameOptions_CreateStatusTextModeDropdown(parent)
+	if (CT_UnitFramesOptionsStatusTextModeDropDown) then
+		return;
+	end
+	local dd = CreateFrame("Frame", "CT_UnitFramesOptionsStatusTextModeDropDown", parent, "UIDropDownMenuTemplate");
+	dd:SetPoint("TOPLEFT", parent, "TOPLEFT", 0, -4);		-- top-left corner: left of the title, above the box-selection row
+	UIDropDownMenu_SetWidth(dd, 96);
+	UIDropDownMenu_Initialize(dd, function(self, level)
+		for _, mode in ipairs(STATUS_TEXT_MODES) do
+			local info = UIDropDownMenu_CreateInfo();
+			info.text = STATUS_TEXT_LABELS[mode];
+			info.value = mode;
+			info.func = statusTextModeOnClick;
+			info.checked = (((CT_UnitFramesOptions and CT_UnitFramesOptions.statusTextMode) or "NUMERIC") == mode);
+			UIDropDownMenu_AddButton(info, level);
+		end
+	end);
+	dd:HookScript("OnShow", function() statusTextModeRefreshText(dd); end);
+	statusTextModeRefreshText(dd);
+end
+
 -- OnLoad handlers
 function CT_UnitFrameOptions_OnLoad(self)
 	Mixin(self, BackdropTemplateMixin or {});
@@ -79,6 +128,7 @@ function CT_UnitFrameOptions_OnLoad(self)
 		insets = { left = 5, right = 5, top = 5, bottom = 5 },
 	});
 	self:SetBackdropColor(0, 0, 0, 0.8);
+	CT_UnitFrameOptions_CreateStatusTextModeDropdown(self);
 	self:RegisterEvent("PLAYER_LOGIN");
 	--self:RegisterEvent("VARIABLES_LOADED");
 	self:RegisterEvent("PLAYER_REGEN_ENABLED");

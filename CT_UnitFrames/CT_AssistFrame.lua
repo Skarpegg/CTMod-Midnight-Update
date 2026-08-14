@@ -1337,14 +1337,14 @@ local function CT_AssistFrame_TextStatusBar_UpdateTextString(bar)
 			else
 				style = CT_UnitFramesOptions.styles[4][5];
 			end
-			module:UpdateStatusBarTextString(bar, style, 0)
+			module:ApplyBlizzardBarText(bar, style)
 			CT_UnitFrames_HealthBar_OnValueChanged(bar, tonumber(bar:GetValue()), not CT_UnitFramesOptions.oneColorHealth)
 			module:UpdateBesideBarTextString(bar, CT_UnitFramesOptions.styles[4][2], self.healthBesideText)
 		end
 
 	elseif (bar == self.manabar) then
 		if (CT_UnitFramesOptions) then
-			module:UpdateStatusBarTextString(bar, CT_UnitFramesOptions.styles[4][3], 0)
+			module:ApplyBlizzardBarText(bar, CT_UnitFramesOptions.styles[4][3])
 			module:UpdateBesideBarTextString(bar, CT_UnitFramesOptions.styles[4][4], self.manaBesideText)
 		end
 	end
@@ -1380,8 +1380,10 @@ end
 
 function module:ShowAssistFrameBarText()
 	local self = CT_AssistFrame;
-	UnitFrameHealthBar_Update(self.healthbar, self.unit);
-	UnitFrameManaBar_Update(self.manabar, self.unit);
+	-- Do NOT call Blizzard's UnitFrameHealthBar_Update / UnitFrameManaBar_Update from this insecure
+	-- path -- it taints Blizzard's secure code so it can't compare the now-secret maxValue. Blizzard
+	-- keeps the bars current via its own events; we only refresh our text + global mode.
+	module:ApplyStatusTextMode();	-- global text mode (NUMERIC/PERCENT/BOTH/NONE)
 	CT_AssistFrame_TextStatusBar_UpdateTextString(self.healthbar);
 	CT_AssistFrame_TextStatusBar_UpdateTextString(self.manabar);
 end

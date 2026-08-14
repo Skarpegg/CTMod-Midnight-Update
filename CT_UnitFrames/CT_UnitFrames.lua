@@ -130,19 +130,25 @@ function module:ApplyStatusTextMode()
 	end
 end
 
--- Cosmetic restyle only (colour/font) of a bar's secure TextString. `settings` is a styles[][] entry
--- whose [2]..[5] are r,g,b,a; its [1] (old per-frame style) is ignored -- format is now global.
--- Visibility and content are governed by ApplyStatusTextMode; here we never touch the bar itself.
+-- Cosmetic restyle (colour/font) + per-frame show/hide of a bar's secure TextString. `settings` is a
+-- styles[][] entry: [1] is the frame's on-bar style where 1 ("None") HIDES this bar's text, any other
+-- value shows it; [2]..[5] are r,g,b,a. The numeric/percent FORMAT is global (ApplyStatusTextMode) --
+-- per-bar format overrides taint the bar, but hiding via alpha is cosmetic and safe. We never touch
+-- the bar object itself, only its FontString.
 function module:ApplyBlizzardBarText(bar, settings)
 	local textString = bar and bar.TextString;
 	if (not textString) then
 		return;
 	end
-	textString:SetAlpha(1);		-- undo any legacy suppression; NONE mode is handled by the CVar
-	textString:SetFontObject(bar.ctFont or CT_UnitFrames_TextStatusBarText);
-	if (settings) then
-		textString:SetTextColor(settings[2] or 1, settings[3] or 1, settings[4] or 1, settings[5] or 1);
+	local style = settings and settings[1];
+	if (not style or style == 1) then
+		-- "None" -> hide this bar's text on this frame.
+		textString:SetAlpha(0);
+		return;
 	end
+	textString:SetAlpha(1);
+	textString:SetFontObject(bar.ctFont or CT_UnitFrames_TextStatusBarText);
+	textString:SetTextColor(settings[2] or 1, settings[3] or 1, settings[4] or 1, settings[5] or 1);
 end
 -- ------------------------------------------------------------------------------------------------
 
