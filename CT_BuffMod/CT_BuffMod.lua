@@ -28,6 +28,17 @@ local _G = getfenv(0);
 local MODULE_NAME = "CT_BuffMod";
 local MODULE_VERSION = strmatch(C_AddOns.GetAddOnMetadata(MODULE_NAME, "version"), "^([%d.]+)");
 
+-- Midnight (12.1.0) removed SecureAuraHeaderTemplate from Mainline. Without it the secure buff header
+-- can't be built and shows up as a blank box, so we must fall back to the unsecure header. Probe once
+-- (cached) whether the template still exists by trying to create a throwaway frame with it.
+local secureAuraHeaderAvailable;
+local function ctSecureAuraHeaderAvailable()
+	if (secureAuraHeaderAvailable == nil) then
+		secureAuraHeaderAvailable = pcall(CreateFrame, "Frame", nil, UIParent, "SecureAuraHeaderTemplate") and true or false;
+	end
+	return secureAuraHeaderAvailable;
+end
+
 module.name = MODULE_NAME;
 module.version = MODULE_VERSION;
 
@@ -213,6 +224,8 @@ end
 local tokenTable = {};
 local sortingTable = {};
 local groupingTable = {};
+local seenAuras = {};	-- Midnight: CANCELABLE/NOT_CANCELABLE filters return all helpful auras, so groups
+						-- overlap; track auraInstanceID to keep a buff from being added to more than one group.
 local tempTable = {};
 
 function CT_BuffMod_UnsecureButton_GetUnit(self)
@@ -697,6 +710,7 @@ function CT_BuffMod_UnsecureAuraHeader_Update(self)
 
 	wipe(sortingTable);
 	wipe(groupingTable);
+	wipe(seenAuras);
 
 	if ( groupBy ) then
 		local i = 1;
@@ -731,14 +745,22 @@ function CT_BuffMod_UnsecureAuraHeader_Update(self)
 		local i = 1;
 		local aura = C_UnitAuras.GetAuraDataByIndex(unit, i, fullFilter)
 		while aura do
-			aura.filter = fullFilter;
-			aura.index = i;
-			-- Sanitize fields the sort/layout compares; in combat these can be restricted (secret/tainted).
-			aura.name = ctSafe(aura.name, "");
-			aura.duration = ctSafe(aura.duration, 0);
-			aura.expirationTime = ctSafe(aura.expirationTime, 0);
-			local targetList = sortingTable;
-			tinsert(targetList, aura);
+			-- Midnight: CANCELABLE/NOT_CANCELABLE both return every helpful aura, so a buff can match
+			-- several groups. Skip any aura already placed so it isn't shown twice.
+			local instanceId = aura.auraInstanceID;
+			if (not instanceId or not seenAuras[instanceId]) then
+				if (instanceId) then
+					seenAuras[instanceId] = true;
+				end
+				aura.filter = fullFilter;
+				aura.index = i;
+				-- Sanitize fields the sort/layout compares; in combat these can be restricted (secret/tainted).
+				aura.name = ctSafe(aura.name, "");
+				aura.duration = ctSafe(aura.duration, 0);
+				aura.expirationTime = ctSafe(aura.expirationTime, 0);
+				local targetList = sortingTable;
+				tinsert(targetList, aura);
+			end
 			i = i + 1;
 			aura = C_UnitAuras.GetAuraDataByIndex(unit, i, fullFilter)
 		end
@@ -5575,6 +5597,12 @@ function primaryClass:applyProtectedOptions(initFlag)
 		-- target/focus unit changes (the target does not cease to
 		-- exist if you switch from one to another without clearing
 		-- the target).
+		useUnsecure = true;
+	end
+
+	-- Midnight: if SecureAuraHeaderTemplate is unavailable the secure header can't be built (blank
+	-- box), so force the unsecure header regardless of the "Use Non-secure buff buttons" option.
+	if (not useUnsecure and not ctSecureAuraHeaderAvailable()) then
 		useUnsecure = true;
 	end
 
