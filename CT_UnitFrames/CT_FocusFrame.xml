@@ -48,7 +48,7 @@
 				if ( GetCVarBool("showDispelDebuffs") ) then
 					filter = "RAID";
 				end
-				GameTooltip:SetUnitDebuff(self:GetParent().unit, self:GetID(), filter);
+				pcall(GameTooltip.SetUnitDebuff, GameTooltip, self:GetParent().unit, self:GetID(), filter);  -- pcall: aura secret while tainted in combat
 			</OnEnter>
 			<OnLeave>
 				GameTooltip:Hide();
@@ -103,11 +103,11 @@
 		<Scripts>
 			<OnEnter>
 				GameTooltip:SetOwner(self, "ANCHOR_BOTTOMRIGHT", 15, -25);
-				GameTooltip:SetUnitDebuff(self.unit, self:GetID());
+				pcall(GameTooltip.SetUnitDebuff, GameTooltip, self.unit, self:GetID());
 				
 				self.debuffTicker = self.debuffTicker or C_Timer.NewTicker(0.1, function()
 					if ( GameTooltip:IsOwned(self) ) then
-						GameTooltip:SetUnitDebuff(self.unit, self:GetID());
+						pcall(GameTooltip.SetUnitDebuff, GameTooltip, self.unit, self:GetID());
 					end
 				end);
 			</OnEnter>
@@ -168,10 +168,10 @@
 		<Scripts>
 			<OnEnter>
 				GameTooltip:SetOwner(self, "ANCHOR_BOTTOMRIGHT", 15, -25);
-				GameTooltip:SetUnitBuff(self.unit, self:GetID());
+				pcall(GameTooltip.SetUnitBuff, GameTooltip, self.unit, self:GetID());
 				self.ctBuffTicker = self.ctBuffTicker or C_Timer.NewTicker(0.1, function()
 					if ( GameTooltip:IsOwned(self) ) then
-						GameTooltip:SetUnitBuff(self.unit, self:GetID());
+						pcall(GameTooltip.SetUnitBuff, GameTooltip, self.unit, self:GetID());
 					end
 				end);
 			</OnEnter>

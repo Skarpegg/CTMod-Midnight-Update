@@ -2450,7 +2450,7 @@ function NewCTRAPlayerFrame(parentInterface, parentFrame, isDummy)
 					visualFrame:SetBackdropBorderColor(colorBorderBeyondRangeRed, colorBorderBeyondRangeGreen, colorBorderBeyondRangeBlue, colorBorderBeyondRangeAlpha);
 				end
 			else
-				local removableDebuff = C_UnitAuras.GetAuraDataByIndex(shownUnit, 1, "RAID HARMFUL")
+				local removableDebuff = CT_Library.safeGetAuraDataByIndex(shownUnit, 1, "RAID HARMFUL")
 				if (removableDebuff and owner:GetProperty("RemovableDebuffColor")) then
 					local color = DebuffTypeColor[removableDebuff.dispelName] or DEFAULT_DEBUFF_COLOR;
 					local unit = (isPet and shownUnit:sub(1,-4)) or shownUnit;
@@ -2489,7 +2489,7 @@ function NewCTRAPlayerFrame(parentInterface, parentFrame, isDummy)
 					visualFrame:SetBackdropBorderColor(colorBorderBeyondRangeRed, colorBorderBeyondRangeGreen, colorBorderBeyondRangeBlue, colorBorderBeyondRangeAlpha);
 				end
 			else
-				local removableDebuff = C_UnitAuras.GetAuraDataByIndex(shownUnit, 1, "RAID HARMFUL")
+				local removableDebuff = CT_Library.safeGetAuraDataByIndex(shownUnit, 1, "RAID HARMFUL")
 				if (removableDebuff and owner:GetProperty("RemovableDebuffColor")) then
 					local color = DebuffTypeColor[removableDebuff.dispelName] or DEFAULT_DEBUFF_COLOR;
 					background:SetColorTexture(colorBackgroundRed/2 + color.r/2, colorBackgroundGreen/2 + color.g/2, colorBackgroundBlue/2 + color.b/2, colorBackgroundAlpha*0.8 + 0.2);
@@ -3156,7 +3156,7 @@ function NewCTRAPlayerFrame(parentInterface, parentFrame, isDummy)
 				filterText = "HELPFUL";		-- further filtered by conditional statements during for loop below
 			end
 			for auraIndex = 1, 40 do
-				local aura = C_UnitAuras.GetAuraDataByIndex(shownUnit, auraIndex, filterText)
+				local aura = CT_Library.safeGetAuraDataByIndex(shownUnit, auraIndex, filterText)
 				if (aura and frame) then
 					if(
 						auraBossShown[aura.spellId] ~= true
@@ -3356,7 +3356,7 @@ function NewCTRAPlayerFrame(parentInterface, parentFrame, isDummy)
 			--]]
 				-- Consumables
 				for i=1, 40 do
-					local aura = C_UnitAuras.GetAuraDataByIndex(shownUnit, i, "HELPFUL CANCELABLE")
+					local aura = CT_Library.safeGetAuraDataByIndex(shownUnit, i, "HELPFUL CANCELABLE")
 					if not aura then
 						break
 					end
@@ -3625,7 +3625,7 @@ function NewCTRAPlayerFrame(parentInterface, parentFrame, isDummy)
 							updateAuras();
 							updateBackdrop();
 							if (not InCombatLockdown()) then
-								if C_UnitAuras.GetAuraDataByIndex(shownUnit, 1, "HARMFUL RAID") then
+								if CT_Library.safeGetAuraDataByIndex(shownUnit, 1, "HARMFUL RAID") then
 									secureButtonDebuffFirst:Show();
 								else
 									secureButtonDebuffFirst:Hide();
@@ -3638,7 +3638,7 @@ function NewCTRAPlayerFrame(parentInterface, parentFrame, isDummy)
 							C_Timer.After(0.001, updateHealthBar);
 							C_Timer.After(0.001, updateAuras);
 						elseif (event == "PLAYER_REGEN_ENABLED") then
-							if C_UnitAuras.GetAuraDataByIndex(shownUnit, 1, "HARMFUL RAID") then
+							if CT_Library.safeGetAuraDataByIndex(shownUnit, 1, "HARMFUL RAID") then
 								secureButtonDebuffFirst:Show();
 							else
 								secureButtonDebuffFirst:Hide();
@@ -3715,7 +3715,7 @@ function NewCTRAPlayerFrame(parentInterface, parentFrame, isDummy)
 			secureButton:SetAttribute("unit", shownUnit);
 			secureButtonDebuffFirst:SetAttribute("unit", shownUnit);
 			secureButtonCliqueFirst:SetAttribute("unit", shownUnit);
-			if C_UnitAuras.GetAuraDataByIndex(shownUnit, 1, "HARMFUL RAID") then
+			if CT_Library.safeGetAuraDataByIndex(shownUnit, 1, "HARMFUL RAID") then
 				secureButtonDebuffFirst:Show();
 			else
 				secureButtonDebuffFirst:Hide();

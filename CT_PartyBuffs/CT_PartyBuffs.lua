@@ -182,7 +182,11 @@ local function refreshBuffs()
 		
 		local debuffsShown = 0
 		for i, button in ipairs(frame.debuffs) do
-			local aura = C_UnitAuras.GetAuraDataByIndex(frame.unit, i, debuffFilter)
+			-- Midnight: auras are secret (and this THROWS) while tainted in combat. Read via pcall and,
+			-- if it can't be read, abort the refresh and keep the current display -- the 0.25s ticker
+			-- retries, so it resyncs on its own once combat ends.
+			local ok, aura = pcall(C_UnitAuras.GetAuraDataByIndex, frame.unit, i, debuffFilter)
+			if (not ok) then return end
 			if (aura) then
 				button.Icon:SetTexture(aura.icon)
 				button.Count:SetText(aura.applications > 1 and aura.applications or "")
@@ -203,7 +207,8 @@ local function refreshBuffs()
 					button:SetPoint("TOPLEFT", 0, 0)
 				end
 			end
-			local aura = C_UnitAuras.GetAuraDataByIndex(frame.unit, i, buffFilter)
+			local ok, aura = pcall(C_UnitAuras.GetAuraDataByIndex, frame.unit, i, buffFilter)
+			if (not ok) then return end
 			if (aura) then
 				button.Icon:SetTexture(aura.icon)
 				button:Show()
@@ -245,12 +250,14 @@ end
 
 function CT_PartyBuffButton_OnEnter(self)
 	GameTooltip:SetOwner(self, "ANCHOR_RIGHT")
-	GameTooltip:SetUnitAura(self.unit, self.id, buffFilter)
+	-- Midnight: SetUnitAura reads the (secret) aura and throws while tainted in combat; pcall it so
+	-- hovering a buff mid-combat doesn't error (the tooltip just won't populate until combat ends).
+	pcall(GameTooltip.SetUnitAura, GameTooltip, self.unit, self.id, buffFilter)
 end
 
 function CT_PartyDebuffButton_OnEnter(self)
 	GameTooltip:SetOwner(self, "ANCHOR_RIGHT")
-	GameTooltip:SetUnitAura(self.unit, self.id, debuffFilter)
+	pcall(GameTooltip.SetUnitAura, GameTooltip, self.unit, self.id, debuffFilter)
 end
 
 --------------------------------------------

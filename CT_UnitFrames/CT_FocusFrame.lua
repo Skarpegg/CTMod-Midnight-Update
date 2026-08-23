@@ -598,7 +598,7 @@ function CT_FocusFrame_UpdateAuras(self)
 	local filter		-- intentionally nil
 	
 	for i=1, MAX_TARGET_BUFFS do
-		name, icon, count, debuffType, duration, expirationTime, caster, canStealOrPurge, _ , spellId = UnitBuff(self.unit, i, filter);
+		name, icon, count, debuffType, duration, expirationTime, caster, canStealOrPurge, _ , spellId = CT_Library.safeUnitBuff(self.unit, i, filter);
 
 		frameName = selfName .. "Buff" .. i;
 		frame = _G[frameName];
@@ -668,10 +668,10 @@ function CT_FocusFrame_UpdateAuras(self)
 	local index = 1;
 
 	while ( frameNum <= (self.maxDebuffs or MAX_TARGET_DEBUFFS) ) do
-		local debuffName = UnitDebuff(self.unit, index, filter);
+		local debuffName = CT_Library.safeUnitDebuff(self.unit, index, filter);
 		if ( debuffName ) then
 			if ( CT_FocusFrame_ShouldShowDebuff(self.unit, index, filter) ) then
-				name, icon, count, debuffType, duration, expirationTime, caster = UnitDebuff(self.unit, index, filter);
+				name, icon, count, debuffType, duration, expirationTime, caster = CT_Library.safeUnitDebuff(self.unit, index, filter);
 				frameName = selfName.."Debuff"..frameNum;
 				frame = _G[frameName];
 				if ( icon ) then
@@ -767,7 +767,7 @@ function CT_FocusFrame_ShouldShowDebuff(unit, index, filter)
 	if ( SHOW_ALL_ENEMY_DEBUFFS == "1" or not UnitCanAttack("player", unit) ) then
 		return true;
 	else
-		local name, icon, count, debuffType, duration, expirationTime, unitCaster, canStealOrPurge, shouldConsolidate, spellId, canApplyAura, isBossDebuff, points1, points2, points3, isCastByPlayer = UnitDebuff(unit, index, filter);
+		local name, icon, count, debuffType, duration, expirationTime, unitCaster, canStealOrPurge, shouldConsolidate, spellId, canApplyAura, isBossDebuff, points1, points2, points3, isCastByPlayer = CT_Library.safeUnitDebuff(unit, index, filter);
 
 		local hasCustom, alwaysShowMine, showForMySpec = SpellGetVisibilityInfo(spellId, "ENEMY_TARGET");
 		if ( hasCustom ) then

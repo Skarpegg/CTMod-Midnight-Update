@@ -248,6 +248,9 @@ end
 
 function CT_BuffMod_UnsecureAuraHeader_OnLoad(self)
 	self:RegisterEvent("UNIT_AURA");
+	-- Auras are unreadable (secret) to us in combat; refresh once when combat ends so the display
+	-- catches up even if no UNIT_AURA fires right after.
+	self:RegisterEvent("PLAYER_REGEN_ENABLED");
 end
 
 function CT_BuffMod_UnsecureAuraHeader_OnUpdate(self)
@@ -272,6 +275,11 @@ end
 
 function CT_BuffMod_UnsecureAuraHeader_OnEvent(self, event, ...)
 	if ( self:IsVisible() ) then
+		if ( event == "PLAYER_REGEN_ENABLED" ) then
+			-- Combat ended: auras are readable again, so refresh the (frozen) display once.
+			CT_BuffMod_UnsecureAuraHeader_Update(self);
+			return;
+		end
 		local unit = CT_BuffMod_UnsecureButton_GetUnit(self);
 		if ( event == "UNIT_AURA" and ... == unit ) then
 			CT_BuffMod_UnsecureAuraHeader_Update(self);
@@ -743,7 +751,14 @@ function CT_BuffMod_UnsecureAuraHeader_Update(self)
 		end
 
 		local i = 1;
-		local aura = C_UnitAuras.GetAuraDataByIndex(unit, i, fullFilter)
+		-- Midnight: in combat/encounters auras become "secret" and GetAuraDataByIndex THROWS when
+		-- called from tainted (addon) code. Read via pcall; if it can't be read, abort the whole
+		-- refresh and leave the current buffs in place until combat ends -- this avoids error spam
+		-- (it was firing tens of thousands of times) and stops the buffs from vanishing mid-fight.
+		local ok, aura = pcall(C_UnitAuras.GetAuraDataByIndex, unit, i, fullFilter);
+		if (not ok) then
+			return;
+		end
 		while aura do
 			-- Midnight: CANCELABLE/NOT_CANCELABLE both return every helpful aura, so a buff can match
 			-- several groups. Skip any aura already placed so it isn't shown twice.
@@ -762,7 +777,10 @@ function CT_BuffMod_UnsecureAuraHeader_Update(self)
 				tinsert(targetList, aura);
 			end
 			i = i + 1;
-			aura = C_UnitAuras.GetAuraDataByIndex(unit, i, fullFilter)
+			ok, aura = pcall(C_UnitAuras.GetAuraDataByIndex, unit, i, fullFilter);
+			if (not ok) then
+				return;
+			end
 		end
 	end
 	if ( includeWeapons and not weaponPosition ) then
@@ -2503,7 +2521,12 @@ local function auraButton_updateAppearance(button)
 		if (not index or not filter) then
 			return;
 		end
-		local aura = C_UnitAuras.GetAuraDataByIndex(frameObject:getUnitId(), index, filter)
+		-- Midnight: auras are secret (and this call THROWS) while tainted in combat. Read via pcall
+		-- and, if it can't be read, leave this button unchanged until combat ends.
+		local ok, aura = pcall(C_UnitAuras.GetAuraDataByIndex, frameObject:getUnitId(), index, filter);
+		if (not ok) then
+			return;
+		end
 		auraObject = aura and unitObject:findSpell(aura.auraInstanceID);
 
 	elseif (button.mode == constants.BUTTONMODE_ENCHANT) then
@@ -3124,11 +3147,16 @@ function CT_BuffMod_AuraButton_OnEnter(self)
 	if ( auraObject.auraType == constants.AURATYPE_ENCHANT ) then
 		GameTooltip:SetInventoryItem("player", filter);
 	else
+		-- Midnight: these read the (secret) aura and throw while tainted in combat; pcall so hovering a
+		-- buff mid-combat doesn't error (the tooltip just won't populate until combat ends).
 		if GameTooltip.SetUnitAura then
-			GameTooltip:SetUnitAura(frameObject:getUnitId(), index, filter);
+			pcall(GameTooltip.SetUnitAura, GameTooltip, frameObject:getUnitId(), index, filter);
 		elseif C_TooltipInfo and C_TooltipInfo.GetUnitAura then
 			-- Modern method for Dragonflight and onward
-			GameTooltip:SetResult(C_TooltipInfo.GetUnitAura(frameObject:getUnitId(), index, filter));
+			local ok, result = pcall(C_TooltipInfo.GetUnitAura, frameObject:getUnitId(), index, filter);
+			if (ok and result) then
+				GameTooltip:SetResult(result);
+			end
 		end
 		do
 			-- casterName can be a restricted "secret string" in combat; ctSafe -> nil if unusable so we

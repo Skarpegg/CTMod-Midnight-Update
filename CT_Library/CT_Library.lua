@@ -73,6 +73,38 @@ function libPublic.safeBool(v, default)
 	return default;
 end
 
+-- safeGetAuraDataByIndex: Midnight makes auras "secret" in combat/encounters, and
+-- C_UnitAuras.GetAuraDataByIndex THROWS (not just returns secret) when called from tainted (addon)
+-- code in that state. This pcall wrapper returns the aura table when readable, or nil when it can't
+-- be read (treat as "no aura for now"; the caller's own refresh will catch up once combat ends).
+function libPublic.safeGetAuraDataByIndex(unit, index, filter)
+	if (not C_UnitAuras or not C_UnitAuras.GetAuraDataByIndex) then
+		return nil;
+	end
+	local ok, aura = pcall(C_UnitAuras.GetAuraDataByIndex, unit, index, filter);
+	if (ok) then
+		return aura;
+	end
+	return nil;
+end
+
+-- safeUnitBuff / safeUnitDebuff: the classic UnitBuff/UnitDebuff wrappers also THROW when auras are
+-- secret (in combat) and read from tainted code. pcall them; return their values when readable, or
+-- nothing (all nil) when they can't be read. Preserves the multi-return signature of the originals.
+function libPublic.safeUnitBuff(...)
+	if (not UnitBuff) then return nil; end
+	local r = { pcall(UnitBuff, ...) };
+	if (r[1]) then return unpack(r, 2); end
+	return nil;
+end
+
+function libPublic.safeUnitDebuff(...)
+	if (not UnitDebuff) then return nil; end
+	local r = { pcall(UnitDebuff, ...) };
+	if (r[1]) then return unpack(r, 2); end
+	return nil;
+end
+
 -- getSpellName: returns a spell's name (string) or nil, across retail (C_Spell) and classic (GetSpellInfo).
 -- Accepts a spellID or a spell name; also doubles as an "does this spell exist" check via truthiness.
 function libPublic.getSpellName(spellIdentifier)
