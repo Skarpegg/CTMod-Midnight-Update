@@ -1905,7 +1905,10 @@ do
 				end
 			end
 
-			if (openBankBags) then
+			-- Midnight (12.1.0) removed NUM_BANKBAGSLOTS (and the per-bank-bag model) with the reworked
+			-- tabbed bank, so guard the legacy loop: run it where the constants exist (e.g. Classic),
+			-- and skip it otherwise -- the modern bank UI shows its own contents.
+			if (openBankBags and BACKPACK_CONTAINER and ITEM_INVENTORY_BANK_BAG_OFFSET and NUM_BANKBAGSLOTS) then
 				-- Open all bank bags.
 				-- The game closes these when the bank closes.
 				for i = BACKPACK_CONTAINER+ITEM_INVENTORY_BANK_BAG_OFFSET+1, BACKPACK_CONTAINER+ITEM_INVENTORY_BANK_BAG_OFFSET+NUM_BANKBAGSLOTS, 1 do
