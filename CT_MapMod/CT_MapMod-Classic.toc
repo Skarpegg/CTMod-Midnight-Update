@@ -1,5 +1,5 @@
 ## Interface: 11506
-## Version: 12.0.0
+## Version: 12.1.0
 ## Title: CTMod Midnight - MapMod
 ## Notes: Pins the World Map with points of interest and herb/ore nodes
 ## DefaultState: Enabled
