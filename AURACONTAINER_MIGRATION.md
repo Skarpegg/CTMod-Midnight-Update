@@ -48,14 +48,32 @@ Legend: ✅ survives · ◐ partial / constrained · ❓ needs verification · �
 - **The losses are the same wall as the unit-frame text:** anything that needs to *read* aura values in
   our code — custom conditions, bespoke sort logic, value-derived text/abbreviation — can't be done.
 
-## Open questions to resolve during the player-frame POC
+## Open questions — RESOLVED via the CT_AuraSpike spike (2026-08-30)
 
-1. Sort-method enum values — do NAME/TIME/EXPIRES/INDEX equivalents exist? (`Blizzard_AuraContainerShared`)
-2. Flow-layout option field names (direction, spacing, wrap/stride, min size). (`…FlowLayout`)
-3. Does the secure CANCELABLE / NOT_CANCELABLE filtering work in a group (vs. our broken tainted read)?
-4. Does CustomAuraButton support right-click cancel, and in combat?
-5. How is the container's **unit** set (for target/focus/pet windows)?
-6. How much per-button styling `initializeFrame` actually allows.
+Confirmed working end-to-end, including **in combat**, with real icons + live tooltips:
+
+1. **Sort** ✅ — `SetAuraGroupSortMethod(key, sortMethod, sortDirection)` with enums `AuraContainerSortMethod`
+   (Default=0, BigDefensive=1, UnitFrameDebuff=2, ImportantOnly=3, Expiration=4, ExpirationOnly=5, Name=6,
+   NameOnly=7, AuraInstanceIDOnly=8) and `AuraContainerSortDirection` (Normal=0, Reverse=1). CT_BuffMod
+   NAME→Name, TIME/EXPIRES→Expiration, INDEX→AuraInstanceIDOnly/Default.
+2. **Layout** ✅ — `SetAuraGroupLayout(key, { elementWidth, elementHeight, elementSpacing, lineSpacing,
+   groupSpacing, groupLineSpacing, forceNewLine })`.
+3. **Filtering** ✅ (the big one) — secure parser filters correctly. Valid components: `HELPFUL`, `HARMFUL`,
+   `PLAYER` (own), `RAID`, `CANCELABLE`, `DISPELLABLE`. **Rejected: `NOT_CANCELABLE`, `CURABLE`.** So
+   cancelable grouping and own-aura separation WORK (secure, in combat) — but you can only express the
+   positive side (`CANCELABLE`), not the negation. (`GetAuraGroupFrameCount` is a frame-pool count, NOT a
+   match count — don't use it to measure matches.)
+4. **Click-to-cancel** ❌ — `CustomAuraButton` has no cancel wiring; right-click does nothing. Cancelling a
+   buff would need a separate secure action-button overlay (and is a protected action anyway) — treat as lost
+   / future work.
+5. **Per-unit** ✅ — `SetUnit("target")` (and presumably focus/pet) populates that unit's auras.
+6. **Weapon enchants** ✅ — `AddItemEnchantment(AuraContainerItemEnchantmentSlot.MainHand/OffHand/Ranged,
+   opts)`; slot→inventory 16/17/18; sort via `AuraContainerItemEnchantmentSortMethod` (Slot/Duration).
+7. **Button styling** ✅ — `initializeFrame(button)` registers regions the secure code drives:
+   `button:SetIcon(tex)`, `SetApplicationCount(fs, opts)`, `SetDurationCooldown(cd)`, `SetDurationText(fs, opts)`,
+   `SetDurationBar(bar, opts)`, `AddDispelTypeTexture(tex, opts)`, `SetDispelTypeText(fs, opts)`.
+
+Recipe (order matters): create `CustomAuraContainerTemplate` → `AddAuraGroup(+layout)` → `SetUnit` → `Show`.
 
 ## Approach
 
