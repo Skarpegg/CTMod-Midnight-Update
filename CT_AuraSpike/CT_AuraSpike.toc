@@ -1,0 +1,6 @@
+## Interface: 120100
+## Title: CT AuraSpike |cFF808080(dev spike)|r
+## Notes: Throwaway AuraContainer POC spike for the CT_BuffMod migration. Delete before release.
+## Version: 0.0.1
+
+CT_AuraSpike.lua
