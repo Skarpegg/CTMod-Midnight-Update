@@ -11,4 +11,5 @@
 
 CT_BuffMod.xml
 CT_BuffMod.lua
+CT_BuffMod_AuraContainer.lua
 localization.lua
