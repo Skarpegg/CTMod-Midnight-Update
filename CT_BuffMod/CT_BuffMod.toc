@@ -4,7 +4,7 @@
 ## Author: Cide & TS (Original CTMod); Midnight community port
 ## Notes: Customizable buff display.
 ## DefaultState: Enabled
-## SavedVariables: CT_BuffModOptions
+## SavedVariables: CT_BuffModOptions, CT_BuffMod_AuraContainerDB
 ## Dependencies: CT_Library
 ## Group: CT_Library
 ## X-Part-Of: CT-Library
