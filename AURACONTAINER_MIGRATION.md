@@ -63,12 +63,11 @@ Confirmed working end-to-end, including **in combat**, with real icons + live to
    cancelable grouping and own-aura separation WORK (secure, in combat) — but you can only express the
    positive side (`CANCELABLE`), not the negation. (`GetAuraGroupFrameCount` is a frame-pool count, NOT a
    match count — don't use it to measure matches.)
-4. **Click-to-cancel** ✅ (revised) — the base `AuraButton` HAS built-in secure cancel; it just has to be
-   enabled: in `initializeFrame`, `button:SetCancelAuraButtons("RightButtonUp")`. On click it does
-   `GetAuraInstance()` (secure) → `C_UnitAuras.CancelAuraByInstanceID(unit, instanceID)`, gated by
-   `CanCancelAuraOnClick`. Because it's Blizzard's secure button cancelling on a hardware click, this likely
-   works **in combat too** — potentially better than the old (out-of-combat-only) system. NEEDS in-game
-   confirmation (does it cancel? does it work in combat? which auras does CanCancelAuraOnClick allow?).
+4. **Click-to-cancel** ✅ out of combat / ❌ in combat — **CONFIRMED in-game**. Enable via
+   `button:SetCancelAuraButtons("RightButtonUp")` in `initializeFrame`; on click it does `GetAuraInstance()`
+   (secure) → `C_UnitAuras.CancelAuraByInstanceID`. Works out of combat, **blocked in combat** (protected
+   action). This is **exactly parity with the old system** (which was also out-of-combat only) — so NO
+   regression. Real-impl note: make sure in-combat right-clicks fail silently (no "action blocked" spam).
 5. **Per-unit** ✅ — `SetUnit("target")` (and presumably focus/pet) populates that unit's auras.
 6. **Weapon enchants** ✅ — `AddItemEnchantment(AuraContainerItemEnchantmentSlot.MainHand/OffHand/Ranged,
    opts)`; slot→inventory 16/17/18; sort via `AuraContainerItemEnchantmentSortMethod` (Slot/Duration).
