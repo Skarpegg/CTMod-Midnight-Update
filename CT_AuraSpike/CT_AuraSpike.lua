@@ -27,6 +27,11 @@ local function initButton(button)
 		button.ctIcon = tex;
 		if (button.SetIcon) then pcall(button.SetIcon, button, tex); end
 	end
+	-- Click-to-cancel: AuraButton has built-in secure cancel (GetAuraInstance -> CancelAuraByInstanceID),
+	-- it just has to be ENABLED. This may even work in combat (Blizzard's secure button + hardware click).
+	if (button.SetCancelAuraButtons) then
+		pcall(button.SetCancelAuraButtons, button, "RightButtonUp");
+	end
 	if (button.Show) then button:Show(); end
 end
 
