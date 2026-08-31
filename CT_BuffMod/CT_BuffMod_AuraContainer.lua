@@ -1,20 +1,19 @@
 ------------------------------------------------------------------------------------------------------
 -- CT_BuffMod -- AuraContainer display path (WoW Midnight 12.1+)
 --
--- Additive + capability-gated + behind a dev flag (default OFF): the existing secure/unsecure buff
--- system is completely unaffected unless CT_BuffMod_AuraContainerDB.useAuraContainer is turned on (/ctbuffac)
--- AND the client actually has the AuraContainer API (Mainline 12.1+; Classic/Cata don't load this file).
+-- Additive + capability-gated + behind a dev flag (default OFF via /ctbuffac). The existing
+-- secure/unsecure buff system is completely unaffected unless CT_BuffMod_AuraContainerDB.useAuraContainer
+-- is on AND the client has the AuraContainer API (Mainline 12.1+; Classic/Cata don't load this file).
 --
--- Why: Midnight makes auras "secret", so the old unsecure path freezes in combat. Blizzard's secure
--- AuraContainer reads the aura data itself and drives our buttons -> buffs display and update IN COMBAT.
+-- When active it builds one Blizzard-secure AuraContainer PER CT_BuffMod window (so buffs display and
+-- update IN COMBAT, which the old unsecure path can't) and hides that window's old display -- a true
+-- replacement. Each container has a small drag handle; its position persists per window.
 --
--- Increment 1 (this file): a self-contained, styled, cancelable player-buff container built from the
--- proven recipe. It does NOT yet touch CT_BuffMod's window/frameClass machinery -- that integration
--- (replacing a window's display, wiring per-window filter/sort/style options) is the next step.
+-- Still a work in progress: filter is HELPFUL for every window (per-window buff/debuff/cancelable/own
+-- option mapping is the next step); weapon enchants only on the player window.
 ------------------------------------------------------------------------------------------------------
 
--- Capability probe (cached). Mainline 12.1+ only; anywhere without the API this returns false and the
--- whole file becomes inert.
+-- Capability probe (cached). Mainline 12.1+ only; anywhere without the API this returns false -> inert.
 local capable;
 local function isCapable()
 	if (capable == nil) then
@@ -30,16 +29,17 @@ local function isCapable()
 	return capable;
 end
 
-local container;
+local function isActive()
+	return CT_BuffMod_AuraContainerDB and CT_BuffMod_AuraContainerDB.useAuraContainer and isCapable();
+end
 
 -- initializeFrame: CustomAuraButton is "bring your own regions" -- create the display regions and
--- register them; Blizzard's SECURE code then fills them from the (secret) aura, so it works in combat.
+-- register them; Blizzard's SECURE code fills them from the (secret) aura, so it works in combat.
 local function initButton(button)
 	if (type(button) ~= "table") then
 		return;
 	end
 	pcall(button.SetSize, button, 30, 30);
-
 	if (not button.ctIcon) then
 		local icon = button:CreateTexture(nil, "ARTWORK");
 		icon:SetAllPoints(button);
@@ -59,109 +59,100 @@ local function initButton(button)
 		button.ctCount = count;
 		pcall(button.SetApplicationCount, button, count);
 	end
-	-- Right-click cancels (out of combat; blocked in combat -- parity with the old system, no regression).
 	if (button.SetCancelAuraButtons) then
-		pcall(button.SetCancelAuraButtons, button, "RightButtonUp");
+		pcall(button.SetCancelAuraButtons, button, "RightButtonUp");	-- right-click cancel (out of combat)
 	end
-
 	if (button.Show) then
 		button:Show();
 	end
 end
 
-local GROUP_OPTS = { templateNames = { "CustomAuraButtonTemplate" }, initializeFrame = initButton };
-local LAYOUT = { elementWidth = 30, elementHeight = 30, elementSpacing = 4 };
+-- Fresh option/layout tables per call (don't share one table across containers).
+local function groupOpts() return { templateNames = { "CustomAuraButtonTemplate" }, initializeFrame = initButton }; end
+local function layout() return { elementWidth = 30, elementHeight = 30, elementSpacing = 4 }; end
 
--- The AuraContainer is a secure/forbidden frame: GetPoint() on it after StartMoving returns nothing,
--- and it controls its own anchoring. So we use a normal "anchor" frame as the draggable position
--- store (reliable GetPoint) and anchor the container to it. The drag handle lives on the anchor.
-local anchor;
-local function getAnchor()
-	if (anchor) then
-		return anchor;
+local containers = {};	-- [windowId] = AuraContainer frame
+local anchors = {};		-- [windowId] = normal anchor frame (draggable position store)
+
+-- The AuraContainer is a secure/forbidden frame (can't read its own moved position or host a tooltip
+-- child), so a normal "anchor" frame is the draggable position store and the container follows it.
+local function getAnchor(windowId)
+	if (anchors[windowId]) then
+		return anchors[windowId];
 	end
 	CT_BuffMod_AuraContainerDB = CT_BuffMod_AuraContainerDB or {};
-	anchor = CreateFrame("Frame", "CT_BuffMod_AuraAnchor", UIParent);
-	anchor:SetSize(320, 34);
-	anchor:SetMovable(true);
-	anchor:SetClampedToScreen(true);
+	CT_BuffMod_AuraContainerDB.windowPoints = CT_BuffMod_AuraContainerDB.windowPoints or {};
 
-	local p = CT_BuffMod_AuraContainerDB.auraContainerPoint;
-	anchor:ClearAllPoints();
+	local a = CreateFrame("Frame", "CT_BuffMod_AuraAnchor" .. windowId, UIParent);
+	a:SetSize(320, 34);
+	a:SetMovable(true);
+	a:SetClampedToScreen(true);
+	local p = CT_BuffMod_AuraContainerDB.windowPoints[windowId];
+	a:ClearAllPoints();
 	if (type(p) == "table") then
-		anchor:SetPoint(p[1] or "TOPRIGHT", UIParent, p[2] or "TOPRIGHT", p[3] or -20, p[4] or -220);
+		a:SetPoint(p[1] or "TOPRIGHT", UIParent, p[2] or "TOPRIGHT", p[3] or -20, p[4] or -220);
 	else
-		anchor:SetPoint("TOPRIGHT", UIParent, "TOPRIGHT", -20, -220);
+		a:SetPoint("TOPRIGHT", UIParent, "TOPRIGHT", -20, -220 - (windowId - 1) * 42);	-- staggered default
 	end
 
-	local mover = CreateFrame("Button", nil, anchor);
+	local mover = CreateFrame("Button", nil, a);
 	mover:SetSize(14, 28);
-	mover:SetPoint("RIGHT", anchor, "LEFT", -2, 0);
+	mover:SetPoint("RIGHT", a, "LEFT", -2, 0);
 	local tex = mover:CreateTexture(nil, "BACKGROUND");
 	tex:SetAllPoints();
 	tex:SetColorTexture(0.2, 0.6, 1.0, 0.7);
 	mover:RegisterForDrag("LeftButton");
-	mover:SetScript("OnDragStart", function() anchor:StartMoving(); end);
+	mover:SetScript("OnDragStart", function() a:StartMoving(); end);
 	mover:SetScript("OnDragStop", function()
-		anchor:StopMovingOrSizing();
-		local point, _, relPoint, x, y = anchor:GetPoint();
-		CT_BuffMod_AuraContainerDB.auraContainerPoint = { point, relPoint, x, y };
-		-- Reposition the live container to match (in case it isn't live-anchored to us).
-		if (container) then
-			container:ClearAllPoints();
-			if (not pcall(container.SetPoint, container, "TOPLEFT", anchor, "TOPLEFT", 0, 0)) then
-				container:SetPoint(point or "TOPRIGHT", UIParent, relPoint or "TOPRIGHT", x or -20, y or -220);
+		a:StopMovingOrSizing();
+		local point, _, relPoint, x, y = a:GetPoint();
+		CT_BuffMod_AuraContainerDB.windowPoints[windowId] = { point, relPoint, x, y };
+		local c = containers[windowId];
+		if (c) then
+			c:ClearAllPoints();
+			if (not pcall(c.SetPoint, c, "TOPLEFT", a, "TOPLEFT", 0, 0)) then
+				c:SetPoint(point or "TOPRIGHT", UIParent, relPoint or "TOPRIGHT", x or -20, y or -220);
 			end
 		end
 	end);
-	return anchor;
+
+	anchors[windowId] = a;
+	return a;
 end
 
-local function build()
-	if (container) then
-		container:Hide();
-		container = nil;
+-- Get (creating once) the container for one window, then point it at the window's unit and show it.
+-- Reused across refreshes/toggles -- never recreated (recreating leaked duplicate frames).
+local function buildWindow(w)
+	local id = w.windowId;
+	local c = containers[id];
+	if (not c) then
+		local a = getAnchor(id);
+		c = CreateFrame("AuraContainer", "CT_BuffMod_AuraContainer" .. id, UIParent, "CustomAuraContainerTemplate");
+		c:SetSize(320, 40);
+		c:ClearAllPoints();
+		if (not pcall(c.SetPoint, c, "TOPLEFT", a, "TOPLEFT", 0, 0)) then
+			local pt, _, rp, x, y = a:GetPoint();
+			c:SetPoint(pt or "TOPRIGHT", UIParent, rp or "TOPRIGHT", x or -20, y or -220);
+		end
+		c:AddAuraGroup("buffs", "HELPFUL", groupOpts());
+		c:SetAuraGroupLayout("buffs", layout());
+		if (type(AuraContainerSortMethod) == "table" and type(AuraContainerSortDirection) == "table") then
+			pcall(c.SetAuraGroupSortMethod, c, "buffs", AuraContainerSortMethod.Expiration, AuraContainerSortDirection.Normal);
+		end
+		-- Weapon enchants are the player's own -- only on the player window.
+		if (w.unit == "player" and type(AuraContainerItemEnchantmentSlot) == "table") then
+			pcall(c.AddItemEnchantment, c, AuraContainerItemEnchantmentSlot.MainHand, groupOpts());
+			pcall(c.AddItemEnchantment, c, AuraContainerItemEnchantmentSlot.OffHand, groupOpts());
+			pcall(c.SetItemEnchantmentLayout, c, layout());
+		end
+		containers[id] = c;
 	end
-
-	local c = CreateFrame("AuraContainer", "CT_BuffMod_AuraContainer_Player", UIParent, "CustomAuraContainerTemplate");
-
-	-- Position: follow the draggable anchor frame (the container can't report its own moved position).
-	local a = getAnchor();
-	c:ClearAllPoints();
-	local okp = pcall(c.SetPoint, c, "TOPLEFT", a, "TOPLEFT", 0, 0);
-	if (not okp) then
-		-- If anchoring the forbidden container to our frame is disallowed, mirror the anchor's point.
-		local pt, _, rp, x, y = a:GetPoint();
-		c:SetPoint(pt or "TOPRIGHT", UIParent, rp or "TOPRIGHT", x or -20, y or -220);
-	end
-	c:SetSize(320, 40);
-
-	-- Create group -> layout -> set unit -> show  (order matters).
-	c:AddAuraGroup("buffs", "HELPFUL", GROUP_OPTS);
-	c:SetAuraGroupLayout("buffs", LAYOUT);
-	if (type(AuraContainerSortMethod) == "table" and type(AuraContainerSortDirection) == "table") then
-		pcall(c.SetAuraGroupSortMethod, c, "buffs", AuraContainerSortMethod.Expiration, AuraContainerSortDirection.Normal);
-	end
-
-	-- Temporary weapon enchants (poisons/oils/sharpening stones/...), main and off hand.
-	if (type(AuraContainerItemEnchantmentSlot) == "table") then
-		pcall(c.AddItemEnchantment, c, AuraContainerItemEnchantmentSlot.MainHand, GROUP_OPTS);
-		pcall(c.AddItemEnchantment, c, AuraContainerItemEnchantmentSlot.OffHand, GROUP_OPTS);
-		pcall(c.SetItemEnchantmentLayout, c, LAYOUT);
-	end
-
-	c:SetUnit("player");
+	c.ctUnit = w.unit or "player";
+	c:SetUnit(c.ctUnit);
 	c:Show();
-
-	container = c;
 end
 
-local function isActive()
-	return CT_BuffMod_AuraContainerDB and CT_BuffMod_AuraContainerDB.useAuraContainer and isCapable();
-end
-
--- Hide (and keep hidden) an old CT_BuffMod display frame while we're active. HookScript re-hides it if
--- the old code tries to Show() it again; when inactive the hook is inert so it displays normally.
+-- Hide (and keep hidden while active) an old CT_BuffMod display frame.
 local function hideOldFrame(f)
 	if (not f) then
 		return;
@@ -177,46 +168,59 @@ local function hideOldFrame(f)
 	end
 end
 
--- Iterate CT_BuffMod's player buff window(s) via the module's read-only accessor.
-local function eachPlayerWindow(fn)
+local function getWindows()
 	local mod = _G["CT_BuffMod"];
 	if (not mod or not mod.getAuraContainerWindows) then
-		return;
+		return {};
 	end
 	local ok, windows = pcall(mod.getAuraContainerWindows, mod);
-	if (not ok or type(windows) ~= "table") then
-		return;
+	if (ok and type(windows) == "table") then
+		return windows;
 	end
-	for _, w in ipairs(windows) do
-		if (w.unit == "player") then
-			fn(w);
+	return {};
+end
+
+local function refresh()
+	local windows = getWindows();
+	if (isActive()) then
+		for _, w in ipairs(windows) do
+			buildWindow(w);
+			hideOldFrame(w.auraFrame);
+			hideOldFrame(w.altFrame);
+		end
+	else
+		for _, c in pairs(containers) do
+			c:Hide();
+		end
+		for _, w in ipairs(windows) do
+			if (w.auraFrame) then w.auraFrame:Show(); end
+			if (w.altFrame) then w.altFrame:Show(); end
 		end
 	end
 end
 
--- Show/hide according to the flag + capability. When active we REPLACE the old player display.
-local function refresh()
-	if (isActive()) then
-		build();
-		eachPlayerWindow(function(w)
-			hideOldFrame(w.auraFrame);
-			hideOldFrame(w.altFrame);
-		end);
-	else
-		if (container) then
-			container:Hide();
-		end
-		eachPlayerWindow(function(w)
-			if (w.auraFrame) then w.auraFrame:Show(); end
-			if (w.altFrame) then w.altFrame:Show(); end
-		end);
+-- Dynamic units: the container reads its unit on UNIT_AURA, which doesn't reliably fire when you
+-- SWITCH target/focus, so it can show stale auras. Force a re-read by briefly clearing the unit.
+local du = CreateFrame("Frame");
+du:RegisterEvent("PLAYER_TARGET_CHANGED");
+du:RegisterEvent("PLAYER_FOCUS_CHANGED");
+du:SetScript("OnEvent", function(_, event)
+	if (not isActive()) then
+		return;
 	end
-end
+	local unit = (event == "PLAYER_FOCUS_CHANGED") and "focus" or "target";
+	for _, c in pairs(containers) do
+		if (c.ctUnit == unit) then
+			pcall(c.SetUnit, c, "none");
+			pcall(c.SetUnit, c, unit);
+		end
+	end
+end);
 
 local ev = CreateFrame("Frame");
 ev:RegisterEvent("PLAYER_LOGIN");
 ev:SetScript("OnEvent", function()
-	-- Delay so CT_BuffMod has created its own windows before we try to hide them.
+	-- Delay so CT_BuffMod has created its own windows before we read/hide them.
 	if (C_Timer and C_Timer.After) then
 		C_Timer.After(3, refresh);
 	else
@@ -240,6 +244,6 @@ SlashCmdList.CTBUFFMODAC = function(msg)
 		print("|cffff4040CT_BuffMod|r AuraContainer API not available on this client.");
 		return;
 	end
-	print("|cff33ff99CT_BuffMod|r AuraContainer display: " .. (CT_BuffMod_AuraContainerDB.useAuraContainer and "ON  (drag the blue handle to move)" or "OFF"));
+	print("|cff33ff99CT_BuffMod|r AuraContainer display: " .. (CT_BuffMod_AuraContainerDB.useAuraContainer and "ON  (one row per window; drag the blue handle to move)" or "OFF"));
 	refresh();
 end
