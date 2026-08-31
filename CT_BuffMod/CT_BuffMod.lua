@@ -7883,6 +7883,34 @@ function windowListClass:new()
 	return object;
 end
 
+-- Read-only snapshot of the buff windows, for the AuraContainer display path (CT_BuffMod_AuraContainer.lua).
+-- Returns a list of { windowId, unit, auraFrame, altFrame, options } for each primary window. Additive
+-- accessor only -- does not modify anything.
+function module:getAuraContainerWindows()
+	local result = {};
+	local windowList = globalObject and globalObject.windowListObject;
+	if (not windowList) then
+		return result;
+	end
+	for num = 1, windowList:getWindowCount() do
+		local id = windowList:windowNumToId(num);
+		local w = id and windowList.windowObjects[id];
+		local po = w and w.primaryObject;
+		if (po) then
+			local auraFrame = po.auraFrame;
+			local ok, options = pcall(w.getPrimaryOptions, w, 1, false);
+			result[#result + 1] = {
+				windowId = id,
+				unit = po:getUnitId(),
+				auraFrame = auraFrame,
+				altFrame = auraFrame and auraFrame.altFrame,
+				options = ok and options or nil,
+			};
+		end
+	end
+	return result;
+end
+
 function windowListClass:getWindowCount()
 	return #self.windowIds;
 end

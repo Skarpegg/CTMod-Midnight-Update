@@ -156,19 +156,73 @@ local function build()
 	container = c;
 end
 
--- Show/hide according to the flag + capability.
+local function isActive()
+	return CT_BuffMod_AuraContainerDB and CT_BuffMod_AuraContainerDB.useAuraContainer and isCapable();
+end
+
+-- Hide (and keep hidden) an old CT_BuffMod display frame while we're active. HookScript re-hides it if
+-- the old code tries to Show() it again; when inactive the hook is inert so it displays normally.
+local function hideOldFrame(f)
+	if (not f) then
+		return;
+	end
+	f:Hide();
+	if (not f.ctacHooked) then
+		f.ctacHooked = true;
+		f:HookScript("OnShow", function(self)
+			if (isActive()) then
+				self:Hide();
+			end
+		end);
+	end
+end
+
+-- Iterate CT_BuffMod's player buff window(s) via the module's read-only accessor.
+local function eachPlayerWindow(fn)
+	local mod = _G["CT_BuffMod"];
+	if (not mod or not mod.getAuraContainerWindows) then
+		return;
+	end
+	local ok, windows = pcall(mod.getAuraContainerWindows, mod);
+	if (not ok or type(windows) ~= "table") then
+		return;
+	end
+	for _, w in ipairs(windows) do
+		if (w.unit == "player") then
+			fn(w);
+		end
+	end
+end
+
+-- Show/hide according to the flag + capability. When active we REPLACE the old player display.
 local function refresh()
-	local on = CT_BuffMod_AuraContainerDB and CT_BuffMod_AuraContainerDB.useAuraContainer and isCapable();
-	if (on) then
+	if (isActive()) then
 		build();
-	elseif (container) then
-		container:Hide();
+		eachPlayerWindow(function(w)
+			hideOldFrame(w.auraFrame);
+			hideOldFrame(w.altFrame);
+		end);
+	else
+		if (container) then
+			container:Hide();
+		end
+		eachPlayerWindow(function(w)
+			if (w.auraFrame) then w.auraFrame:Show(); end
+			if (w.altFrame) then w.altFrame:Show(); end
+		end);
 	end
 end
 
 local ev = CreateFrame("Frame");
 ev:RegisterEvent("PLAYER_LOGIN");
-ev:SetScript("OnEvent", refresh);
+ev:SetScript("OnEvent", function()
+	-- Delay so CT_BuffMod has created its own windows before we try to hide them.
+	if (C_Timer and C_Timer.After) then
+		C_Timer.After(3, refresh);
+	else
+		refresh();
+	end
+end);
 
 -- Dev toggle: /ctbuffac [on|off]  (default OFF)
 SLASH_CTBUFFMODAC1 = "/ctbuffac";
