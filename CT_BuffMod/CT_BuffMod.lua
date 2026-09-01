@@ -7899,12 +7899,21 @@ function module:getAuraContainerWindows()
 		if (po) then
 			local auraFrame = po.auraFrame;
 			local ok, options = pcall(w.getPrimaryOptions, w, 1, false);
+			-- The display actually renders from the primaryObject's RESOLVED fields (set from the stored
+			-- options with defaults applied); expose those too, since they can differ from the raw table.
+			local resolved = {
+				sortSeq1 = po.sortSeq1, sortSeq2 = po.sortSeq2, sortSeq3 = po.sortSeq3,
+				sortSeq4 = po.sortSeq4, sortSeq5 = po.sortSeq5,
+				sortMethod = po.sortMethod, sortDirection = po.sortDirection,
+				separateOwn = po.separateOwn, groupByPriority = po.groupByPriority,
+			};
 			result[#result + 1] = {
 				windowId = id,
 				unit = po:getUnitId(),
 				auraFrame = auraFrame,
 				altFrame = auraFrame and auraFrame.altFrame,
 				options = ok and options or nil,
+				resolved = resolved,
 			};
 		end
 	end

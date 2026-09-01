@@ -48,6 +48,15 @@ local BAR_TEXTURE = "Interface\\AddOns\\CT_BuffMod\\Images\\barSmooth";
 -- the original's green (the colour seen on the player window).
 local BUFF_R, BUFF_G, BUFF_B = 0.35, 0.8, 0.15;			-- original AURATYPE_AURA background colour (green)
 local ENCHANT_R, ENCHANT_G, ENCHANT_B = 0.75, 0.25, 1;	-- original AURATYPE_ENCHANT background colour (purple)
+local DEBUFF_R, DEBUFF_G, DEBUFF_B = 1, 0, 0;			-- original AURATYPE_DEBUFF background colour (red)
+
+-- CT_BuffMod per-window config we map onto AuraContainer groups (values are CT_BuffMod constants):
+-- each window lists an ordered sequence of aura-type "filters" (sortSeq1..5) plus a sort method.
+local FT_NONE, FT_DEBUFF, FT_CANCEL, FT_UNCANCEL, FT_ALLBUFF, FT_WEAPON, FT_CONSOL = 1, 2, 3, 4, 5, 6, 7;
+local SM_NAME, SM_TIME, SM_INDEX = 1, 2, 3;
+local COLOR_BUFF = { BUFF_R, BUFF_G, BUFF_B };
+local COLOR_DEBUFF = { DEBUFF_R, DEBUFF_G, DEBUFF_B };
+local COLOR_ENCHANT = { ENCHANT_R, ENCHANT_G, ENCHANT_B };
 
 -- initializeFrame factory: CustomAuraButton is "bring your own regions" -- we create the display
 -- regions and register them; Blizzard's SECURE code fills them from the (secret) aura, so it works in
@@ -138,7 +147,76 @@ end
 
 -- Fresh option/layout tables per call (don't share one table across containers).
 local function groupOpts(r, g, b) return { templateNames = { "CustomAuraButtonTemplate" }, initializeFrame = makeInitButton(r or BUFF_R, g or BUFF_G, b or BUFF_B) }; end
-local function layout() return { elementWidth = ROW_WIDTH, elementHeight = ROW_HEIGHT, elementSpacing = 0, lineSpacing = 1 }; end
+local function layout() return { elementWidth = ROW_WIDTH, elementHeight = ROW_HEIGHT, elementSpacing = 0, lineSpacing = 1, groupLineSpacing = 4 }; end
+
+-- Map a window's CT_BuffMod sortMethod/sortDirection onto the container's secure sort enums.
+local function sortFor(opts)
+	opts = opts or {};
+	if (type(AuraContainerSortMethod) ~= "table" or type(AuraContainerSortDirection) ~= "table") then
+		return nil, nil;
+	end
+	local method = opts.sortMethod or SM_NAME;			-- CT_BuffMod default is Name
+	-- Use the PURE ("Only") comparators. The plain Name/Expiration/Default ones are composite (they
+	-- sort by from-player, then priority/canApplyAura, THEN the key), which is why buffs came out in a
+	-- non-alphabetical order. CT_BuffMod already separates types into their own groups and sorts each
+	-- purely by the chosen key, so NameOnly = alphabetical, ExpirationOnly = by time, InstanceID = order.
+	local sm;
+	if (method == SM_TIME) then
+		sm = AuraContainerSortMethod.ExpirationOnly or AuraContainerSortMethod.Expiration;
+	elseif (method == SM_INDEX) then
+		sm = AuraContainerSortMethod.AuraInstanceIDOnly or AuraContainerSortMethod.Default;
+	else
+		sm = AuraContainerSortMethod.NameOnly or AuraContainerSortMethod.Name;
+	end
+	local sdir = (opts.sortDirection and AuraContainerSortDirection.Reverse) or AuraContainerSortDirection.Normal;
+	return sm, sdir;
+end
+
+-- Build the ordered list of coloured groups for a window from its sortSeq1..5 filter types.
+-- Filters: HELPFUL / HARMFUL / CANCELABLE, and negation via a "!" prefix ("!CANCELABLE"), so cancelable
+-- and uncancelable buffs each get their own disjoint group. "All buffs" supersedes that split (it would
+-- overlap the cancelable groups). All groups are disjoint (HARMFUL vs HELPFUL-CANCELABLE vs
+-- HELPFUL-!CANCELABLE vs weapon enchant) so no aura is ever shown twice.
+-- Returns specs like { order, key, filter=<str> | enchant=true, color={r,g,b} }.
+local function planGroups(opts)
+	opts = opts or {};
+	local seq = {
+		opts.sortSeq1 or FT_DEBUFF,
+		opts.sortSeq2 or FT_WEAPON,
+		opts.sortSeq3 or FT_CANCEL,
+		opts.sortSeq4 or FT_UNCANCEL,
+		opts.sortSeq5 or FT_NONE,
+	};
+	local groups = {};
+	local allPos, cancelPos, uncancelPos;
+	for i, t in ipairs(seq) do
+		if (t == FT_DEBUFF) then
+			groups[#groups + 1] = { order = i, key = "debuff", filter = "HARMFUL", color = COLOR_DEBUFF };
+		elseif (t == FT_WEAPON) then
+			groups[#groups + 1] = { order = i, enchant = true, color = COLOR_ENCHANT };
+		elseif (t == FT_ALLBUFF) then
+			allPos = allPos or i;
+		elseif (t == FT_CANCEL) then
+			cancelPos = cancelPos or i;
+		elseif (t == FT_UNCANCEL) then
+			uncancelPos = uncancelPos or i;
+		end
+		-- FT_NONE / FT_CONSOLIDATED: nothing (consolidation was removed from the game).
+	end
+	if (allPos) then
+		-- "All buffs" covers everything helpful; it supersedes the cancelable/uncancelable split.
+		groups[#groups + 1] = { order = allPos, key = "buffs", filter = "HELPFUL", color = COLOR_BUFF };
+	else
+		if (cancelPos) then
+			groups[#groups + 1] = { order = cancelPos, key = "buffcancel", filter = "HELPFUL CANCELABLE", color = COLOR_BUFF };
+		end
+		if (uncancelPos) then
+			groups[#groups + 1] = { order = uncancelPos, key = "buffuncancel", filter = "HELPFUL !CANCELABLE", color = COLOR_BUFF };
+		end
+	end
+	table.sort(groups, function(a, b) return a.order < b.order; end);
+	return groups;
+end
 
 local containers = {};	-- [windowId] = AuraContainer frame
 local anchors = {};		-- [windowId] = normal anchor frame (draggable position store)
@@ -203,8 +281,6 @@ local function buildWindow(w)
 			local pt, _, rp, x, y = a:GetPoint();
 			c:SetPoint(pt or "TOPRIGHT", UIParent, rp or "TOPRIGHT", x or -20, y or -220);
 		end
-		c:AddAuraGroup("buffs", "HELPFUL", groupOpts());
-		c:SetAuraGroupLayout("buffs", layout());
 		-- Make it a VERTICAL column like the old CT_BuffMod display: cap the line width so only one
 		-- row-wide aura fits per line (default line size is math.huge -> never wraps -> horizontal),
 		-- and grow lines DOWNWARD.
@@ -214,14 +290,65 @@ local function buildWindow(w)
 		if (type(AnchorUtil) == "table" and type(AnchorUtil.FlowDirection) == "table" and c.SetFlowLayoutGrowthDirection) then
 			pcall(c.SetFlowLayoutGrowthDirection, c, AnchorUtil.FlowDirection.Right, AnchorUtil.FlowDirection.Down);
 		end
-		if (type(AuraContainerSortMethod) == "table" and type(AuraContainerSortDirection) == "table") then
-			pcall(c.SetAuraGroupSortMethod, c, "buffs", AuraContainerSortMethod.Expiration, AuraContainerSortDirection.Normal);
+
+		-- Map this window's CT_BuffMod options onto ordered, coloured groups (debuffs red, buffs green,
+		-- weapon enchants purple) with the window's sort method. Groups are added in the window's
+		-- configured sequence order. (Built once at creation; changing a window's config needs a
+		-- /ctbuffac off/on or /reload to take effect.)
+		local sm, sdir = sortFor(w.options);
+		local plan = planGroups(w.options);
+		local dbg = CT_BuffMod_AuraContainerDB and CT_BuffMod_AuraContainerDB.debug;
+		if (dbg) then
+			local o = w.options or {};
+			local r = w.resolved or {};
+			print(("|cff33ff99CTBuffAC|r win=%s unit=%s | RAW sortMethod=%s seq=%s/%s/%s/%s/%s")
+				:format(tostring(id), tostring(w.unit), tostring(o.sortMethod),
+					tostring(o.sortSeq1), tostring(o.sortSeq2), tostring(o.sortSeq3), tostring(o.sortSeq4), tostring(o.sortSeq5)));
+			print(("   RESOLVED sortMethod=%s dir=%s seq=%s/%s/%s/%s/%s grpPri=%s sepOwn=%s")
+				:format(tostring(r.sortMethod), tostring(r.sortDirection),
+					tostring(r.sortSeq1), tostring(r.sortSeq2), tostring(r.sortSeq3), tostring(r.sortSeq4), tostring(r.sortSeq5),
+					tostring(r.groupByPriority), tostring(r.separateOwn)));
 		end
-		-- Weapon enchants are the player's own -- only on the player window.
-		if (w.unit == "player" and type(AuraContainerItemEnchantmentSlot) == "table") then
-			pcall(c.AddItemEnchantment, c, AuraContainerItemEnchantmentSlot.MainHand, groupOpts(ENCHANT_R, ENCHANT_G, ENCHANT_B));
-			pcall(c.AddItemEnchantment, c, AuraContainerItemEnchantmentSlot.OffHand, groupOpts(ENCHANT_R, ENCHANT_G, ENCHANT_B));
-			pcall(c.SetItemEnchantmentLayout, c, layout());
+		-- Weapon-enchant placement: the container can only put enchants BEFORE or AFTER all aura groups
+		-- (not at an arbitrary sortSeq slot). Put them after the aura groups if any group is configured
+		-- before the weapon, else before -- the closest we can get to the configured position. (Its
+		-- default is BeforeAuraGroups, which is why the weapon was showing at the very top.)
+		local enchantLayout = { elementWidth = ROW_WIDTH, elementHeight = ROW_HEIGHT, elementSpacing = 0, lineSpacing = 1 };
+		if (type(CustomAuraContainerItemEnchantmentPlacement) == "table") then
+			local weaponOrder;
+			for _, g in ipairs(plan) do
+				if (g.enchant) then weaponOrder = g.order; end
+			end
+			if (weaponOrder) then
+				local anyBefore = false;
+				for _, g in ipairs(plan) do
+					if ((not g.enchant) and g.order < weaponOrder) then anyBefore = true; end
+				end
+				enchantLayout.placement = anyBefore and CustomAuraContainerItemEnchantmentPlacement.AfterAuraGroups
+					or CustomAuraContainerItemEnchantmentPlacement.BeforeAuraGroups;
+			end
+		end
+		local addedEnchant = false;
+		for _, g in ipairs(plan) do
+			if (g.enchant) then
+				-- Temporary weapon enchants are the player's own -- only meaningful on the player window.
+				if (w.unit == "player" and type(AuraContainerItemEnchantmentSlot) == "table" and not addedEnchant) then
+					pcall(c.AddItemEnchantment, c, AuraContainerItemEnchantmentSlot.MainHand, groupOpts(unpack(g.color)));
+					pcall(c.AddItemEnchantment, c, AuraContainerItemEnchantmentSlot.OffHand, groupOpts(unpack(g.color)));
+					pcall(c.SetItemEnchantmentLayout, c, enchantLayout);
+					addedEnchant = true;
+				end
+			else
+				pcall(c.AddAuraGroup, c, g.key, g.filter, groupOpts(unpack(g.color)));
+				pcall(c.SetAuraGroupLayout, c, g.key, layout());
+				local sortOk = false;
+				if (sm) then
+					sortOk = pcall(c.SetAuraGroupSortMethod, c, g.key, sm, sdir);
+				end
+				if (dbg) then
+					print(("  group %s filter=%s sortApplied=%s"):format(tostring(g.key), tostring(g.filter), tostring(sortOk)));
+				end
+			end
 		end
 		containers[id] = c;
 	end
@@ -311,7 +438,11 @@ SLASH_CTBUFFMODAC1 = "/ctbuffac";
 SlashCmdList.CTBUFFMODAC = function(msg)
 	CT_BuffMod_AuraContainerDB = CT_BuffMod_AuraContainerDB or {};
 	msg = (msg or ""):lower():gsub("%s", "");
-	if (msg == "on") then
+	if (msg == "debug") then
+		CT_BuffMod_AuraContainerDB.debug = not CT_BuffMod_AuraContainerDB.debug;
+		print("|cff33ff99CT_BuffMod|r AuraContainer debug: " .. (CT_BuffMod_AuraContainerDB.debug and "ON (rebuild with /ctbuffac off then on)" or "OFF"));
+		return;
+	elseif (msg == "on") then
 		CT_BuffMod_AuraContainerDB.useAuraContainer = true;
 	elseif (msg == "off") then
 		CT_BuffMod_AuraContainerDB.useAuraContainer = false;
