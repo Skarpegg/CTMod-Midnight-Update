@@ -1,6 +1,11 @@
 ------------------------------------------------------------------------------------------------------
 -- CT_BuffMod -- AuraContainer display path (WoW Midnight 12.1+)
 --
+-- PROVENANCE: This file is ORIGINAL code written for the CTMod Midnight port -- it is NOT derived from
+-- the original CTMod. Where the rest of CT_BuffMod is the work of Cide & TS (original CTMod), adapted
+-- for Midnight, this AuraContainer display path was built from scratch against Blizzard's 12.1
+-- AuraContainer API. Author: Skarpegg (CTMod Midnight port), AI-assisted (Claude).
+--
 -- Additive + capability-gated + behind a dev flag (default OFF via /ctbuffac). The existing
 -- secure/unsecure buff system is completely unaffected unless CT_BuffMod_AuraContainerDB.useAuraContainer
 -- is on AND the client has the AuraContainer API (Mainline 12.1+; Classic/Cata don't load this file).
@@ -33,31 +38,57 @@ local function isActive()
 	return CT_BuffMod_AuraContainerDB and CT_BuffMod_AuraContainerDB.useAuraContainer and isCapable();
 end
 
+-- Old CT_BuffMod layout: a VERTICAL list of rows, each = icon (left) + spell name + time-left (right).
+local ROW_WIDTH, ROW_HEIGHT, ICON_SIZE = 180, 22, 20;
+
 -- initializeFrame: CustomAuraButton is "bring your own regions" -- create the display regions and
 -- register them; Blizzard's SECURE code fills them from the (secret) aura, so it works in combat.
 local function initButton(button)
 	if (type(button) ~= "table") then
 		return;
 	end
-	pcall(button.SetSize, button, 30, 30);
+	pcall(button.SetSize, button, ROW_WIDTH, ROW_HEIGHT);
+
 	if (not button.ctIcon) then
 		local icon = button:CreateTexture(nil, "ARTWORK");
-		icon:SetAllPoints(button);
+		icon:SetSize(ICON_SIZE, ICON_SIZE);
+		icon:SetPoint("LEFT", button, "LEFT", 0, 0);
 		icon:SetTexCoord(0.07, 0.93, 0.07, 0.93);
 		button.ctIcon = icon;
 		pcall(button.SetIcon, button, icon);
 	end
 	if (not button.ctCooldown) then
 		local cd = CreateFrame("Cooldown", nil, button, "CooldownFrameTemplate");
-		cd:SetAllPoints(button);
+		cd:SetAllPoints(button.ctIcon);
+		if (cd.SetHideCountdownNumbers) then
+			cd:SetHideCountdownNumbers(true);	-- time is shown as text in the row; keep only the swipe here
+		end
 		button.ctCooldown = cd;
 		pcall(button.SetDurationCooldown, button, cd);
 	end
 	if (not button.ctCount) then
 		local count = button:CreateFontString(nil, "OVERLAY", "NumberFontNormalSmall");
-		count:SetPoint("BOTTOMRIGHT", button, "BOTTOMRIGHT", -1, 1);
+		count:SetPoint("BOTTOMRIGHT", button.ctIcon, "BOTTOMRIGHT", 0, 0);
 		button.ctCount = count;
 		pcall(button.SetApplicationCount, button, count);
+	end
+	-- Time-remaining text on the right of the row.
+	if (not button.ctDuration) then
+		local dur = button:CreateFontString(nil, "OVERLAY", "GameFontHighlightSmall");
+		dur:SetPoint("RIGHT", button, "RIGHT", -2, 0);
+		dur:SetJustifyH("RIGHT");
+		button.ctDuration = dur;
+		pcall(button.SetDurationText, button, dur);
+	end
+	-- Spell name label, filling the space between the icon and the time text.
+	if (not button.ctName) then
+		local name = button:CreateFontString(nil, "OVERLAY", "GameFontNormalSmall");
+		name:SetPoint("LEFT", button.ctIcon, "RIGHT", 4, 0);
+		name:SetPoint("RIGHT", button.ctDuration, "LEFT", -4, 0);
+		name:SetJustifyH("LEFT");
+		name:SetWordWrap(false);
+		button.ctName = name;
+		pcall(button.SetSpellName, button, name);
 	end
 	if (button.SetCancelAuraButtons) then
 		pcall(button.SetCancelAuraButtons, button, "RightButtonUp");	-- right-click cancel (out of combat)
@@ -69,7 +100,7 @@ end
 
 -- Fresh option/layout tables per call (don't share one table across containers).
 local function groupOpts() return { templateNames = { "CustomAuraButtonTemplate" }, initializeFrame = initButton }; end
-local function layout() return { elementWidth = 30, elementHeight = 30, elementSpacing = 4 }; end
+local function layout() return { elementWidth = ROW_WIDTH, elementHeight = ROW_HEIGHT, elementSpacing = 0, lineSpacing = 1 }; end
 
 local containers = {};	-- [windowId] = AuraContainer frame
 local anchors = {};		-- [windowId] = normal anchor frame (draggable position store)
@@ -84,7 +115,7 @@ local function getAnchor(windowId)
 	CT_BuffMod_AuraContainerDB.windowPoints = CT_BuffMod_AuraContainerDB.windowPoints or {};
 
 	local a = CreateFrame("Frame", "CT_BuffMod_AuraAnchor" .. windowId, UIParent);
-	a:SetSize(320, 34);
+	a:SetSize(ROW_WIDTH, ROW_HEIGHT);
 	a:SetMovable(true);
 	a:SetClampedToScreen(true);
 	local p = CT_BuffMod_AuraContainerDB.windowPoints[windowId];
@@ -128,7 +159,7 @@ local function buildWindow(w)
 	if (not c) then
 		local a = getAnchor(id);
 		c = CreateFrame("AuraContainer", "CT_BuffMod_AuraContainer" .. id, UIParent, "CustomAuraContainerTemplate");
-		c:SetSize(320, 40);
+		c:SetSize(ROW_WIDTH, ROW_HEIGHT);
 		c:ClearAllPoints();
 		if (not pcall(c.SetPoint, c, "TOPLEFT", a, "TOPLEFT", 0, 0)) then
 			local pt, _, rp, x, y = a:GetPoint();
@@ -136,6 +167,15 @@ local function buildWindow(w)
 		end
 		c:AddAuraGroup("buffs", "HELPFUL", groupOpts());
 		c:SetAuraGroupLayout("buffs", layout());
+		-- Make it a VERTICAL column like the old CT_BuffMod display: cap the line width so only one
+		-- row-wide aura fits per line (default line size is math.huge -> never wraps -> horizontal),
+		-- and grow lines DOWNWARD.
+		if (c.SetFlowLayoutMaximumLineSize) then
+			pcall(c.SetFlowLayoutMaximumLineSize, c, ROW_WIDTH);
+		end
+		if (type(AnchorUtil) == "table" and type(AnchorUtil.FlowDirection) == "table" and c.SetFlowLayoutGrowthDirection) then
+			pcall(c.SetFlowLayoutGrowthDirection, c, AnchorUtil.FlowDirection.Right, AnchorUtil.FlowDirection.Down);
+		end
 		if (type(AuraContainerSortMethod) == "table" and type(AuraContainerSortDirection) == "table") then
 			pcall(c.SetAuraGroupSortMethod, c, "buffs", AuraContainerSortMethod.Expiration, AuraContainerSortDirection.Normal);
 		end
