@@ -78,6 +78,16 @@ local function makeInitButton(r, g, b)
 			button.ctIcon = icon;
 			pcall(button.SetIcon, button, icon);
 		end
+		-- Dispel-type border: a border atlas tinted by dispel type (Magic/Curse/Disease/Poison). Blizzard
+		-- drives it securely and (with default options) shows it ONLY for auras that HAVE a dispel type,
+		-- i.e. typed debuffs -- it stays hidden on buffs. Matches the original coloured debuff border.
+		if (not button.ctBorder and button.SetAuraBorder
+			and type(Enum) == "table" and type(Enum.CustomAuraButtonDispelTypeTextureStyle) == "table") then
+			local bd = button:CreateTexture(nil, "OVERLAY");
+			bd:SetAllPoints(button.ctIcon);	-- exactly on the icon; no outset (an outset can nudge row spacing)
+			button.ctBorder = bd;
+			pcall(button.SetAuraBorder, button, bd, { style = Enum.CustomAuraButtonDispelTypeTextureStyle.Border });
+		end
 		-- Track: the BRIGHT "full" bar, filling the row right of the icon. This is the remaining-time
 		-- look; the dark fill (below) grows over it to mark the used-up part. A no-duration buff keeps a
 		-- full bright track (its fill stays at 0), which fixes empty bars on permanent buffs.
@@ -147,7 +157,8 @@ end
 
 -- Fresh option/layout tables per call (don't share one table across containers).
 local function groupOpts(r, g, b) return { templateNames = { "CustomAuraButtonTemplate" }, initializeFrame = makeInitButton(r or BUFF_R, g or BUFF_G, b or BUFF_B) }; end
-local function layout() return { elementWidth = ROW_WIDTH, elementHeight = ROW_HEIGHT, elementSpacing = 0, lineSpacing = 1, groupLineSpacing = 4 }; end
+-- No inter-row / inter-group spacing: the bars stack tightly like the original CT_BuffMod list.
+local function layout() return { elementWidth = ROW_WIDTH, elementHeight = ROW_HEIGHT, elementSpacing = 0, lineSpacing = 0, groupLineSpacing = 0 }; end
 
 -- Map a window's CT_BuffMod sortMethod/sortDirection onto the container's secure sort enums.
 local function sortFor(opts)
