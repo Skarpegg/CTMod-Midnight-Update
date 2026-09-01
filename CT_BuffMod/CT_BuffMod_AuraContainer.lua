@@ -38,68 +38,106 @@ local function isActive()
 	return CT_BuffMod_AuraContainerDB and CT_BuffMod_AuraContainerDB.useAuraContainer and isCapable();
 end
 
--- Old CT_BuffMod layout: a VERTICAL list of rows, each = icon (left) + spell name + time-left (right).
+-- Old CT_BuffMod "Style 1" look: a vertical list of rows, each = icon (left) + a colored bar that
+-- carries the spell name and time-left, with a bright fill that DEPLETES as the aura runs down.
 local ROW_WIDTH, ROW_HEIGHT, ICON_SIZE = 180, 22, 20;
+local BAR_TEXTURE = "Interface\\AddOns\\CT_BuffMod\\Images\\barSmooth";
+-- Original CT_BuffMod colours buff bars by duration: AURATYPE_BUFF (timed) = blue {0.1,0.4,0.85},
+-- AURATYPE_AURA (no-duration/permanent) = green {0.35,0.8,0.15}. The secure AuraContainer can't tell
+-- a button's duration apart in Lua, so we can't split the colour per-aura -- use one default. Match
+-- the original's green (the colour seen on the player window).
+local BUFF_R, BUFF_G, BUFF_B = 0.35, 0.8, 0.15;			-- original AURATYPE_AURA background colour (green)
+local ENCHANT_R, ENCHANT_G, ENCHANT_B = 0.75, 0.25, 1;	-- original AURATYPE_ENCHANT background colour (purple)
 
--- initializeFrame: CustomAuraButton is "bring your own regions" -- create the display regions and
--- register them; Blizzard's SECURE code fills them from the (secret) aura, so it works in combat.
-local function initButton(button)
-	if (type(button) ~= "table") then
-		return;
-	end
-	pcall(button.SetSize, button, ROW_WIDTH, ROW_HEIGHT);
-
-	if (not button.ctIcon) then
-		local icon = button:CreateTexture(nil, "ARTWORK");
-		icon:SetSize(ICON_SIZE, ICON_SIZE);
-		icon:SetPoint("LEFT", button, "LEFT", 0, 0);
-		icon:SetTexCoord(0.07, 0.93, 0.07, 0.93);
-		button.ctIcon = icon;
-		pcall(button.SetIcon, button, icon);
-	end
-	if (not button.ctCooldown) then
-		local cd = CreateFrame("Cooldown", nil, button, "CooldownFrameTemplate");
-		cd:SetAllPoints(button.ctIcon);
-		if (cd.SetHideCountdownNumbers) then
-			cd:SetHideCountdownNumbers(true);	-- time is shown as text in the row; keep only the swipe here
+-- initializeFrame factory: CustomAuraButton is "bring your own regions" -- we create the display
+-- regions and register them; Blizzard's SECURE code fills them from the (secret) aura, so it works in
+-- combat. Returns a closure so different aura GROUPS can paint the bright track in their own colour
+-- (regular buffs green, weapon enchants purple -- matching the original per-type colours).
+local function makeInitButton(r, g, b)
+	return function(button)
+		if (type(button) ~= "table") then
+			return;
 		end
-		button.ctCooldown = cd;
-		pcall(button.SetDurationCooldown, button, cd);
-	end
-	if (not button.ctCount) then
-		local count = button:CreateFontString(nil, "OVERLAY", "NumberFontNormalSmall");
-		count:SetPoint("BOTTOMRIGHT", button.ctIcon, "BOTTOMRIGHT", 0, 0);
-		button.ctCount = count;
-		pcall(button.SetApplicationCount, button, count);
-	end
-	-- Time-remaining text on the right of the row.
-	if (not button.ctDuration) then
-		local dur = button:CreateFontString(nil, "OVERLAY", "GameFontHighlightSmall");
-		dur:SetPoint("RIGHT", button, "RIGHT", -2, 0);
-		dur:SetJustifyH("RIGHT");
-		button.ctDuration = dur;
-		pcall(button.SetDurationText, button, dur);
-	end
-	-- Spell name label, filling the space between the icon and the time text.
-	if (not button.ctName) then
-		local name = button:CreateFontString(nil, "OVERLAY", "GameFontNormalSmall");
-		name:SetPoint("LEFT", button.ctIcon, "RIGHT", 4, 0);
-		name:SetPoint("RIGHT", button.ctDuration, "LEFT", -4, 0);
-		name:SetJustifyH("LEFT");
-		name:SetWordWrap(false);
-		button.ctName = name;
-		pcall(button.SetSpellName, button, name);
-	end
-	if (button.SetCancelAuraButtons) then
-		pcall(button.SetCancelAuraButtons, button, "RightButtonUp");	-- right-click cancel (out of combat)
-	end
-	if (button.Show) then
-		button:Show();
+		pcall(button.SetSize, button, ROW_WIDTH, ROW_HEIGHT);
+
+		-- Icon (left).
+		if (not button.ctIcon) then
+			local icon = button:CreateTexture(nil, "ARTWORK");
+			icon:SetSize(ICON_SIZE, ICON_SIZE);
+			icon:SetPoint("LEFT", button, "LEFT", 0, 0);
+			icon:SetTexCoord(0.08, 0.92, 0.08, 0.92);
+			button.ctIcon = icon;
+			pcall(button.SetIcon, button, icon);
+		end
+		-- Track: the BRIGHT "full" bar, filling the row right of the icon. This is the remaining-time
+		-- look; the dark fill (below) grows over it to mark the used-up part. A no-duration buff keeps a
+		-- full bright track (its fill stays at 0), which fixes empty bars on permanent buffs.
+		if (not button.ctTrack) then
+			local track = button:CreateTexture(nil, "BACKGROUND");
+			track:SetTexture(BAR_TEXTURE);
+			track:SetVertexColor(r, g, b, 0.55);
+			track:SetPoint("TOPLEFT", button.ctIcon, "TOPRIGHT", 1, 0);
+			track:SetPoint("BOTTOMRIGHT", button, "BOTTOMRIGHT", 0, 0);
+			button.ctTrack = track;
+		end
+		-- Duration bar: a DARK overlay marking the ELAPSED (used-up) part over the bright track. Driven
+		-- by Blizzard's secure code (SetDurationBar -> SetTimerDuration on the secret duration), so it
+		-- animates in combat too. direction = ElapsedTime GROWS with time, so a permanent buff (no
+		-- duration) stays at 0 -> no overlay -> full bright track; RemainingTime would instead sit empty
+		-- for permanent auras. Reverse fill so the overlay eats from the RIGHT, leaving the remaining
+		-- bright bar (and the name) on the left. Name/time text live on this StatusBar frame so they
+		-- draw ABOVE the fill (a child frame would otherwise render over text placed on the button).
+		if (not button.ctBar) then
+			local bar = CreateFrame("StatusBar", nil, button);
+			bar:SetStatusBarTexture(BAR_TEXTURE);
+			bar:SetStatusBarColor(0.05, 0.05, 0.08, 0.8);
+			bar:SetPoint("TOPLEFT", button.ctIcon, "TOPRIGHT", 1, 0);
+			bar:SetPoint("BOTTOMRIGHT", button, "BOTTOMRIGHT", 0, 0);
+			if (bar.SetReverseFill) then
+				bar:SetReverseFill(true);
+			end
+			button.ctBar = bar;
+			local dir = Enum and Enum.StatusBarTimerDirection and Enum.StatusBarTimerDirection.ElapsedTime;
+			pcall(button.SetDurationBar, button, bar, { direction = dir });
+		end
+
+		-- Stack count on the icon.
+		if (not button.ctCount) then
+			local count = button:CreateFontString(nil, "OVERLAY", "NumberFontNormalSmall");
+			count:SetPoint("BOTTOMRIGHT", button.ctIcon, "BOTTOMRIGHT", 0, 0);
+			button.ctCount = count;
+			pcall(button.SetApplicationCount, button, count);
+		end
+		-- Time-remaining text on the right of the bar (ChatFontNormal / white -- original default font).
+		if (not button.ctDuration) then
+			local dur = button.ctBar:CreateFontString(nil, "OVERLAY", "ChatFontNormal");
+			dur:SetPoint("RIGHT", button.ctBar, "RIGHT", -3, 0);
+			dur:SetJustifyH("RIGHT");
+			button.ctDuration = dur;
+			pcall(button.SetDurationText, button, dur);
+		end
+		-- Spell name label over the bar (GameFontNormal / gold -- original default font).
+		if (not button.ctName) then
+			local name = button.ctBar:CreateFontString(nil, "OVERLAY", "GameFontNormal");
+			name:SetPoint("LEFT", button.ctBar, "LEFT", 3, 0);
+			name:SetPoint("RIGHT", button.ctDuration, "LEFT", -4, 0);
+			name:SetJustifyH("LEFT");
+			name:SetWordWrap(false);
+			button.ctName = name;
+			pcall(button.SetSpellName, button, name);
+		end
+
+		if (button.SetCancelAuraButtons) then
+			pcall(button.SetCancelAuraButtons, button, "RightButtonUp");	-- right-click cancel (out of combat)
+		end
+		if (button.Show) then
+			button:Show();
+		end
 	end
 end
 
 -- Fresh option/layout tables per call (don't share one table across containers).
-local function groupOpts() return { templateNames = { "CustomAuraButtonTemplate" }, initializeFrame = initButton }; end
+local function groupOpts(r, g, b) return { templateNames = { "CustomAuraButtonTemplate" }, initializeFrame = makeInitButton(r or BUFF_R, g or BUFF_G, b or BUFF_B) }; end
 local function layout() return { elementWidth = ROW_WIDTH, elementHeight = ROW_HEIGHT, elementSpacing = 0, lineSpacing = 1 }; end
 
 local containers = {};	-- [windowId] = AuraContainer frame
@@ -181,8 +219,8 @@ local function buildWindow(w)
 		end
 		-- Weapon enchants are the player's own -- only on the player window.
 		if (w.unit == "player" and type(AuraContainerItemEnchantmentSlot) == "table") then
-			pcall(c.AddItemEnchantment, c, AuraContainerItemEnchantmentSlot.MainHand, groupOpts());
-			pcall(c.AddItemEnchantment, c, AuraContainerItemEnchantmentSlot.OffHand, groupOpts());
+			pcall(c.AddItemEnchantment, c, AuraContainerItemEnchantmentSlot.MainHand, groupOpts(ENCHANT_R, ENCHANT_G, ENCHANT_B));
+			pcall(c.AddItemEnchantment, c, AuraContainerItemEnchantmentSlot.OffHand, groupOpts(ENCHANT_R, ENCHANT_G, ENCHANT_B));
 			pcall(c.SetItemEnchantmentLayout, c, layout());
 		end
 		containers[id] = c;
