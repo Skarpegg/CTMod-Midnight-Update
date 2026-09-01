@@ -3,6 +3,7 @@
 ## Title: CTMod Midnight - BuffMod
 ## Author: Cide & TS (Original CTMod); Midnight community port
 ## Notes: Customizable buff display.
+## X-Credits: CT_BuffMod_AuraContainer.lua is original code by Skarpegg for the Midnight port (in-combat AuraContainer buff display), not derived from the original CTMod.
 ## DefaultState: Enabled
 ## SavedVariables: CT_BuffModOptions, CT_BuffMod_AuraContainerDB
 ## Dependencies: CT_Library
