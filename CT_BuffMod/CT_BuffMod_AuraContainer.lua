@@ -278,90 +278,144 @@ local function getAnchor(windowId)
 	return a;
 end
 
--- Get (creating once) the container for one window, then point it at the window's unit and show it.
--- Reused across refreshes/toggles -- never recreated (recreating leaked duplicate frames).
+-- Signatures of the window's config. groupSig (unit + which groups) forces a container REBUILD when it
+-- changes -- there's no public API to remove/replace an AuraContainer's groups, so we recreate the
+-- frame. sortSig (sort method/direction) is applied in place on the existing groups: no rebuild, no leak.
+local function groupSig(w)
+	local o = w.options or {};
+	return table.concat({
+		tostring(w.unit),
+		tostring(o.sortSeq1), tostring(o.sortSeq2), tostring(o.sortSeq3), tostring(o.sortSeq4), tostring(o.sortSeq5),
+	}, ":");
+end
+local function sortSig(w)
+	local o = w.options or {};
+	return tostring(o.sortMethod) .. ":" .. tostring(o.sortDirection);
+end
+-- Re-apply the sort method/direction to a container's existing aura groups (cheap; no rebuild).
+local function applySort(c, w)
+	local sm, sdir = sortFor(w.options);
+	if (not sm) then
+		return;
+	end
+	for _, g in ipairs(planGroups(w.options)) do
+		if (not g.enchant) then
+			pcall(c.SetAuraGroupSortMethod, c, g.key, sm, sdir);
+		end
+	end
+end
+
+-- (Re)build a container's groups + enchants from the window's current config. Clears existing groups
+-- first, so it is safe to call again when a window is reconfigured. Must not run in combat (AddAuraGroup
+-- is protected) -- callers guard on InCombatLockdown.
+local function applyGroups(c, w)
+	-- Called on a FRESH container (initial build, or a recreate on a grouping change). We do NOT clear
+	-- anything here: there is no public API to remove an AuraContainer's aura groups (ClearAuraGroups is
+	-- a private mixin, not on the frame -> silently fails), and ClearItemEnchantments cancels the
+	-- enchant's pending async item-data request (Lua error in AsyncCallbackSystem). So a grouping change
+	-- recreates the container (buildWindow) rather than mutating this one's groups.
+
+	-- Vertical column, one aura per row, growing downward (see increment 2d/2e).
+	if (c.SetFlowLayoutMaximumLineSize) then
+		pcall(c.SetFlowLayoutMaximumLineSize, c, ROW_WIDTH);
+	end
+	if (type(AnchorUtil) == "table" and type(AnchorUtil.FlowDirection) == "table" and c.SetFlowLayoutGrowthDirection) then
+		pcall(c.SetFlowLayoutGrowthDirection, c, AnchorUtil.FlowDirection.Right, AnchorUtil.FlowDirection.Down);
+	end
+
+	-- Map this window's CT_BuffMod options onto ordered, coloured groups (debuffs red, buffs green,
+	-- weapon enchants purple) with the window's sort method, in the configured sequence order.
+	local sm, sdir = sortFor(w.options);
+	local plan = planGroups(w.options);
+	local dbg = CT_BuffMod_AuraContainerDB and CT_BuffMod_AuraContainerDB.debug;
+	if (dbg) then
+		local o = w.options or {};
+		local r = w.resolved or {};
+		print(("|cff33ff99CTBuffAC|r win=%s unit=%s | RAW sortMethod=%s seq=%s/%s/%s/%s/%s")
+			:format(tostring(w.windowId), tostring(w.unit), tostring(o.sortMethod),
+				tostring(o.sortSeq1), tostring(o.sortSeq2), tostring(o.sortSeq3), tostring(o.sortSeq4), tostring(o.sortSeq5)));
+		print(("   RESOLVED sortMethod=%s dir=%s seq=%s/%s/%s/%s/%s grpPri=%s sepOwn=%s")
+			:format(tostring(r.sortMethod), tostring(r.sortDirection),
+				tostring(r.sortSeq1), tostring(r.sortSeq2), tostring(r.sortSeq3), tostring(r.sortSeq4), tostring(r.sortSeq5),
+				tostring(r.groupByPriority), tostring(r.separateOwn)));
+	end
+
+	-- Weapon-enchant placement: the container can only put enchants BEFORE or AFTER all aura groups
+	-- (not at an arbitrary sortSeq slot). Put them after the aura groups if any group is configured
+	-- before the weapon, else before -- the closest we can get to the configured position.
+	local enchantLayout = { elementWidth = ROW_WIDTH, elementHeight = ROW_HEIGHT, elementSpacing = 0, lineSpacing = 0 };
+	if (type(CustomAuraContainerItemEnchantmentPlacement) == "table") then
+		local weaponOrder;
+		for _, g in ipairs(plan) do
+			if (g.enchant) then weaponOrder = g.order; end
+		end
+		if (weaponOrder) then
+			local anyBefore = false;
+			for _, g in ipairs(plan) do
+				if ((not g.enchant) and g.order < weaponOrder) then anyBefore = true; end
+			end
+			enchantLayout.placement = anyBefore and CustomAuraContainerItemEnchantmentPlacement.AfterAuraGroups
+				or CustomAuraContainerItemEnchantmentPlacement.BeforeAuraGroups;
+		end
+	end
+
+	-- Enchants are added once and kept across rebuilds (see the ClearItemEnchantments note above).
+	local addedEnchant = c.ctEnchantsAdded;
+	for _, g in ipairs(plan) do
+		if (g.enchant) then
+			-- Temporary weapon enchants are the player's own -- only meaningful on the player window.
+			if (w.unit == "player" and type(AuraContainerItemEnchantmentSlot) == "table" and not addedEnchant) then
+				pcall(c.AddItemEnchantment, c, AuraContainerItemEnchantmentSlot.MainHand, groupOpts(unpack(g.color)));
+				pcall(c.AddItemEnchantment, c, AuraContainerItemEnchantmentSlot.OffHand, groupOpts(unpack(g.color)));
+				pcall(c.SetItemEnchantmentLayout, c, enchantLayout);
+				addedEnchant = true;
+				c.ctEnchantsAdded = true;
+			end
+		else
+			pcall(c.AddAuraGroup, c, g.key, g.filter, groupOpts(unpack(g.color)));
+			pcall(c.SetAuraGroupLayout, c, g.key, layout());
+			local sortOk = false;
+			if (sm) then
+				sortOk = pcall(c.SetAuraGroupSortMethod, c, g.key, sm, sdir);
+			end
+			if (dbg) then
+				print(("  group %s filter=%s sortApplied=%s"):format(tostring(g.key), tostring(g.filter), tostring(sortOk)));
+			end
+		end
+	end
+end
+
+-- Get (creating once) the container for one window, point it at the window's unit and show it. The
+-- container frame is reused (forbidden frames can't be destroyed); its groups are rebuilt only when
+-- the window's config signature changes (auto-refresh on reconfigure).
 local function buildWindow(w)
 	local id = w.windowId;
 	local c = containers[id];
-	if (not c) then
+	local gsig = groupSig(w);
+	local ssig = sortSig(w);
+	if ((not c) or c.ctGroupSig ~= gsig) then
+		-- (Re)build. Forbidden frames can't be destroyed and there's no public API to clear an
+		-- AuraContainer's groups, so on a grouping change we hide the old container and build a fresh
+		-- one. The old frame leaks (hidden) -- acceptable for occasional reconfigures; sort-only changes
+		-- take the cheap in-place branch below and never leak.
+		if (c) then
+			c:Hide();
+		end
 		local a = getAnchor(id);
-		c = CreateFrame("AuraContainer", "CT_BuffMod_AuraContainer" .. id, UIParent, "CustomAuraContainerTemplate");
+		c = CreateFrame("AuraContainer", nil, UIParent, "CustomAuraContainerTemplate");	-- anonymous: recreatable
 		c:SetSize(ROW_WIDTH, ROW_HEIGHT);
 		c:ClearAllPoints();
 		if (not pcall(c.SetPoint, c, "TOPLEFT", a, "TOPLEFT", 0, 0)) then
 			local pt, _, rp, x, y = a:GetPoint();
 			c:SetPoint(pt or "TOPRIGHT", UIParent, rp or "TOPRIGHT", x or -20, y or -220);
 		end
-		-- Make it a VERTICAL column like the old CT_BuffMod display: cap the line width so only one
-		-- row-wide aura fits per line (default line size is math.huge -> never wraps -> horizontal),
-		-- and grow lines DOWNWARD.
-		if (c.SetFlowLayoutMaximumLineSize) then
-			pcall(c.SetFlowLayoutMaximumLineSize, c, ROW_WIDTH);
-		end
-		if (type(AnchorUtil) == "table" and type(AnchorUtil.FlowDirection) == "table" and c.SetFlowLayoutGrowthDirection) then
-			pcall(c.SetFlowLayoutGrowthDirection, c, AnchorUtil.FlowDirection.Right, AnchorUtil.FlowDirection.Down);
-		end
-
-		-- Map this window's CT_BuffMod options onto ordered, coloured groups (debuffs red, buffs green,
-		-- weapon enchants purple) with the window's sort method. Groups are added in the window's
-		-- configured sequence order. (Built once at creation; changing a window's config needs a
-		-- /ctbuffac off/on or /reload to take effect.)
-		local sm, sdir = sortFor(w.options);
-		local plan = planGroups(w.options);
-		local dbg = CT_BuffMod_AuraContainerDB and CT_BuffMod_AuraContainerDB.debug;
-		if (dbg) then
-			local o = w.options or {};
-			local r = w.resolved or {};
-			print(("|cff33ff99CTBuffAC|r win=%s unit=%s | RAW sortMethod=%s seq=%s/%s/%s/%s/%s")
-				:format(tostring(id), tostring(w.unit), tostring(o.sortMethod),
-					tostring(o.sortSeq1), tostring(o.sortSeq2), tostring(o.sortSeq3), tostring(o.sortSeq4), tostring(o.sortSeq5)));
-			print(("   RESOLVED sortMethod=%s dir=%s seq=%s/%s/%s/%s/%s grpPri=%s sepOwn=%s")
-				:format(tostring(r.sortMethod), tostring(r.sortDirection),
-					tostring(r.sortSeq1), tostring(r.sortSeq2), tostring(r.sortSeq3), tostring(r.sortSeq4), tostring(r.sortSeq5),
-					tostring(r.groupByPriority), tostring(r.separateOwn)));
-		end
-		-- Weapon-enchant placement: the container can only put enchants BEFORE or AFTER all aura groups
-		-- (not at an arbitrary sortSeq slot). Put them after the aura groups if any group is configured
-		-- before the weapon, else before -- the closest we can get to the configured position. (Its
-		-- default is BeforeAuraGroups, which is why the weapon was showing at the very top.)
-		local enchantLayout = { elementWidth = ROW_WIDTH, elementHeight = ROW_HEIGHT, elementSpacing = 0, lineSpacing = 1 };
-		if (type(CustomAuraContainerItemEnchantmentPlacement) == "table") then
-			local weaponOrder;
-			for _, g in ipairs(plan) do
-				if (g.enchant) then weaponOrder = g.order; end
-			end
-			if (weaponOrder) then
-				local anyBefore = false;
-				for _, g in ipairs(plan) do
-					if ((not g.enchant) and g.order < weaponOrder) then anyBefore = true; end
-				end
-				enchantLayout.placement = anyBefore and CustomAuraContainerItemEnchantmentPlacement.AfterAuraGroups
-					or CustomAuraContainerItemEnchantmentPlacement.BeforeAuraGroups;
-			end
-		end
-		local addedEnchant = false;
-		for _, g in ipairs(plan) do
-			if (g.enchant) then
-				-- Temporary weapon enchants are the player's own -- only meaningful on the player window.
-				if (w.unit == "player" and type(AuraContainerItemEnchantmentSlot) == "table" and not addedEnchant) then
-					pcall(c.AddItemEnchantment, c, AuraContainerItemEnchantmentSlot.MainHand, groupOpts(unpack(g.color)));
-					pcall(c.AddItemEnchantment, c, AuraContainerItemEnchantmentSlot.OffHand, groupOpts(unpack(g.color)));
-					pcall(c.SetItemEnchantmentLayout, c, enchantLayout);
-					addedEnchant = true;
-				end
-			else
-				pcall(c.AddAuraGroup, c, g.key, g.filter, groupOpts(unpack(g.color)));
-				pcall(c.SetAuraGroupLayout, c, g.key, layout());
-				local sortOk = false;
-				if (sm) then
-					sortOk = pcall(c.SetAuraGroupSortMethod, c, g.key, sm, sdir);
-				end
-				if (dbg) then
-					print(("  group %s filter=%s sortApplied=%s"):format(tostring(g.key), tostring(g.filter), tostring(sortOk)));
-				end
-			end
-		end
 		containers[id] = c;
+		applyGroups(c, w);
+		c.ctGroupSig = gsig;
+		c.ctSortSig = ssig;
+	elseif (c.ctSortSig ~= ssig) then
+		applySort(c, w);
+		c.ctSortSig = ssig;
 	end
 	c.ctUnit = w.unit or "player";
 	c:SetUnit(c.ctUnit);
@@ -399,10 +453,18 @@ end
 local function refresh()
 	local windows = getWindows();
 	if (isActive()) then
+		local present = {};
 		for _, w in ipairs(windows) do
+			present[w.windowId] = true;
 			buildWindow(w);
 			hideOldFrame(w.auraFrame);
 			hideOldFrame(w.altFrame);
+		end
+		-- Hide containers whose window has been deleted.
+		for id, c in pairs(containers) do
+			if (not present[id]) then
+				c:Hide();
+			end
 		end
 	else
 		for _, c in pairs(containers) do
@@ -414,6 +476,33 @@ local function refresh()
 		end
 	end
 end
+
+-- Auto-refresh: CT_BuffMod calls CT_BuffMod_AuraContainerNotify() when a window is added/removed or a
+-- window's options are (re)applied. Debounce (a burst of option applies collapses to one refresh) and
+-- defer while in combat (building groups and SetUnit are protected) -- PLAYER_REGEN_ENABLED flushes it.
+local pendingRefresh = false;
+local deferredForCombat = false;
+local loginDone = false;	-- ignore notifies until the initial login refresh has run (config still settling)
+local function scheduleRefresh()
+	if (not loginDone or pendingRefresh) then
+		return;
+	end
+	pendingRefresh = true;
+	if (C_Timer and C_Timer.After) then
+		C_Timer.After(0.15, function()
+			pendingRefresh = false;
+			if (InCombatLockdown()) then
+				deferredForCombat = true;
+				return;
+			end
+			refresh();
+		end);
+	else
+		pendingRefresh = false;
+		refresh();
+	end
+end
+_G.CT_BuffMod_AuraContainerNotify = scheduleRefresh;
 
 -- Dynamic units: the container reads its unit on UNIT_AURA, which doesn't reliably fire when you
 -- SWITCH target/focus, so it can show stale auras. Force a re-read by briefly clearing the unit.
@@ -435,11 +524,22 @@ end);
 
 local ev = CreateFrame("Frame");
 ev:RegisterEvent("PLAYER_LOGIN");
-ev:SetScript("OnEvent", function()
-	-- Delay so CT_BuffMod has created its own windows before we read/hide them.
+ev:RegisterEvent("PLAYER_REGEN_ENABLED");
+ev:SetScript("OnEvent", function(_, event)
+	if (event == "PLAYER_REGEN_ENABLED") then
+		-- Combat ended: run any refresh that was deferred because groups/SetUnit are protected in combat.
+		if (deferredForCombat) then
+			deferredForCombat = false;
+			refresh();
+		end
+		return;
+	end
+	-- PLAYER_LOGIN: delay so CT_BuffMod has created its own windows before we read/hide them, then
+	-- enable auto-refresh (notifies before this are ignored -- config is still settling at startup).
 	if (C_Timer and C_Timer.After) then
-		C_Timer.After(3, refresh);
+		C_Timer.After(3, function() loginDone = true; refresh(); end);
 	else
+		loginDone = true;
 		refresh();
 	end
 end);

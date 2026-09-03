@@ -5809,6 +5809,9 @@ function primaryClass:applyProtectedOptions(initFlag)
 		-- Force the buttons to be reconfigured.
 		self:reconfigureButtons();
 	end
+
+	-- Config just (re)applied -> let the AuraContainer display path rebuild this window (auto-refresh).
+	if (CT_BuffMod_AuraContainerNotify) then CT_BuffMod_AuraContainerNotify(); end
 end
 
 function primaryClass:setSpecialAttributes()
@@ -8070,6 +8073,9 @@ function windowListClass:addWindow(unitId, windowId, windowObjectToClone)
 	-- Create the window (the actual buff frames, apply options, etc.)
 	windowObject:createWindow(windowObjectToClone);
 
+	-- Let the AuraContainer display path pick up the new window (auto-refresh, no-op if inactive).
+	if (CT_BuffMod_AuraContainerNotify) then CT_BuffMod_AuraContainerNotify(); end
+
 	return windowObject;
 end
 
@@ -8096,6 +8102,8 @@ function windowListClass:deleteWindow(windowId)
 			end
 		end
 	end
+	-- Let the AuraContainer display path hide the removed window's container (auto-refresh).
+	if (CT_BuffMod_AuraContainerNotify) then CT_BuffMod_AuraContainerNotify(); end
 	return nil;
 end
 
@@ -8972,6 +8980,11 @@ local function options_updateValue(optName, value, windowId)
 			frameOptions[optName] = value;
 		end
 		primaryObject:setOptions(frameOptions);
+
+		-- Let the AuraContainer display path pick up the change (auto-refresh). This is the single choke
+		-- point all window option edits flow through; the AC side only rebuilds when grouping/sort
+		-- actually changed, and it's a no-op when the AC display is inactive.
+		if (CT_BuffMod_AuraContainerNotify) then CT_BuffMod_AuraContainerNotify(); end
 
 		-- Return the primaryObject of the window being edited.
 		return primaryObject;
