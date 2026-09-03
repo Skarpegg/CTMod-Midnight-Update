@@ -1753,8 +1753,19 @@ end
 local function colorSwatchOpacity(customA)
 	local self = ColorPickerFrame.object;
 	if not self then return end
-	local a = OpacitySliderFrame:GetValue();
-	if customA then a = customA end
+	-- OpacitySliderFrame was removed in modern WoW. Prefer the passed alpha; otherwise read it from
+	-- ColorPickerFrame directly (modern), falling back to OpacitySliderFrame only where it still exists
+	-- (Classic), else fully opaque.
+	local a = customA;
+	if (a == nil) then
+		if (ColorPickerFrame.GetColorAlpha) then
+			a = ColorPickerFrame:GetColorAlpha();
+		elseif (OpacitySliderFrame) then
+			a = OpacitySliderFrame:GetValue();
+		else
+			a = 1;
+		end
+	end
 	local object, option = self.object, self.option;
 	if (type(option) == "function") then option = option(); end
 	local colors = object:getDisplayValue(option) or {self.r, self.g, self.b};
@@ -1775,10 +1786,12 @@ local function colorSwatchShow(self)
 	-- NEW UPDATED API FOR COLOR PICKER
 	if ColorPickerFrame.SetupColorPickerAndShow then
 		ColorPickerFrame:SetupColorPickerAndShow({
-			r = r, g = g, b = b, hasOpacity = self.hasAlpha, opacity = 1 - (a or 1),
+			-- Modern ColorPickerFrame semantics: info.opacity and GetColorAlpha() are the ALPHA directly
+			-- (1 = opaque), NOT the inverted value the old (now-removed) OpacitySliderFrame used.
+			r = r, g = g, b = b, hasOpacity = self.hasAlpha, opacity = (a or 1),
 			swatchFunc = function() local r,g,b = ColorPickerFrame:GetColorRGB(); colorSwatchColor(r,g,b) end,
 			cancelFunc = colorSwatchCancel,
-			opacityFunc = function() local a = OpacitySliderFrame:GetValue(); colorSwatchOpacity(1 - a) end
+			opacityFunc = function() colorSwatchOpacity(ColorPickerFrame:GetColorAlpha()) end
 		});
 	else
 		self.opacityFunc = colorSwatchOpacity; self.swatchFunc = colorSwatchColor; self.cancelFunc = colorSwatchCancel; self.hasOpacity = self.hasAlpha;
