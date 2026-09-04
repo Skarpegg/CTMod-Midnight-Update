@@ -54,6 +54,7 @@ local DEBUFF_R, DEBUFF_G, DEBUFF_B = 1, 0, 0;			-- original AURATYPE_DEBUFF back
 -- each window lists an ordered sequence of aura-type "filters" (sortSeq1..5) plus a sort method.
 local FT_NONE, FT_DEBUFF, FT_CANCEL, FT_UNCANCEL, FT_ALLBUFF, FT_WEAPON, FT_CONSOL = 1, 2, 3, 4, 5, 6, 7;
 local SM_NAME, SM_TIME, SM_INDEX = 1, 2, 3;
+local SO_BEFORE, SO_AFTER, SO_WITH = 1, 2, 3;	-- separateOwn: own auras before / after / mixed with others
 local COLOR_BUFF = { BUFF_R, BUFF_G, BUFF_B };
 local COLOR_DEBUFF = { DEBUFF_R, DEBUFF_G, DEBUFF_B };
 local COLOR_ENCHANT = { ENCHANT_R, ENCHANT_G, ENCHANT_B };
@@ -225,7 +226,33 @@ local function planGroups(opts)
 			groups[#groups + 1] = { order = uncancelPos, key = "buffuncancel", filter = "HELPFUL !CANCELABLE", color = COLOR_BUFF };
 		end
 	end
-	table.sort(groups, function(a, b) return a.order < b.order; end);
+	-- separateOwn: split each aura group into "own" (player-cast) and "others" via the PLAYER filter
+	-- token and its negation !PLAYER (disjoint -> no duplicates). BEFORE puts own first, AFTER puts own
+	-- last, WITHIN each filter-type block (matches groupByPriority's default Filter > Own ordering). WITH
+	-- (the default) leaves each group whole. Weapon enchants are always the player's own -> never split.
+	-- Note: CT_BuffMod's "own" is player-ONLY; the PLAYER token also counts the player's pet/vehicle, so
+	-- a pet-cast aura lands in "own" here but "others" in the original -- a minor, acceptable difference.
+	local sepOwn = opts.separateOwn or SO_WITH;
+	if (sepOwn == SO_BEFORE or sepOwn == SO_AFTER) then
+		local ownSub = (sepOwn == SO_BEFORE) and 0 or 1;
+		local split = {};
+		for _, g in ipairs(groups) do
+			if (g.enchant) then
+				split[#split + 1] = g;
+			else
+				split[#split + 1] = { order = g.order, subOrder = ownSub, key = g.key .. "_own", filter = g.filter .. " PLAYER", color = g.color };
+				split[#split + 1] = { order = g.order, subOrder = 1 - ownSub, key = g.key .. "_other", filter = g.filter .. " !PLAYER", color = g.color };
+			end
+		end
+		groups = split;
+	end
+
+	table.sort(groups, function(a, b)
+		if (a.order ~= b.order) then
+			return a.order < b.order;
+		end
+		return (a.subOrder or 0) < (b.subOrder or 0);
+	end);
 	return groups;
 end
 
@@ -286,6 +313,7 @@ local function groupSig(w)
 	return table.concat({
 		tostring(w.unit),
 		tostring(o.sortSeq1), tostring(o.sortSeq2), tostring(o.sortSeq3), tostring(o.sortSeq4), tostring(o.sortSeq5),
+		tostring(o.separateOwn),
 	}, ":");
 end
 local function sortSig(w)
