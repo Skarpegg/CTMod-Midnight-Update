@@ -34,9 +34,15 @@ local function isCapable()
 	return capable;
 end
 
+-- The buff-display engine is the CT_BuffMod option "buffEngine" (1 = AuraContainer, 2 = Legacy header).
+-- Default (unset) is AuraContainer on capable clients; Classic/Cata never load this file so they stay
+-- on the legacy header. Exposed as CT_BuffMod_AuraContainerActive() for the options panel to branch on.
 local function isActive()
-	return CT_BuffMod_AuraContainerDB and CT_BuffMod_AuraContainerDB.useAuraContainer and isCapable();
+	local mod = _G["CT_BuffMod"];
+	local eng = mod and mod.getOption and mod:getOption("buffEngine");
+	return (eng ~= 2) and isCapable();
 end
+_G.CT_BuffMod_AuraContainerActive = isActive;
 
 -- Old CT_BuffMod "Style 1" look: a vertical list of rows, each = icon (left) + a colored bar that
 -- carries the spell name and time-left, with a bright fill that DEPLETES as the aura runs down.
@@ -488,15 +494,23 @@ local function refresh()
 			hideOldFrame(w.auraFrame);
 			hideOldFrame(w.altFrame);
 		end
-		-- Hide containers whose window has been deleted.
+		-- Hide containers (and drag handles) whose window has been deleted; show handles for live ones.
 		for id, c in pairs(containers) do
 			if (not present[id]) then
 				c:Hide();
+				if (anchors[id]) then anchors[id]:Hide(); end
 			end
 		end
+		for id, a in pairs(anchors) do
+			if (present[id]) then a:Show(); end
+		end
 	else
+		-- Legacy engine: hide the AuraContainers AND their drag handles, restore the old frames.
 		for _, c in pairs(containers) do
 			c:Hide();
+		end
+		for _, a in pairs(anchors) do
+			a:Hide();
 		end
 		for _, w in ipairs(windows) do
 			if (w.auraFrame) then w.auraFrame:Show(); end
@@ -531,6 +545,7 @@ local function scheduleRefresh()
 	end
 end
 _G.CT_BuffMod_AuraContainerNotify = scheduleRefresh;
+_G.CT_BuffMod_AuraContainerRefresh = refresh;	-- immediate refresh (used when the engine option changes)
 
 -- Dynamic units: the container reads its unit on UNIT_AURA, which doesn't reliably fire when you
 -- SWITCH target/focus, so it can show stale auras. Force a re-read by briefly clearing the unit.
@@ -572,7 +587,8 @@ ev:SetScript("OnEvent", function(_, event)
 	end
 end);
 
--- Dev toggle: /ctbuffac [on|off]  (default OFF)
+-- /ctbuffac [on|off|debug] -- on/off pick the buff engine (also selectable in the options panel);
+-- debug toggles the per-window group dump. The engine now lives in the "buffEngine" CT_BuffMod option.
 SLASH_CTBUFFMODAC1 = "/ctbuffac";
 SlashCmdList.CTBUFFMODAC = function(msg)
 	CT_BuffMod_AuraContainerDB = CT_BuffMod_AuraContainerDB or {};
@@ -581,17 +597,24 @@ SlashCmdList.CTBUFFMODAC = function(msg)
 		CT_BuffMod_AuraContainerDB.debug = not CT_BuffMod_AuraContainerDB.debug;
 		print("|cff33ff99CT_BuffMod|r AuraContainer debug: " .. (CT_BuffMod_AuraContainerDB.debug and "ON (rebuild with /ctbuffac off then on)" or "OFF"));
 		return;
-	elseif (msg == "on") then
-		CT_BuffMod_AuraContainerDB.useAuraContainer = true;
-	elseif (msg == "off") then
-		CT_BuffMod_AuraContainerDB.useAuraContainer = false;
-	else
-		CT_BuffMod_AuraContainerDB.useAuraContainer = not CT_BuffMod_AuraContainerDB.useAuraContainer;
 	end
-	if (CT_BuffMod_AuraContainerDB.useAuraContainer and not isCapable()) then
+	local mod = _G["CT_BuffMod"];
+	if (not mod or not mod.setOption) then
+		return;
+	end
+	local eng = mod:getOption("buffEngine");
+	local newEng;
+	if (msg == "on") then
+		newEng = 1;
+	elseif (msg == "off") then
+		newEng = 2;
+	else
+		newEng = (eng == 2) and 1 or 2;	-- toggle (default is AuraContainer)
+	end
+	if (newEng == 1 and not isCapable()) then
 		print("|cffff4040CT_BuffMod|r AuraContainer API not available on this client.");
 		return;
 	end
-	print("|cff33ff99CT_BuffMod|r AuraContainer display: " .. (CT_BuffMod_AuraContainerDB.useAuraContainer and "ON  (one row per window; drag the blue handle to move)" or "OFF"));
-	refresh();
+	mod:setOption("buffEngine", newEng);	-- triggers the option update (refresh + options-panel rebuild)
+	print("|cff33ff99CT_BuffMod|r buff engine: " .. ((newEng == 1) and "AuraContainer" or "Legacy header"));
 end

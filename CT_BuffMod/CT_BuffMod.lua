@@ -9274,7 +9274,17 @@ module.optionUpdate = function(self, optName, value)
 		value = constants.VISIBILITY_ADVANCED;
 	end
 
-	if (optName == "editWindow") then
+	if (optName == "buffEngine") then
+		-- Switch the buff display engine (1 = AuraContainer, 2 = Legacy header). Refresh the AC display,
+		-- and if the options panel is open rebuild it so the engine-specific option set shows.
+		if (CT_BuffMod_AuraContainerRefresh) then
+			CT_BuffMod_AuraContainerRefresh();
+		end
+		if (isOptionsFrameShown()) then
+			module:showModuleOptions();
+		end
+
+	elseif (optName == "editWindow") then
 		options_editWindow(value);
 
 	-- Other options
@@ -9466,6 +9476,30 @@ module.frame = function()
 	local temp;
 
 	optionsInit();
+
+	-- === Buff display engine (very top of the panel) ===
+	-- The AuraContainer file exposes CT_BuffMod_AuraContainerActive() only on clients that have the API
+	-- (Retail 12.1+); on Classic/Cata it isn't loaded, so there's no selector and the legacy panel shows.
+	-- In AuraContainer mode (acMode) the legacy-engine-only sections below are skipped.
+	local acAvailable = (CT_BuffMod_AuraContainerActive ~= nil);
+	local acMode = acAvailable and CT_BuffMod_AuraContainerActive();
+	if (acAvailable) then
+		optionsBeginFrame(-5, 0, "frame#tl:0:%y#r");
+			optionsAddObject(  0,   17, "font#tl:5:%y#v:GameFontNormalLarge#Buff display engine");
+			optionsBeginFrame(-15,   20, "dropdown#tl:15:%y#s:240:%s#n:CT_BuffModDropdown_buffEngine#i:buffEngine#o:buffEngine:1#AuraContainer (recommended)#Legacy header");
+				optionsAddScript("onenter", function(self)
+					GameTooltip:SetOwner(self, "ANCHOR_CURSOR");
+					GameTooltip:SetText("Buff display engine", 1, 0.82, 0, 1, true);
+					GameTooltip:AddLine("AuraContainer (default) shows buffs in combat.", 1, 1, 1, true);
+					GameTooltip:AddLine("Legacy is the classic secure/unsecure header, limited in combat.", 1, 1, 1, true);
+					GameTooltip:Show();
+				end);
+				optionsAddScript("onleave", function(self)
+					GameTooltip:Hide();
+				end);
+			optionsEndFrame();
+		optionsEndFrame();
+	end
 
 	-- Tips
 	optionsBeginFrame(-5, 0, "frame#tl:0:%y#r");
