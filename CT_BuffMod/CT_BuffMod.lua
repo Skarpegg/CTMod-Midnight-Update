@@ -8610,12 +8610,14 @@ local function options_updateWindowWidgets(windowId)
 	end
 
 	-- Use unsecure buttons
+	if (frame.playerUnsecure) then	-- absent in AuraContainer mode
 	frame.playerUnsecure:SetChecked( playerUnsecure );
 	if (unitType == constants.UNIT_TYPE_PLAYER or unitType == constants.UNIT_TYPE_VEHICLE) then
 		frame.playerUnsecure:Show();
 	else
 		frame.playerUnsecure:Hide();
 		playerUnsecure = true;
+	end
 	end
 
 	-- Show vehicle buffs when in a vehicle
@@ -8637,6 +8639,7 @@ local function options_updateWindowWidgets(windowId)
 		UIDropDownMenu_SetSelectedValue( dropdown, sortMethod );
 	end
 
+	if (frame.separateZero) then	-- absent in AuraContainer mode
 	dropdown = frame.separateZero.dropdown;
 	if UIDropDownMenu_Initialize then
 		UIDropDownMenu_Initialize( dropdown, dropdown.initialize );
@@ -8649,7 +8652,9 @@ local function options_updateWindowWidgets(windowId)
 			UIDropDownMenu_DisableDropDown(dropdown);
 		end
 	end
+	end
 	
+	if (frame.groupByPriority) then	-- absent in AuraContainer mode
 	dropdown = frame.groupByPriority.dropdown;
 	if UIDropDownMenu_Initialize then
 		UIDropDownMenu_Initialize( dropdown, dropdown.initialize );
@@ -8661,6 +8666,7 @@ local function options_updateWindowWidgets(windowId)
 			frame.groupByPriority.label:SetAlpha(0.5);
 			UIDropDownMenu_DisableDropDown(dropdown);
 		end
+	end
 	end
 
 	frame.sortDirection:SetChecked( not not frameOptions.sortDirection );
@@ -8843,14 +8849,17 @@ local function options_updateWindowWidgets(windowId)
 		----------
 		-- Appearance
 		----------
-		dropdown = CT_BuffModDropdown_buttonStyle;
-		UIDropDownMenu_Initialize( dropdown, dropdown.initialize );
-		UIDropDownMenu_SetSelectedValue( dropdown, frameOptions.buttonStyle or 1 );
+		if (CT_BuffModDropdown_buttonStyle) then	-- absent in AuraContainer mode
+			dropdown = CT_BuffModDropdown_buttonStyle;
+			UIDropDownMenu_Initialize( dropdown, dropdown.initialize );
+			UIDropDownMenu_SetSelectedValue( dropdown, frameOptions.buttonStyle or 1 );
+		end
 	end
 	
 	----------
 	-- Style 1
 	----------
+	if (frame.style1Collapsible) then	-- absent in AuraContainer mode (Style1/Style2 sections skipped)
 	frame.style1Collapsible.buffSize1:SetValue( frameOptions.buffSize1 or constants.BUFF_SIZE_DEFAULT );
 	frame.style1Collapsible.colorCodeIcons1:SetChecked( not not frameOptions.colorCodeIcons1 );
 	frame.style1Collapsible.normalIconBorder1:SetChecked( not not frameOptions.normalIconBorder1 );
@@ -8899,10 +8908,12 @@ local function options_updateWindowWidgets(windowId)
 
 	frame.style1Collapsible.spacingOnLeft1:SetValue( frameOptions.spacingOnLeft1 or 0 );
 	frame.style1Collapsible.spacingOnRight1:SetValue( frameOptions.spacingOnRight1 or 0 );
+	end	-- if (frame.style1Collapsible)
 
 	----------
 	-- Style 2
 	----------
+	if (frame.style2Collapsible) then	-- absent in AuraContainer mode
 	frame.style2Collapsible.buffSize2:SetValue( frameOptions.buffSize2 or constants.BUFF_SIZE_DEFAULT );
 	frame.style2Collapsible.colorCodeIcons2:SetChecked( not not frameOptions.colorCodeIcons2 );
 	frame.style2Collapsible.normalIconBorder2:SetChecked( not not frameOptions.normalIconBorder2 );
@@ -8920,6 +8931,7 @@ local function options_updateWindowWidgets(windowId)
 	end
 	
 	frame.style2Collapsible.spacingFromIcon2:SetValue( frameOptions.spacingFromIcon2 or 0 );
+	end	-- if (frame.style2Collapsible)
 
 	doNotUpdateFlag = nil;
 end
@@ -9275,13 +9287,24 @@ module.optionUpdate = function(self, optName, value)
 	end
 
 	if (optName == "buffEngine") then
-		-- Switch the buff display engine (1 = AuraContainer, 2 = Legacy header). Refresh the AC display,
-		-- and if the options panel is open rebuild it so the engine-specific option set shows.
+		-- Switch the buff display engine (1 = AuraContainer, 2 = Legacy header). The display switches
+		-- immediately, but the options panel is cached by CT_Library and only rebuilds correctly on a
+		-- full reload (an in-place rebuild or a reopen leaves controls duplicated / the window list
+		-- unpopulated), so prompt the user with a reload dialog.
 		if (CT_BuffMod_AuraContainerRefresh) then
 			CT_BuffMod_AuraContainerRefresh();
 		end
 		if (isOptionsFrameShown()) then
-			module:showModuleOptions();
+			StaticPopupDialogs["CT_BUFFMOD_ENGINE_RELOAD"] = StaticPopupDialogs["CT_BUFFMOD_ENGINE_RELOAD"] or {
+				text = "CT_BuffMod: buff engine set to %s.\n\nReload the UI now so these options match the new engine?",
+				button1 = "Reload Now",
+				button2 = "Later",
+				OnAccept = function() ReloadUI(); end,
+				-- Later: close the options window, since it's stale (wrong engine) until a reload.
+				OnCancel = function() if (CTCONTROLPANEL and CTCONTROLPANEL:IsShown()) then CTCONTROLPANEL:Hide(); end end,
+				timeout = 0, whileDead = true, hideOnEscape = true, preferredIndex = 3,
+			};
+			StaticPopup_Show("CT_BUFFMOD_ENGINE_RELOAD", (value == 1) and "AuraContainer" or "Legacy header");
 		end
 
 	elseif (optName == "editWindow") then
@@ -9752,6 +9775,7 @@ CONSOLIDATION REMOVED FROM GAME --]]
 			-- Show vehicle buffs when in a vehicle
 			optionsAddObject(-10,   14, "font#tl:34:%y#v:ChatFontNormal#" .. L["CT_BuffMod/Options/Window/Unit/UnitDropdownLabel"]);
 			optionsAddObject( 15,   20, "dropdown#tl:140:%y#s:100:%s#n:CT_BuffModDropdown_unitType#i:unitType#o:unitType:" .. constants.UNIT_TYPE_PLAYER .. L["CT_BuffMod/Options/Window/Unit/UnitDropdownOptions"]);
+			if (not acMode) then	-- playerUnsecure is the Legacy engine's secure/unsecure choice
 			optionsBeginFrame(  0,   26, "checkbutton#tl:30:%y#i:playerUnsecure#o:playerUnsecure#" .. L["CT_BuffMod/Options/Window/Unit/NonSecureCheckbox"]);
 				optionsAddScript("onenter",
 					function(button)
@@ -9767,6 +9791,7 @@ CONSOLIDATION REMOVED FROM GAME --]]
 					end
 				);
 			optionsEndFrame();
+			end	-- if (not acMode): playerUnsecure
 			optionsAddObject(  0,   26, "checkbutton#tl:30:%y#i:vehicleBuffs#o:vehicleBuffs:true#" .. L["CT_BuffMod/Options/Window/Unit/VehicleCheckbox"]);
 		end
 
@@ -9776,6 +9801,7 @@ CONSOLIDATION REMOVED FROM GAME --]]
 
 		optionsAddObject(-20, 1*13, "font#tl:15:%y#" .. L["CT_BuffMod/Options/Window/Grouping/Heading"]);
 		
+		if (not acMode) then	-- groupByPriority: only the default order maps onto AuraContainer groups
 		-- What sequence to apply grouping in
 		optionsBeginFrame( 0,    0, "frame#tl:0:%y#br:tr:0:%b#i:groupByPriority");
 		
@@ -9802,7 +9828,8 @@ CONSOLIDATION REMOVED FROM GAME --]]
 				end
 			end);
 		optionsEndFrame();
-		
+		end	-- if (not acMode): groupByPriority
+
 		-- Buffs you cast
 		optionsAddObject(-10,   14, "font#tl:35:%y#v:ChatFontNormal#" .. L["CT_BuffMod/Options/Window/Grouping/PlayerBuffsLabel"]);
 		-- Bug: Omit 3rd menu item while waiting for Blizzard to fix the "Sort with others" bug
@@ -9812,6 +9839,7 @@ CONSOLIDATION REMOVED FROM GAME --]]
 		--
 		optionsAddObject( 15,   20, "dropdown#tl:140:%y#s:130:%s#n:CT_BuffModDropdown_separateOwn#i:separateOwn#o:separateOwn:" .. constants.SEPARATE_OWN_WITH .. L["CT_BuffMod/Options/Window/Grouping/PlayerBuffsDropdown"]);
 
+		if (not acMode) then	-- separateZero: timed/permanent split isn't expressible in AuraContainer
 		-- Sort zero duration buffs
 		optionsBeginFrame( 0,    0, "frame#tl:0:%y#br:tr:0:%b#i:separateZero");
 			optionsAddObject(-10,   14, "font#tl:35:%y#v:ChatFontNormal#i:label#" .. L["CT_BuffMod/Options/Window/Grouping/NonExpiringBuffsLabel"]);
@@ -9826,6 +9854,7 @@ CONSOLIDATION REMOVED FROM GAME --]]
 				end
 			end);
 		optionsEndFrame();
+		end	-- if (not acMode): separateZero
 
 		-- Group by
 		do
@@ -10246,6 +10275,10 @@ CONSOLIDATION REMOVED FROM GAME--]]
 
 		----------
 		-- Button appearance
+		-- AuraContainer draws its own bar style; the legacy Style1/Style2 appearance options apply only
+		-- to the Legacy header engine, so skip this whole block (heading + buttonStyle + Style1/Style2)
+		-- in AuraContainer mode. (Matching guards exist in updateWindowWidgets.)
+		if (not acMode) then
 		----------
 		optionsAddObject(-25, 1*13, "font#tl:15:%y#Button appearance");
 
@@ -10431,7 +10464,8 @@ CONSOLIDATION REMOVED FROM GAME--]]
 			optionsEndFrame();
 		
 		optionsEndFrame()
-		
+		end	-- if (not acMode): end of legacy Style1/Style2 appearance block
+
 		----------
 		-- Scripts
 		----------

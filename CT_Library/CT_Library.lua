@@ -2018,7 +2018,7 @@ end
 -----------------------------------------------
 -- Control Panel
 
-local controlPanelFrame; local selectedModule; local previousModule; local minWidth, minHeight, maxWidth, maxHeight = 300, 30, 635, 495; local resizeMaxWidth, resizeMaxHeight = 1100, 900;
+local controlPanelFrame; local selectedModule; local previousModule; local minWidth, minHeight, maxWidth, maxHeight = 300, 30, 680, 495; local resizeMaxWidth, resizeMaxHeight = 1100, 900;
 
 local function applyControlPanelLayout(frame)
 	if ( not frame ) then return end
