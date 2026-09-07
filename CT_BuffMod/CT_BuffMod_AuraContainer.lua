@@ -85,15 +85,34 @@ local function makeInitButton(r, g, b)
 			button.ctIcon = icon;
 			pcall(button.SetIcon, button, icon);
 		end
-		-- Dispel-type border: a border atlas tinted by dispel type (Magic/Curse/Disease/Poison). Blizzard
-		-- drives it securely and (with default options) shows it ONLY for auras that HAVE a dispel type,
-		-- i.e. typed debuffs -- it stays hidden on buffs. Matches the original coloured debuff border.
+		-- Dispel-type border: a border texture tinted by dispel type (Magic/Curse/Disease/Poison). Blizzard
+		-- drives it securely -- SetAuraBorderColor tints our texture and it's shown ONLY for auras that
+		-- HAVE a dispel type (typed debuffs), hidden on buffs. We use PreserveAsset with our own explicit
+		-- border texture (the classic UI-Debuff-Overlays frame); the built-in Border ATLAS style rendered
+		-- nothing when anchored onto the icon.
 		if (not button.ctBorder and button.SetAuraBorder
 			and type(Enum) == "table" and type(Enum.CustomAuraButtonDispelTypeTextureStyle) == "table") then
 			local bd = button:CreateTexture(nil, "OVERLAY");
-			bd:SetAllPoints(button.ctIcon);	-- exactly on the icon; no outset (an outset can nudge row spacing)
+			bd:SetTexture("Interface\\Buttons\\UI-Debuff-Overlays");
+			bd:SetTexCoord(0.296875, 0.5703125, 0, 0.515625);	-- the square border region of this texture
+			bd:SetAllPoints(button.ctIcon);
 			button.ctBorder = bd;
-			pcall(button.SetAuraBorder, button, bd, { style = Enum.CustomAuraButtonDispelTypeTextureStyle.Border });
+			local ok = pcall(button.SetAuraBorder, button, bd, { style = Enum.CustomAuraButtonDispelTypeTextureStyle.PreserveAsset });
+			if (CT_BuffMod_AuraContainerDB and CT_BuffMod_AuraContainerDB.debug) then
+				print("|cff33ff99CTBuffAC|r SetAuraBorder ok=" .. tostring(ok));
+			end
+		end
+		-- Diagnostic (/ctbuffac bordertest): a plain always-visible red border on EVERY icon, NOT driven
+		-- by Blizzard -- proves the border texture renders at the right place/size/layer, without needing
+		-- a typed debuff or being out of combat. If this shows but the real one doesn't, it's Blizzard's
+		-- dispel driving; if this doesn't show either, it's a texture position/size/layer problem.
+		if (CT_BuffMod_AuraContainerDB and CT_BuffMod_AuraContainerDB.borderTest and not button.ctBorderTest) then
+			local t = button:CreateTexture(nil, "OVERLAY");
+			t:SetTexture("Interface\\Buttons\\UI-Debuff-Overlays");
+			t:SetTexCoord(0.296875, 0.5703125, 0, 0.515625);
+			t:SetAllPoints(button.ctIcon);
+			t:SetVertexColor(1, 0, 0, 1);
+			button.ctBorderTest = t;
 		end
 		-- Track: the BRIGHT "full" bar, filling the row right of the icon. This is the remaining-time
 		-- look; the dark fill (below) grows over it to mark the used-up part. A no-duration buff keeps a
@@ -596,6 +615,29 @@ SlashCmdList.CTBUFFMODAC = function(msg)
 	if (msg == "debug") then
 		CT_BuffMod_AuraContainerDB.debug = not CT_BuffMod_AuraContainerDB.debug;
 		print("|cff33ff99CT_BuffMod|r AuraContainer debug: " .. (CT_BuffMod_AuraContainerDB.debug and "ON (rebuild with /ctbuffac off then on)" or "OFF"));
+		return;
+	elseif (msg == "bordertest") then
+		CT_BuffMod_AuraContainerDB.borderTest = not CT_BuffMod_AuraContainerDB.borderTest;
+		print("|cff33ff99CT_BuffMod|r border test overlay: " .. (CT_BuffMod_AuraContainerDB.borderTest and "ON -- a red border on every icon after /reload" or "OFF -- /reload to remove"));
+		return;
+	elseif (msg:sub(1, 6) == "border") then
+		-- /ctbuffac border [unit] -- list a unit's debuffs and their dispel types so you can tell which
+		-- SHOULD show a coloured border (only typed debuffs do). Readable out of combat only (secret in
+		-- combat). Default unit is target.
+		local unit = msg:sub(7);
+		if (unit == "") then unit = "target"; end
+		print(("|cff33ff99CTBuffAC|r HARMFUL auras on '%s' (border shows only for typed):"):format(unit));
+		local n = 0;
+		for i = 1, 40 do
+			local ok, aura = pcall(C_UnitAuras.GetAuraDataByIndex, unit, i, "HARMFUL");
+			if (not ok) then print("  (auras unreadable -- in combat?)"); break; end
+			if (not aura) then break; end
+			n = n + 1;
+			local dispel = aura.dispelName;
+			print(("  %s -- dispel=%s -> %s"):format(tostring(aura.name), tostring(dispel),
+				(dispel and "|cff40ff40coloured border expected|r" or "no border (untyped)")));
+		end
+		if (n == 0) then print("  (none)"); end
 		return;
 	end
 	local mod = _G["CT_BuffMod"];
