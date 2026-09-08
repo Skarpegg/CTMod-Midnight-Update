@@ -8910,6 +8910,14 @@ local function options_updateWindowWidgets(windowId)
 	frame.style1Collapsible.spacingOnRight1:SetValue( frameOptions.spacingOnRight1 or 0 );
 	end	-- if (frame.style1Collapsible)
 
+	-- AuraContainer mode's "Bar size" sliders (present only in AC mode; Style1 block is hidden there).
+	if (frame.acBuffSize1) then
+		frame.acBuffSize1:SetValue( frameOptions.buffSize1 or constants.BUFF_SIZE_DEFAULT );
+	end
+	if (frame.acDetailWidth1) then
+		frame.acDetailWidth1:SetValue( frameOptions.detailWidth1 or constants.DEFAULT_DETAIL_WIDTH );
+	end
+
 	----------
 	-- Style 2
 	----------
@@ -10518,6 +10526,19 @@ CONSOLIDATION REMOVED FROM GAME--]]
 		
 		optionsEndFrame()
 		end	-- if (not acMode): end of legacy Style1/Style2 appearance block
+
+		-- AuraContainer mode: the Style1/Style2 button-appearance block above is hidden, but its two SIZE
+		-- controls still drive the AuraContainer bars (icon = buffSize1, bar width = detailWidth1). Surface
+		-- just those two as a compact "Bar size" section. They write the same per-window options; the AC
+		-- display rebuilds to the new size on change (buffSize1/detailWidth1 are in its groupSig).
+		if (acMode) then
+			optionsAddObject(-25, 1*13, "font#tl:15:%y#Bar size");
+
+			optionsAddObject(-20,   14, "font#tl:35:%y#v:ChatFontNormal#" .. L["CT_BuffMod/Options/Window/Button/General/IconSizeSliderLabel"]);
+			optionsAddObject( 15,   17, "slider#tl:165:%y#s:120:%s#i:acBuffSize1#o:buffSize1:" .. constants.BUFF_SIZE_DEFAULT .. "#<value>#" .. constants.BUFF_SIZE_MINIMUM .. ":" .. constants.BUFF_SIZE_MAXIMUM .. ":1");
+
+			optionsAddObject(-20,   17, "slider#tl:40:%y#s:250:%s#i:acDetailWidth1#o:detailWidth1:" .. constants.DEFAULT_DETAIL_WIDTH .. "#Bar width = <value>#0:400:1");
+		end
 
 		----------
 		-- Scripts

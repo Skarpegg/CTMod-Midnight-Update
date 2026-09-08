@@ -46,7 +46,20 @@ _G.CT_BuffMod_AuraContainerActive = isActive;
 
 -- Old CT_BuffMod "Style 1" look: a vertical list of rows, each = icon (left) + a colored bar that
 -- carries the spell name and time-left, with a bright fill that DEPLETES as the aura runs down.
-local ROW_WIDTH, ROW_HEIGHT, ICON_SIZE = 180, 22, 20;
+-- ROW_*/ICON_SIZE are the FALLBACK sizes (used before any window config is known, e.g. the anchor);
+-- per-window sizes come from sizesFor() below, mapping CT_BuffMod's buffSize1 (icon) / detailWidth1 (bar).
+local ROW_WIDTH, ROW_HEIGHT, ICON_SIZE = 265, 20, 20;
+local DEFAULT_ICON, DEFAULT_BARWIDTH = 20, 245;	-- constants.BUFF_SIZE_DEFAULT / DEFAULT_DETAIL_WIDTH
+-- Per-window sizes from the window's CT_BuffMod options: buffSize1 = icon size (= row height),
+-- detailWidth1 = coloured-bar width. Row width = icon + bar. Returns iconSize, rowHeight, rowWidth.
+local function sizesFor(opts)
+	opts = opts or {};
+	local icon = tonumber(opts.buffSize1) or DEFAULT_ICON;
+	local bar = tonumber(opts.detailWidth1) or DEFAULT_BARWIDTH;
+	if (icon < 1) then icon = 1; end
+	if (bar < 1) then bar = 1; end
+	return icon, icon, icon + bar;
+end
 local BAR_TEXTURE = "Interface\\AddOns\\CT_BuffMod\\Images\\barSmooth";
 -- Original CT_BuffMod colours buff bars by duration: AURATYPE_BUFF (timed) = blue {0.1,0.4,0.85},
 -- AURATYPE_AURA (no-duration/permanent) = green {0.35,0.8,0.15}. The secure AuraContainer can't tell
@@ -81,19 +94,22 @@ local allButtons = {};	-- every styled CustomAuraButton, so a colour-option chan
 -- regions and register them; Blizzard's SECURE code fills them from the (secret) aura, so it works in
 -- combat. Returns a closure so different aura GROUPS can paint the bright track in their own colour
 -- (regular buffs green, weapon enchants purple -- matching the original per-type colours).
-local function makeInitButton(colorKey)
+local function makeInitButton(colorKey, iconSize, rowW, rowH)
+	iconSize = iconSize or ICON_SIZE;
+	rowW = rowW or ROW_WIDTH;
+	rowH = rowH or ROW_HEIGHT;
 	return function(button)
 		if (type(button) ~= "table") then
 			return;
 		end
-		pcall(button.SetSize, button, ROW_WIDTH, ROW_HEIGHT);
+		pcall(button.SetSize, button, rowW, rowH);
 		button.ctColorKey = colorKey;
 		allButtons[button] = true;
 
 		-- Icon (left).
 		if (not button.ctIcon) then
 			local icon = button:CreateTexture(nil, "ARTWORK");
-			icon:SetSize(ICON_SIZE, ICON_SIZE);
+			icon:SetSize(iconSize, iconSize);
 			icon:SetPoint("LEFT", button, "LEFT", 0, 0);
 			icon:SetTexCoord(0.08, 0.92, 0.08, 0.92);
 			button.ctIcon = icon;
@@ -197,9 +213,9 @@ local function makeInitButton(colorKey)
 end
 
 -- Fresh option/layout tables per call (don't share one table across containers).
-local function groupOpts(colorKey) return { templateNames = { "CustomAuraButtonTemplate" }, initializeFrame = makeInitButton(colorKey or "buff") }; end
+local function groupOpts(colorKey, iconSize, rowW, rowH) return { templateNames = { "CustomAuraButtonTemplate" }, initializeFrame = makeInitButton(colorKey or "buff", iconSize, rowW, rowH) }; end
 -- No inter-row / inter-group spacing: the bars stack tightly like the original CT_BuffMod list.
-local function layout() return { elementWidth = ROW_WIDTH, elementHeight = ROW_HEIGHT, elementSpacing = 0, lineSpacing = 0, groupLineSpacing = 0 }; end
+local function layout(rowW, rowH) return { elementWidth = rowW or ROW_WIDTH, elementHeight = rowH or ROW_HEIGHT, elementSpacing = 0, lineSpacing = 0, groupLineSpacing = 0 }; end
 
 -- Map a window's CT_BuffMod sortMethod/sortDirection onto the container's secure sort enums.
 local function sortFor(opts)
@@ -345,15 +361,17 @@ local function getAnchor(windowId)
 	return a;
 end
 
--- Signatures of the window's config. groupSig (unit + which groups) forces a container REBUILD when it
--- changes -- there's no public API to remove/replace an AuraContainer's groups, so we recreate the
--- frame. sortSig (sort method/direction) is applied in place on the existing groups: no rebuild, no leak.
+-- Signatures of the window's config. groupSig (unit + which groups + sizes) forces a container REBUILD
+-- when it changes -- there's no public API to remove/replace an AuraContainer's groups OR to resize its
+-- element layout in place, so we recreate the frame. sortSig (sort method/direction) is applied in place
+-- on the existing groups: no rebuild, no leak.
 local function groupSig(w)
 	local o = w.options or {};
 	return table.concat({
 		tostring(w.unit),
 		tostring(o.sortSeq1), tostring(o.sortSeq2), tostring(o.sortSeq3), tostring(o.sortSeq4), tostring(o.sortSeq5),
 		tostring(o.separateOwn),
+		tostring(o.buffSize1), tostring(o.detailWidth1),
 	}, ":");
 end
 local function sortSig(w)
@@ -383,9 +401,12 @@ local function applyGroups(c, w)
 	-- enchant's pending async item-data request (Lua error in AsyncCallbackSystem). So a grouping change
 	-- recreates the container (buildWindow) rather than mutating this one's groups.
 
+	-- Per-window sizes (icon = buffSize1, bar = detailWidth1; row width = icon + bar).
+	local iconSize, rowH, rowW = sizesFor(w.options);
+
 	-- Vertical column, one aura per row, growing downward (see increment 2d/2e).
 	if (c.SetFlowLayoutMaximumLineSize) then
-		pcall(c.SetFlowLayoutMaximumLineSize, c, ROW_WIDTH);
+		pcall(c.SetFlowLayoutMaximumLineSize, c, rowW);
 	end
 	if (type(AnchorUtil) == "table" and type(AnchorUtil.FlowDirection) == "table" and c.SetFlowLayoutGrowthDirection) then
 		pcall(c.SetFlowLayoutGrowthDirection, c, AnchorUtil.FlowDirection.Right, AnchorUtil.FlowDirection.Down);
@@ -411,7 +432,7 @@ local function applyGroups(c, w)
 	-- Weapon-enchant placement: the container can only put enchants BEFORE or AFTER all aura groups
 	-- (not at an arbitrary sortSeq slot). Put them after the aura groups if any group is configured
 	-- before the weapon, else before -- the closest we can get to the configured position.
-	local enchantLayout = { elementWidth = ROW_WIDTH, elementHeight = ROW_HEIGHT, elementSpacing = 0, lineSpacing = 0 };
+	local enchantLayout = { elementWidth = rowW, elementHeight = rowH, elementSpacing = 0, lineSpacing = 0 };
 	if (type(CustomAuraContainerItemEnchantmentPlacement) == "table") then
 		local weaponOrder;
 		for _, g in ipairs(plan) do
@@ -433,15 +454,15 @@ local function applyGroups(c, w)
 		if (g.enchant) then
 			-- Temporary weapon enchants are the player's own -- only meaningful on the player window.
 			if (w.unit == "player" and type(AuraContainerItemEnchantmentSlot) == "table" and not addedEnchant) then
-				pcall(c.AddItemEnchantment, c, AuraContainerItemEnchantmentSlot.MainHand, groupOpts(g.colorKey));
-				pcall(c.AddItemEnchantment, c, AuraContainerItemEnchantmentSlot.OffHand, groupOpts(g.colorKey));
+				pcall(c.AddItemEnchantment, c, AuraContainerItemEnchantmentSlot.MainHand, groupOpts(g.colorKey, iconSize, rowW, rowH));
+				pcall(c.AddItemEnchantment, c, AuraContainerItemEnchantmentSlot.OffHand, groupOpts(g.colorKey, iconSize, rowW, rowH));
 				pcall(c.SetItemEnchantmentLayout, c, enchantLayout);
 				addedEnchant = true;
 				c.ctEnchantsAdded = true;
 			end
 		else
-			pcall(c.AddAuraGroup, c, g.key, g.filter, groupOpts(g.colorKey));
-			pcall(c.SetAuraGroupLayout, c, g.key, layout());
+			pcall(c.AddAuraGroup, c, g.key, g.filter, groupOpts(g.colorKey, iconSize, rowW, rowH));
+			pcall(c.SetAuraGroupLayout, c, g.key, layout(rowW, rowH));
 			local sortOk = false;
 			if (sm) then
 				sortOk = pcall(c.SetAuraGroupSortMethod, c, g.key, sm, sdir);
@@ -471,7 +492,8 @@ local function buildWindow(w)
 		end
 		local a = getAnchor(id);
 		c = CreateFrame("AuraContainer", nil, UIParent, "CustomAuraContainerTemplate");	-- anonymous: recreatable
-		c:SetSize(ROW_WIDTH, ROW_HEIGHT);
+		local _, csrowH, csrowW = sizesFor(w.options);
+		c:SetSize(csrowW, csrowH);
 		c:ClearAllPoints();
 		if (not pcall(c.SetPoint, c, "TOPLEFT", a, "TOPLEFT", 0, 0)) then
 			local pt, _, rp, x, y = a:GetPoint();
