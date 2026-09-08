@@ -474,6 +474,28 @@ local function applyGroups(c, w)
 	end
 end
 
+-- Visibility: mirror the legacy frame's "visibility" state driver onto the container. A window set to
+-- Basic/Advanced visibility yields a macro-condition string (e.g. "[combat]hide; show"); "always show"
+-- yields nil. RegisterStateDriver then shows/hides the container on combat/vehicle/etc. state changes
+-- (secure, works in combat once registered). We (un)register only from buildWindow, which runs out of
+-- combat. A "show"/empty condition means always-visible -> no driver.
+local function clearVisibility(c)
+	if (c.ctVisDriven) then
+		pcall(UnregisterStateDriver, c, "visibility");
+		c.ctVisDriven = nil;
+	end
+end
+local function applyVisibility(c, cond)
+	if (type(cond) == "string" and cond ~= "" and cond ~= "show") then
+		if (pcall(RegisterStateDriver, c, "visibility", cond)) then
+			c.ctVisDriven = true;
+		end
+	else
+		clearVisibility(c);
+		c:Show();
+	end
+end
+
 -- Get (creating once) the container for one window, point it at the window's unit and show it. The
 -- container frame is reused (forbidden frames can't be destroyed); its groups are rebuilt only when
 -- the window's config signature changes (auto-refresh on reconfigure).
@@ -510,6 +532,9 @@ local function buildWindow(w)
 	c.ctUnit = w.unit or "player";
 	c:SetUnit(c.ctUnit);
 	c:Show();
+	-- Apply the window's visibility rule (state driver, or always-show). Done every build so a
+	-- visibility-only change (not in groupSig/sortSig) still takes effect.
+	applyVisibility(c, w.visCondition);
 end
 
 -- Hide (and keep hidden while active) an old CT_BuffMod display frame.
@@ -551,8 +576,10 @@ local function refresh()
 			hideOldFrame(w.altFrame);
 		end
 		-- Hide containers (and drag handles) whose window has been deleted; show handles for live ones.
+		-- Clear any visibility state driver first, or it could re-show the frame on a later state change.
 		for id, c in pairs(containers) do
 			if (not present[id]) then
+				clearVisibility(c);
 				c:Hide();
 				if (anchors[id]) then anchors[id]:Hide(); end
 			end
@@ -561,8 +588,10 @@ local function refresh()
 			if (present[id]) then a:Show(); end
 		end
 	else
-		-- Legacy engine: hide the AuraContainers AND their drag handles, restore the old frames.
+		-- Legacy engine: hide the AuraContainers AND their drag handles, restore the old frames. Clear the
+		-- visibility drivers too, so a combat/vehicle state change can't re-show a container in Legacy mode.
 		for _, c in pairs(containers) do
+			clearVisibility(c);
 			c:Hide();
 		end
 		for _, a in pairs(anchors) do

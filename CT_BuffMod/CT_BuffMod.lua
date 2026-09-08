@@ -7910,6 +7910,16 @@ function module:getAuraContainerWindows()
 				sortMethod = po.sortMethod, sortDirection = po.sortDirection,
 				separateOwn = po.separateOwn, groupByPriority = po.groupByPriority,
 			};
+			-- Visibility: the legacy frame uses a "visibility" state driver (macro conditions) or is always
+			-- shown. Compute the same condition string here so the AuraContainer can drive its own show/hide
+			-- with the identical secure mechanism. nil = always show.
+			local visMode = po.visWindow or constants.VISIBILITY_SHOW;
+			local visCondition;
+			if (visMode == constants.VISIBILITY_BASIC) then
+				visCondition = po:buildBasicCondition();
+			elseif (visMode == constants.VISIBILITY_ADVANCED) then
+				visCondition = buildCondition(po.visCondition or "");
+			end
 			result[#result + 1] = {
 				windowId = id,
 				unit = po:getUnitId(),
@@ -7917,6 +7927,7 @@ function module:getAuraContainerWindows()
 				altFrame = auraFrame and auraFrame.altFrame,
 				options = ok and options or nil,
 				resolved = resolved,
+				visCondition = visCondition,
 			};
 		end
 	end
@@ -9965,16 +9976,19 @@ CONSOLIDATION REMOVED FROM GAME --]]
 		
 		local function toggleBasicConditions(checkbutton)
 			checkbutton:HookScript("OnClick",
-				function()
+				function(self)
+					-- The vis* checkbuttons are stored on the parent frame (i: identifiers), not as globals,
+					-- so reach them through the clicked button's parent.
+					local parent = (self or checkbutton):GetParent();
 					if (
-						visHideInVehicle:GetChecked() 
-						or visHideNotVehicle:GetChecked()
-						or visHideInCombat:GetChecked() 
-						or visHideNotCombat:GetChecked()
+						parent.visHideInVehicle:GetChecked()
+						or parent.visHideNotVehicle:GetChecked()
+						or parent.visHideInCombat:GetChecked()
+						or parent.visHideNotCombat:GetChecked()
 					) then
-						visBasic:Click();
+						parent.visBasic:Click();
 					else
-						visShow:Click();
+						parent.visShow:Click();
 					end
 				end
 			);
