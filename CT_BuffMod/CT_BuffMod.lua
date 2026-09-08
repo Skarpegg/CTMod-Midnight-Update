@@ -9085,6 +9085,10 @@ local function options_updateGlobal(optName, value)
 		optName == "bgColorCONSOLIDATED"
 	) then
 		globalObject.windowListObject:refreshAuraButtons();
+		-- AuraContainer bars read the same bgColor* options -- recolour them live too.
+		if (CT_BuffMod_AuraContainerRecolor) then
+			CT_BuffMod_AuraContainerRecolor();
+		end
 
 	elseif (optName == "backgroundColor") then
 		globalObject.windowListObject:setBackground();
@@ -9552,25 +9556,74 @@ CONSOLIDATION REMOVED FROM GAME --]]
 
 		optionsAddObject(-15, 1*13, "font#tl:15:%y#" .. L["CT_BuffMod/Options/General/Colors/Heading"]);
 
-		-- Window background color
-		optionsAddObject(-10,   16, "colorswatch#tl:35:%y#s:16:16#o:backgroundColor:" .. defaultWindowColor[1] .. "," .. defaultWindowColor[2] .. "," .. defaultWindowColor[3] .. "," .. defaultWindowColor[4] .. "#true");
-		optionsAddObject( 14,   15, "font#tl:60:%y#v:ChatFontNormal#" .. L["CT_BuffMod/Options/General/Colors/Background"]);
+		if (not acMode) then
+			-- Window background color
+			optionsAddObject(-10,   16, "colorswatch#tl:35:%y#s:16:16#o:backgroundColor:" .. defaultWindowColor[1] .. "," .. defaultWindowColor[2] .. "," .. defaultWindowColor[3] .. "," .. defaultWindowColor[4] .. "#true");
+			optionsAddObject( 14,   15, "font#tl:60:%y#v:ChatFontNormal#" .. L["CT_BuffMod/Options/General/Colors/Background"]);
 
-		-- Aura color
-		-- Buff color
-		-- Debuff color
-		-- Weapon buff color
-		optionsAddObject(-15,   16, "colorswatch#tl:35:%y#s:16:16#i:bgColorAURA#o:bgColorAURA:0.35,0.8,0.15,0.5#true");
-		optionsAddObject( 14,   15, "font#tl:60:%y#v:ChatFontNormal#" .. L["CT_BuffMod/Options/General/Colors/Aura"]);
+			-- Aura color
+			-- Buff color
+			-- Debuff color
+			-- Weapon buff color
+			optionsAddObject(-15,   16, "colorswatch#tl:35:%y#s:16:16#i:bgColorAURA#o:bgColorAURA:0.35,0.8,0.15,0.5#true");
+			optionsAddObject( 14,   15, "font#tl:60:%y#v:ChatFontNormal#" .. L["CT_BuffMod/Options/General/Colors/Aura"]);
 
-		optionsAddObject( 15,   16, "colorswatch#tl:175:%y#s:16:16#i:bgColorBUFF#o:bgColorBUFF:0.1,0.4,0.85,0.5#true");
-		optionsAddObject( 14,   15, "font#tl:200:%y#v:ChatFontNormal#" .. L["CT_BuffMod/Options/General/Colors/Buff"]);
+			optionsAddObject( 15,   16, "colorswatch#tl:175:%y#s:16:16#i:bgColorBUFF#o:bgColorBUFF:0.1,0.4,0.85,0.5#true");
+			optionsAddObject( 14,   15, "font#tl:200:%y#v:ChatFontNormal#" .. L["CT_BuffMod/Options/General/Colors/Buff"]);
 
-		optionsAddObject( -2,   16, "colorswatch#tl:35:%y#s:16:16#i:bgColorDEBUFF#o:bgColorDEBUFF:1,0,0,0.85#true");
-		optionsAddObject( 14,   15, "font#tl:60:%y#v:ChatFontNormal#" .. L["CT_BuffMod/Options/General/Colors/Debuff"]);
+			optionsAddObject( -2,   16, "colorswatch#tl:35:%y#s:16:16#i:bgColorDEBUFF#o:bgColorDEBUFF:1,0,0,0.85#true");
+			optionsAddObject( 14,   15, "font#tl:60:%y#v:ChatFontNormal#" .. L["CT_BuffMod/Options/General/Colors/Debuff"]);
 
-		optionsAddObject( 15,   16, "colorswatch#tl:175:%y#s:16:16#i:bgColorITEM#o:bgColorITEM:0.75,0.25,1,0.75#true");
-		optionsAddObject( 14,   15, "font#tl:200:%y#v:ChatFontNormal#" .. L["CT_BuffMod/Options/General/Colors/Weapon"]);
+			optionsAddObject( 15,   16, "colorswatch#tl:175:%y#s:16:16#i:bgColorITEM#o:bgColorITEM:0.75,0.25,1,0.75#true");
+			optionsAddObject( 14,   15, "font#tl:200:%y#v:ChatFontNormal#" .. L["CT_BuffMod/Options/General/Colors/Weapon"]);
+		else
+			-- AuraContainer mode: only the colours that actually apply.
+			--  * No window-background colour -- AuraContainer draws no backdrop behind the bars.
+			--  * ONE buff colour (bound to bgColorAURA, labelled "Buff"): the secure container can't tell
+			--    timed buffs from permanent ones, so every buff bar shares this colour. The separate
+			--    "Buff" (timed) colour has no meaning here, so it's hidden.
+			optionsAddObject(-10,   16, "colorswatch#tl:35:%y#s:16:16#i:bgColorAURA#o:bgColorAURA:0.35,0.8,0.15,0.5#true");
+			optionsAddObject( 14,   15, "font#tl:60:%y#v:ChatFontNormal#" .. L["CT_BuffMod/Options/General/Colors/Buff"]);
+
+			optionsAddObject( 15,   16, "colorswatch#tl:175:%y#s:16:16#i:bgColorDEBUFF#o:bgColorDEBUFF:1,0,0,0.85#true");
+			optionsAddObject( 14,   15, "font#tl:200:%y#v:ChatFontNormal#" .. L["CT_BuffMod/Options/General/Colors/Debuff"]);
+
+			optionsAddObject( -2,   16, "colorswatch#tl:35:%y#s:16:16#i:bgColorITEM#o:bgColorITEM:0.75,0.25,1,0.75#true");
+			optionsAddObject( 14,   15, "font#tl:60:%y#v:ChatFontNormal#" .. L["CT_BuffMod/Options/General/Colors/Weapon"]);
+		end
+
+		-- Reset every colour swatch above to its built-in default. A colour option cleared to nil falls
+		-- back to the default in both displays (applyGlobalOptions / the AuraContainer getColor), so we just
+		-- clear them, refresh live, and repaint the swatch squares that are currently shown (mode-dependent).
+		optionsBeginFrame( -10,   22, "button#tl:35:%y#s:170:%s#v:UIPanelButtonTemplate#" .. L["CT_BuffMod/Options/General/Colors/ResetButton"]);
+			optionsAddScript("onclick",
+				function(self)
+					local colorOpts = { "backgroundColor", "bgColorAURA", "bgColorBUFF", "bgColorDEBUFF", "bgColorITEM", "bgColorCONSOLIDATED" };
+					for _, opt in ipairs(colorOpts) do
+						module:setOption(opt, nil, false);
+					end
+					globalObject:applyGlobalOptions(false);
+					if (globalObject.windowListObject and globalObject.windowListObject.refreshAuraButtons) then
+						globalObject.windowListObject:refreshAuraButtons();
+					end
+					if (CT_BuffMod_AuraContainerRecolor) then
+						CT_BuffMod_AuraContainerRecolor();
+					end
+					-- Repaint the swatch squares sitting next to this button (the ones for the current mode).
+					local parent = self:GetParent();
+					if (parent and parent.GetChildren) then
+						for _, child in ipairs({ parent:GetChildren() }) do
+							if (child.normalTexture and child.option and child.object) then
+								local c = child.object:getDisplayValue(child.option);
+								if (type(c) == "table" and c[1]) then
+									child.normalTexture:SetVertexColor(c[1], c[2], c[3]);
+								end
+							end
+						end
+					end
+				end
+			);
+		optionsEndFrame();
 
 --[[ CONSOLIDATION REMOVED FROM GAME
 		optionsAddObject( -15,   16, "colorswatch#tl:35:%y#s:16:16#o:consolidatedColor:" .. defaultConsolidatedColor[1] .. "," .. defaultConsolidatedColor[2] .. "," .. defaultConsolidatedColor[3] .. "," .. defaultConsolidatedColor[4] .. "#true");

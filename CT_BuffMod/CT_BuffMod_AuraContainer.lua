@@ -61,20 +61,34 @@ local DEBUFF_R, DEBUFF_G, DEBUFF_B = 1, 0, 0;			-- original AURATYPE_DEBUFF back
 local FT_NONE, FT_DEBUFF, FT_CANCEL, FT_UNCANCEL, FT_ALLBUFF, FT_WEAPON, FT_CONSOL = 1, 2, 3, 4, 5, 6, 7;
 local SM_NAME, SM_TIME, SM_INDEX = 1, 2, 3;
 local SO_BEFORE, SO_AFTER, SO_WITH = 1, 2, 3;	-- separateOwn: own auras before / after / mixed with others
-local COLOR_BUFF = { BUFF_R, BUFF_G, BUFF_B };
-local COLOR_DEBUFF = { DEBUFF_R, DEBUFF_G, DEBUFF_B };
-local COLOR_ENCHANT = { ENCHANT_R, ENCHANT_G, ENCHANT_B };
+-- Bar colours come from CT_BuffMod's global colour options so they're user-configurable and stay in
+-- sync with the legacy display: buff bar <- bgColorAURA, debuff <- bgColorDEBUFF, weapon <- bgColorITEM.
+-- (AuraContainer can't tell timed vs permanent buffs apart, so all buffs use the one AURA colour.)
+local COLOR_OPTION  = { buff = "bgColorAURA", debuff = "bgColorDEBUFF", enchant = "bgColorITEM" };
+local COLOR_DEFAULT = { buff = { BUFF_R, BUFF_G, BUFF_B }, debuff = { DEBUFF_R, DEBUFF_G, DEBUFF_B }, enchant = { ENCHANT_R, ENCHANT_G, ENCHANT_B } };
+local function getColor(key)
+	local mod = _G["CT_BuffMod"];
+	local c = mod and mod.getOption and mod:getOption(COLOR_OPTION[key]);
+	if (type(c) == "table" and c[1]) then
+		return c[1], c[2], c[3];
+	end
+	local d = COLOR_DEFAULT[key] or COLOR_DEFAULT.buff;
+	return d[1], d[2], d[3];
+end
+local allButtons = {};	-- every styled CustomAuraButton, so a colour-option change can recolour in place
 
 -- initializeFrame factory: CustomAuraButton is "bring your own regions" -- we create the display
 -- regions and register them; Blizzard's SECURE code fills them from the (secret) aura, so it works in
 -- combat. Returns a closure so different aura GROUPS can paint the bright track in their own colour
 -- (regular buffs green, weapon enchants purple -- matching the original per-type colours).
-local function makeInitButton(r, g, b)
+local function makeInitButton(colorKey)
 	return function(button)
 		if (type(button) ~= "table") then
 			return;
 		end
 		pcall(button.SetSize, button, ROW_WIDTH, ROW_HEIGHT);
+		button.ctColorKey = colorKey;
+		allButtons[button] = true;
 
 		-- Icon (left).
 		if (not button.ctIcon) then
@@ -120,6 +134,7 @@ local function makeInitButton(r, g, b)
 		if (not button.ctTrack) then
 			local track = button:CreateTexture(nil, "BACKGROUND");
 			track:SetTexture(BAR_TEXTURE);
+			local r, g, b = getColor(colorKey);
 			track:SetVertexColor(r, g, b, 0.55);
 			track:SetPoint("TOPLEFT", button.ctIcon, "TOPRIGHT", 1, 0);
 			track:SetPoint("BOTTOMRIGHT", button, "BOTTOMRIGHT", 0, 0);
@@ -182,7 +197,7 @@ local function makeInitButton(r, g, b)
 end
 
 -- Fresh option/layout tables per call (don't share one table across containers).
-local function groupOpts(r, g, b) return { templateNames = { "CustomAuraButtonTemplate" }, initializeFrame = makeInitButton(r or BUFF_R, g or BUFF_G, b or BUFF_B) }; end
+local function groupOpts(colorKey) return { templateNames = { "CustomAuraButtonTemplate" }, initializeFrame = makeInitButton(colorKey or "buff") }; end
 -- No inter-row / inter-group spacing: the bars stack tightly like the original CT_BuffMod list.
 local function layout() return { elementWidth = ROW_WIDTH, elementHeight = ROW_HEIGHT, elementSpacing = 0, lineSpacing = 0, groupLineSpacing = 0 }; end
 
@@ -228,9 +243,9 @@ local function planGroups(opts)
 	local allPos, cancelPos, uncancelPos;
 	for i, t in ipairs(seq) do
 		if (t == FT_DEBUFF) then
-			groups[#groups + 1] = { order = i, key = "debuff", filter = "HARMFUL", color = COLOR_DEBUFF };
+			groups[#groups + 1] = { order = i, key = "debuff", filter = "HARMFUL", colorKey = "debuff" };
 		elseif (t == FT_WEAPON) then
-			groups[#groups + 1] = { order = i, enchant = true, color = COLOR_ENCHANT };
+			groups[#groups + 1] = { order = i, enchant = true, colorKey = "enchant" };
 		elseif (t == FT_ALLBUFF) then
 			allPos = allPos or i;
 		elseif (t == FT_CANCEL) then
@@ -242,13 +257,13 @@ local function planGroups(opts)
 	end
 	if (allPos) then
 		-- "All buffs" covers everything helpful; it supersedes the cancelable/uncancelable split.
-		groups[#groups + 1] = { order = allPos, key = "buffs", filter = "HELPFUL", color = COLOR_BUFF };
+		groups[#groups + 1] = { order = allPos, key = "buffs", filter = "HELPFUL", colorKey = "buff" };
 	else
 		if (cancelPos) then
-			groups[#groups + 1] = { order = cancelPos, key = "buffcancel", filter = "HELPFUL CANCELABLE", color = COLOR_BUFF };
+			groups[#groups + 1] = { order = cancelPos, key = "buffcancel", filter = "HELPFUL CANCELABLE", colorKey = "buff" };
 		end
 		if (uncancelPos) then
-			groups[#groups + 1] = { order = uncancelPos, key = "buffuncancel", filter = "HELPFUL !CANCELABLE", color = COLOR_BUFF };
+			groups[#groups + 1] = { order = uncancelPos, key = "buffuncancel", filter = "HELPFUL !CANCELABLE", colorKey = "buff" };
 		end
 	end
 	-- separateOwn: split each aura group into "own" (player-cast) and "others" via the PLAYER filter
@@ -265,8 +280,8 @@ local function planGroups(opts)
 			if (g.enchant) then
 				split[#split + 1] = g;
 			else
-				split[#split + 1] = { order = g.order, subOrder = ownSub, key = g.key .. "_own", filter = g.filter .. " PLAYER", color = g.color };
-				split[#split + 1] = { order = g.order, subOrder = 1 - ownSub, key = g.key .. "_other", filter = g.filter .. " !PLAYER", color = g.color };
+				split[#split + 1] = { order = g.order, subOrder = ownSub, key = g.key .. "_own", filter = g.filter .. " PLAYER", colorKey = g.colorKey };
+				split[#split + 1] = { order = g.order, subOrder = 1 - ownSub, key = g.key .. "_other", filter = g.filter .. " !PLAYER", colorKey = g.colorKey };
 			end
 		end
 		groups = split;
@@ -418,14 +433,14 @@ local function applyGroups(c, w)
 		if (g.enchant) then
 			-- Temporary weapon enchants are the player's own -- only meaningful on the player window.
 			if (w.unit == "player" and type(AuraContainerItemEnchantmentSlot) == "table" and not addedEnchant) then
-				pcall(c.AddItemEnchantment, c, AuraContainerItemEnchantmentSlot.MainHand, groupOpts(unpack(g.color)));
-				pcall(c.AddItemEnchantment, c, AuraContainerItemEnchantmentSlot.OffHand, groupOpts(unpack(g.color)));
+				pcall(c.AddItemEnchantment, c, AuraContainerItemEnchantmentSlot.MainHand, groupOpts(g.colorKey));
+				pcall(c.AddItemEnchantment, c, AuraContainerItemEnchantmentSlot.OffHand, groupOpts(g.colorKey));
 				pcall(c.SetItemEnchantmentLayout, c, enchantLayout);
 				addedEnchant = true;
 				c.ctEnchantsAdded = true;
 			end
 		else
-			pcall(c.AddAuraGroup, c, g.key, g.filter, groupOpts(unpack(g.color)));
+			pcall(c.AddAuraGroup, c, g.key, g.filter, groupOpts(g.colorKey));
 			pcall(c.SetAuraGroupLayout, c, g.key, layout());
 			local sortOk = false;
 			if (sm) then
@@ -565,6 +580,18 @@ local function scheduleRefresh()
 end
 _G.CT_BuffMod_AuraContainerNotify = scheduleRefresh;
 _G.CT_BuffMod_AuraContainerRefresh = refresh;	-- immediate refresh (used when the engine option changes)
+
+-- Live recolour: repaint every existing button's bright track from the current colour options, in
+-- place (no rebuild). Called when the user changes a bgColor* swatch so bars recolour immediately.
+local function recolor()
+	for button in pairs(allButtons) do
+		if (button.ctTrack and button.ctColorKey) then
+			local r, g, b = getColor(button.ctColorKey);
+			button.ctTrack:SetVertexColor(r, g, b, 0.55);
+		end
+	end
+end
+_G.CT_BuffMod_AuraContainerRecolor = recolor;
 
 -- Dynamic units: the container reads its unit on UNIT_AURA, which doesn't reliably fire when you
 -- SWITCH target/focus, so it can show stale auras. Force a re-read by briefly clearing the unit.
