@@ -121,6 +121,7 @@ L["CT_BuffMod/Options/Window/General/DisableWindowCheckbox"] = "Disable window"
 L["CT_BuffMod/Options/Window/General/Heading"] = "General Window Settings"
 L["CT_BuffMod/Options/Window/General/PositionClampedCheckbox"] = "Window cannot be moved off screen"
 L["CT_BuffMod/Options/Window/General/PositionLockedCheckbox"] = "Lock window so that it cannot be moved"
+L["CT_BuffMod/Options/Window/General/ShowTitleBarCheckbox"] = "Show a title bar (unit or character name)"
 L["CT_BuffMod/Options/Window/General/PositionResetButton"] = "Reset window position"
 L["CT_BuffMod/Options/Window/General/PositionResetTip"] = [=[This will place the window at
 the center of the screen.]=]

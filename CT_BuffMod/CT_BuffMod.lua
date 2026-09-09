@@ -4171,6 +4171,15 @@ function frameClass:resetPosition()
 
 	-- Save the frame's position
 	self:savePosition();
+
+	-- In AuraContainer mode the window is positioned by the AC anchor, not this (hidden) legacy frame,
+	-- so reset that too. Central point for all reset paths (options button, window clone/new, etc.).
+	if (CT_BuffMod_AuraContainerResetPosition) then
+		local ok, id = pcall(self.getWindowId, self);
+		if (ok and id) then
+			CT_BuffMod_AuraContainerResetPosition(id);
+		end
+	end
 end
 
 function frameClass:setAnchorPoint(keepOnScreen)
@@ -7928,10 +7937,33 @@ function module:getAuraContainerWindows()
 				options = ok and options or nil,
 				resolved = resolved,
 				visCondition = visCondition,
+				lockWindow = not not po.lockWindow,
+				clampWindow = po.clampWindow ~= false,	-- default is clamped
+				acShowTitle = not not (ok and options and options.acShowTitle),	-- AC-only title bar toggle
 			};
 		end
 	end
 	return result;
+end
+
+-- Called by the AuraContainer path when a window is dragged/reset there, so the (hidden) legacy frame is
+-- kept at the same screen position. Given a TOP-LEFT offset from UIParent's top-left, we point the legacy
+-- frame's TOPLEFT there and save it -- both engines grow down/right from the top-left, so the window then
+-- appears in the same spot when you switch back to the Legacy engine.
+function CT_BuffMod_SyncLegacyPosition(windowId, xOff, yOff)
+	local windowList = globalObject and globalObject.windowListObject;
+	local windowObject = windowList and windowList:findWindow(windowId);
+	local po = windowObject and windowObject.primaryObject;
+	local auraFrame = po and po.auraFrame;
+	if (not auraFrame) then
+		return;
+	end
+	if (auraFrame:IsProtected() and InCombatLockdown()) then
+		return;	-- can't move a protected frame in combat; the AC anchor still moved
+	end
+	auraFrame:ClearAllPoints();
+	auraFrame:SetPoint("TOPLEFT", UIParent, "TOPLEFT", xOff or 0, yOff or 0);
+	po:savePosition();
 end
 
 function windowListClass:getWindowCount()
@@ -8194,6 +8226,12 @@ end
 function windowListClass:setCurrentWindow(windowId, showTitle)
 	for winId, windowObject in pairs(self.windowObjects) do
 		windowObject:setCurrentWindow(winId == windowId, showTitle);
+	end
+	-- Mirror the legacy "Window N" title onto the AuraContainer windows: when the options panel is open
+	-- (showTitle) the AC bars show their window number (current one highlighted), overriding the per-
+	-- window title-bar toggle; closed, they revert. Single hook -- fires on open, close and window switch.
+	if (CT_BuffMod_AuraContainerSetConfig) then
+		CT_BuffMod_AuraContainerSetConfig(showTitle, windowId);
 	end
 end
 
@@ -8607,6 +8645,11 @@ local function options_updateWindowWidgets(windowId)
 
 	-- Window cannot be moved off screen
 	frame.clampWindow:SetChecked( frameOptions.clampWindow ~= false );
+
+	-- Show title bar (AuraContainer mode only -- checkbox is absent otherwise)
+	if (frame.acShowTitle) then
+		frame.acShowTitle:SetChecked( not not frameOptions.acShowTitle );
+	end
 
 	----------
 	-- Unit
@@ -9373,6 +9416,7 @@ module.optionUpdate = function(self, optName, value)
 		optName == "userEdgeRight" or
 		optName == "userEdgeTop" or
 		optName == "userEdgeBottom" or
+		optName == "acShowTitle" or		-- AuraContainer-only title bar toggle (handled entirely by the AC path)
 		optName == "fontSize"
 	) then
 		options_updateUnprotected(optName, value, windowId);
@@ -9817,6 +9861,11 @@ CONSOLIDATION REMOVED FROM GAME --]]
 		optionsAddObject(  6,   26, "checkbutton#tl:30:%y#i:disableTooltips#o:disableTooltips#" .. L["CT_BuffMod/Options/Window/General/DisableTooltipsCheckbox"]);
 		optionsAddObject(  6,   26, "checkbutton#tl:30:%y#i:lockWindow#o:lockWindow#" .. L["CT_BuffMod/Options/Window/General/PositionLockedCheckbox"]);
 		optionsAddObject(  6,   26, "checkbutton#tl:30:%y#i:clampWindow#o:clampWindow:true#" .. L["CT_BuffMod/Options/Window/General/PositionClampedCheckbox"]);
+		if (acMode) then
+			-- AuraContainer-only: a title bar above the window showing the unit/character name (it also
+			-- doubles as the drag handle when the window is unlocked).
+			optionsAddObject(  6,   26, "checkbutton#tl:30:%y#i:acShowTitle#o:acShowTitle#" .. L["CT_BuffMod/Options/Window/General/ShowTitleBarCheckbox"]);
+		end
 
 		optionsBeginFrame( -5,   30, "button#t:0:%y#s:180:%s#n:CT_BuffMod_ResetPosition_Button#v:GameMenuButtonTemplate#" .. L["CT_BuffMod/Options/Window/General/PositionResetButton"]);
 			optionsAddScript("onclick",

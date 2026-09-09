@@ -315,8 +315,68 @@ end
 local containers = {};	-- [windowId] = AuraContainer frame
 local anchors = {};		-- [windowId] = normal anchor frame (draggable position store)
 
--- The AuraContainer is a secure/forbidden frame (can't read its own moved position or host a tooltip
--- child), so a normal "anchor" frame is the draggable position store and the container follows it.
+-- Title-bar text: default to the unit-type word (Player/Target/Focus/Pet/Vehicle), but show the actual
+-- unit NAME when one exists -- so the player's window shows the character's name, and target/focus/pet
+-- windows show whoever is currently there (falling back to the word when the unit is empty).
+local UNIT_LABEL = { player = "Player", pet = "Pet", target = "Target", focus = "Focus", vehicle = "Vehicle" };
+local function titleText(unit)
+	unit = unit or "player";
+	local name;
+	if (UnitExists(unit)) then
+		name = UnitName(unit);
+	end
+	if (name and name ~= "" and name ~= UNKNOWN) then
+		return name;
+	end
+	return UNIT_LABEL[unit] or unit;
+end
+
+-- When CT_BuffMod's options panel is open it shows a "Window N" title over each window (current one
+-- highlighted), like the legacy display. CT_BuffMod calls CT_BuffMod_AuraContainerSetConfig(open, id)
+-- from windowListClass:setCurrentWindow; while open, the title/grip bar shows "Window N" (overriding the
+-- per-window title toggle) and is always shown + draggable so you can reposition while configuring.
+local configOpen = false;
+local configCurrentWindowId = nil;
+
+-- Re-anchor a window's container to its anchor (falling back to the stored screen point if the secure
+-- SetPoint-to-anchor is rejected). Used after a drag and after a position reset.
+local function reanchorContainer(windowId)
+	local a = anchors[windowId];
+	local c = containers[windowId];
+	if (not a or not c) then
+		return;
+	end
+	c:ClearAllPoints();
+	if (not pcall(c.SetPoint, c, "TOPLEFT", a, "TOPLEFT", 0, 0)) then
+		local point, _, relPoint, x, y = a:GetPoint();
+		c:SetPoint(point or "TOPRIGHT", UIParent, relPoint or "TOPRIGHT", x or -20, y or -220);
+	end
+end
+
+-- Push a window's current AC-anchor position into the legacy frame's position store, so the window stays
+-- in the same screen spot when the user switches back to the Legacy engine (the two engines otherwise keep
+-- independent positions). Uses the anchor's TOP-LEFT offset from UIParent; both grow down/right from there.
+local function syncLegacyPosition(windowId)
+	if (not CT_BuffMod_SyncLegacyPosition or not isActive()) then
+		return;	-- only mirror while AuraContainer is the active engine; Legacy owns its own position then
+	end
+	local a = anchors[windowId];
+	if (not a) then
+		return;
+	end
+	local left, top = a:GetLeft(), a:GetTop();
+	if (not left or not top) then
+		return;
+	end
+	CT_BuffMod_SyncLegacyPosition(windowId, left - (UIParent:GetLeft() or 0), top - (UIParent:GetTop() or 0));
+end
+
+-- The AuraContainer is a secure/forbidden frame (can't attach drag handlers, read its own moved position
+-- or dynamic height, or host a tooltip child), so a normal "anchor" frame is the draggable position store
+-- and the container follows it. We can't make the whole (secure, variable-height) buff list draggable like
+-- the legacy frame, so the drag affordance is a grip BAR spanning the window width just above the top row,
+-- shown only when the window is unlocked (lockWindow). buildWindow/applyAnchorOpts sizes the bar to the
+-- window width and applies lock (grip shown) + clamp (SetClampedToScreen).
 local function getAnchor(windowId)
 	if (anchors[windowId]) then
 		return anchors[windowId];
@@ -336,30 +396,130 @@ local function getAnchor(windowId)
 		a:SetPoint("TOPRIGHT", UIParent, "TOPRIGHT", -20, -220 - (windowId - 1) * 42);	-- staggered default
 	end
 
-	local mover = CreateFrame("Button", nil, a);
-	mover:SetSize(14, 28);
-	mover:SetPoint("RIGHT", a, "LEFT", -2, 0);
-	local tex = mover:CreateTexture(nil, "BACKGROUND");
+	-- Grip bar: a "title bar" the width of the window, sitting just above the top row. Left-drag to move.
+	local grip = CreateFrame("Button", nil, a);
+	grip:SetHeight(11);
+	grip:SetPoint("BOTTOMLEFT", a, "TOPLEFT", 0, 1);
+	grip:SetPoint("BOTTOMRIGHT", a, "TOPRIGHT", 0, 1);
+	local tex = grip:CreateTexture(nil, "BACKGROUND");
 	tex:SetAllPoints();
-	tex:SetColorTexture(0.2, 0.6, 1.0, 0.7);
-	mover:RegisterForDrag("LeftButton");
-	mover:SetScript("OnDragStart", function() a:StartMoving(); end);
-	mover:SetScript("OnDragStop", function()
+	tex:SetColorTexture(0.2, 0.6, 1.0, 0.55);
+	local label = grip:CreateFontString(nil, "OVERLAY", "GameFontHighlightSmall");
+	label:SetPoint("CENTER");
+	label:SetTextColor(1, 1, 1, 0.9);
+	grip.ctLabel = label;
+	grip:SetScript("OnEnter", function(self)
+		-- Draggable = options panel open, or the window is unlocked. When it's neither (a locked title bar
+		-- in normal play), don't highlight or show a tooltip -- it would be distracting under the cursor.
+		if (not (configOpen or not a.ctLocked)) then
+			return;
+		end
+		tex:SetColorTexture(0.3, 0.7, 1.0, 0.85);
+		GameTooltip:SetOwner(self, "ANCHOR_TOP");
+		GameTooltip:SetText("Drag to move this buff window");
+		GameTooltip:AddLine("Lock it in CT > BuffMod > (window) > Lock window position.", 1, 1, 1, true);
+		GameTooltip:Show();
+	end);
+	grip:SetScript("OnLeave", function() tex:SetColorTexture(0.2, 0.6, 1.0, 0.55); GameTooltip:Hide(); end);
+	grip:RegisterForDrag("LeftButton");
+	grip:SetScript("OnDragStart", function()
+		if (configOpen or not a.ctLocked) then	-- locked windows move only while configuring
+			a:StartMoving();
+			a.ctMoving = true;
+		end
+	end);
+	grip:SetScript("OnDragStop", function()
+		if (not a.ctMoving) then
+			return;
+		end
+		a.ctMoving = false;
 		a:StopMovingOrSizing();
 		local point, _, relPoint, x, y = a:GetPoint();
 		CT_BuffMod_AuraContainerDB.windowPoints[windowId] = { point, relPoint, x, y };
-		local c = containers[windowId];
-		if (c) then
-			c:ClearAllPoints();
-			if (not pcall(c.SetPoint, c, "TOPLEFT", a, "TOPLEFT", 0, 0)) then
-				c:SetPoint(point or "TOPRIGHT", UIParent, relPoint or "TOPRIGHT", x or -20, y or -220);
-			end
-		end
+		reanchorContainer(windowId);
+		syncLegacyPosition(windowId);	-- keep the Legacy frame at the same spot
 	end);
+	a.ctGrip = grip;
+	a.ctWindowId = windowId;
 
 	anchors[windowId] = a;
 	return a;
 end
+
+-- Refresh the grip/title bar's text and shown state from the anchor's stored options. The bar shows
+-- when the window has a title (acShowTitle) OR is unlocked (then it's the drag grip). With a title it
+-- shows the unit/character name; as a bare drag grip it shows a subtle handle mark.
+local function updateAnchorTitle(a)
+	if (not a or not a.ctGrip) then
+		return;
+	end
+	local grip = a.ctGrip;
+	local lbl = grip.ctLabel;
+	if (configOpen) then
+		-- Options panel open: show "Window N" (current highlighted white, others gold), always visible.
+		if (lbl) then
+			lbl:SetText("Window " .. tostring(a.ctWindowId or "?"));
+			if (a.ctWindowId == configCurrentWindowId) then
+				lbl:SetTextColor(1, 1, 1);
+			else
+				lbl:SetTextColor(1, 0.82, 0);
+			end
+		end
+		grip:SetShown(true);
+	else
+		if (lbl) then
+			lbl:SetText(a.ctShowTitle and titleText(a.ctTitleUnit) or "::::::");
+			lbl:SetTextColor(1, 1, 1, 0.9);
+		end
+		grip:SetShown(a.ctShowTitle or not a.ctLocked);
+	end
+end
+
+-- Apply the window's position options to its anchor: size the grip to the window width, honour clamp
+-- (SetClampedToScreen), lock and the title-bar toggle. Called from buildWindow.
+local function applyAnchorOpts(a, w)
+	if (not a) then
+		return;
+	end
+	local _, _, rowW = sizesFor(w.options);
+	a:SetWidth(rowW);
+	a:SetClampedToScreen(w.clampWindow ~= false);
+	a.ctTitleUnit = w.unit or "player";
+	a.ctShowTitle = not not w.acShowTitle;
+	a.ctLocked = not not w.lockWindow;
+	updateAnchorTitle(a);
+end
+
+-- Refresh every live anchor's title text (used when the target/focus/pet changes so name titles track).
+local function refreshTitles()
+	for _, a in pairs(anchors) do
+		updateAnchorTitle(a);
+	end
+end
+
+-- Called by CT_BuffMod when its options panel opens (open=true, current window id), switches window, or
+-- closes (open=false). Drives the "Window N" title overlay + makes every window draggable while open.
+_G.CT_BuffMod_AuraContainerSetConfig = function(open, currentWindowId)
+	configOpen = not not open;
+	configCurrentWindowId = currentWindowId;
+	refreshTitles();
+end
+
+-- Reset a window's AuraContainer position to the CENTRE of the screen (matching the options help text
+-- and the legacy frame's reset). Stores the centred point so it persists across reloads, then re-anchors.
+local function resetPosition(windowId)
+	CT_BuffMod_AuraContainerDB = CT_BuffMod_AuraContainerDB or {};
+	CT_BuffMod_AuraContainerDB.windowPoints = CT_BuffMod_AuraContainerDB.windowPoints or {};
+	CT_BuffMod_AuraContainerDB.windowPoints[windowId] = { "CENTER", "CENTER", 0, 0 };
+	local a = anchors[windowId];
+	if (a) then
+		a:ClearAllPoints();
+		a:SetPoint("CENTER", UIParent, "CENTER", 0, 0);
+		reanchorContainer(windowId);
+		syncLegacyPosition(windowId);	-- keep the Legacy frame at the same spot as the reset AC window
+	end
+end
+_G.CT_BuffMod_AuraContainerResetPosition = resetPosition;
 
 -- Signatures of the window's config. groupSig (unit + which groups + sizes) forces a container REBUILD
 -- when it changes -- there's no public API to remove/replace an AuraContainer's groups OR to resize its
@@ -474,25 +634,26 @@ local function applyGroups(c, w)
 	end
 end
 
--- Visibility: mirror the legacy frame's "visibility" state driver onto the container. A window set to
+-- Visibility: mirror the legacy frame's "visibility" state driver onto a frame. A window set to
 -- Basic/Advanced visibility yields a macro-condition string (e.g. "[combat]hide; show"); "always show"
--- yields nil. RegisterStateDriver then shows/hides the container on combat/vehicle/etc. state changes
+-- yields nil. RegisterStateDriver then shows/hides the frame on combat/vehicle/etc. state changes
 -- (secure, works in combat once registered). We (un)register only from buildWindow, which runs out of
--- combat. A "show"/empty condition means always-visible -> no driver.
-local function clearVisibility(c)
-	if (c.ctVisDriven) then
-		pcall(UnregisterStateDriver, c, "visibility");
-		c.ctVisDriven = nil;
+-- combat. A "show"/empty condition means always-visible -> no driver. Applied to BOTH the container and
+-- its anchor (so the drag grip hides along with the buffs when a visibility condition hides the window).
+local function clearVisibility(f)
+	if (f.ctVisDriven) then
+		pcall(UnregisterStateDriver, f, "visibility");
+		f.ctVisDriven = nil;
 	end
 end
-local function applyVisibility(c, cond)
+local function applyVisibility(f, cond)
 	if (type(cond) == "string" and cond ~= "" and cond ~= "show") then
-		if (pcall(RegisterStateDriver, c, "visibility", cond)) then
-			c.ctVisDriven = true;
+		if (pcall(RegisterStateDriver, f, "visibility", cond)) then
+			f.ctVisDriven = true;
 		end
 	else
-		clearVisibility(c);
-		c:Show();
+		clearVisibility(f);
+		f:Show();
 	end
 end
 
@@ -533,8 +694,16 @@ local function buildWindow(w)
 	c:SetUnit(c.ctUnit);
 	c:Show();
 	-- Apply the window's visibility rule (state driver, or always-show). Done every build so a
-	-- visibility-only change (not in groupSig/sortSig) still takes effect.
+	-- visibility-only change (not in groupSig/sortSig) still takes effect. Applied to the container AND
+	-- the anchor, so the drag grip hides along with the buffs when a visibility condition hides the window.
 	applyVisibility(c, w.visCondition);
+	-- Apply position options (grip width, clamp, lock) to the anchor -- also every build, so a
+	-- lock/clamp change takes effect without a grouping/sort change.
+	local a = anchors[id];
+	applyAnchorOpts(a, w);
+	if (a) then
+		applyVisibility(a, w.visCondition);
+	end
 end
 
 -- Hide (and keep hidden while active) an old CT_BuffMod display frame.
@@ -575,17 +744,16 @@ local function refresh()
 			hideOldFrame(w.auraFrame);
 			hideOldFrame(w.altFrame);
 		end
-		-- Hide containers (and drag handles) whose window has been deleted; show handles for live ones.
-		-- Clear any visibility state driver first, or it could re-show the frame on a later state change.
+		-- Hide containers (and drag handles) whose window has been deleted. Clear any visibility state
+		-- driver first, or it could re-show the frame on a later state change. Live windows' anchors are
+		-- shown/driven by buildWindow's applyVisibility(a) above, so no explicit re-show loop is needed
+		-- here (and forcing a:Show() would fight a vehicle/combat driver that wants the anchor hidden).
 		for id, c in pairs(containers) do
 			if (not present[id]) then
 				clearVisibility(c);
 				c:Hide();
-				if (anchors[id]) then anchors[id]:Hide(); end
+				if (anchors[id]) then clearVisibility(anchors[id]); anchors[id]:Hide(); end
 			end
-		end
-		for id, a in pairs(anchors) do
-			if (present[id]) then a:Show(); end
 		end
 	else
 		-- Legacy engine: hide the AuraContainers AND their drag handles, restore the old frames. Clear the
@@ -595,6 +763,7 @@ local function refresh()
 			c:Hide();
 		end
 		for _, a in pairs(anchors) do
+			clearVisibility(a);
 			a:Hide();
 		end
 		for _, w in ipairs(windows) do
@@ -649,17 +818,23 @@ _G.CT_BuffMod_AuraContainerRecolor = recolor;
 local du = CreateFrame("Frame");
 du:RegisterEvent("PLAYER_TARGET_CHANGED");
 du:RegisterEvent("PLAYER_FOCUS_CHANGED");
+du:RegisterEvent("UNIT_PET");
 du:SetScript("OnEvent", function(_, event)
 	if (not isActive()) then
 		return;
 	end
-	local unit = (event == "PLAYER_FOCUS_CHANGED") and "focus" or "target";
-	for _, c in pairs(containers) do
-		if (c.ctUnit == unit) then
-			pcall(c.SetUnit, c, "none");
-			pcall(c.SetUnit, c, unit);
+	-- Re-read the container's auras for the unit that changed (UNIT_PET carries no target/focus change).
+	if (event ~= "UNIT_PET") then
+		local unit = (event == "PLAYER_FOCUS_CHANGED") and "focus" or "target";
+		for _, c in pairs(containers) do
+			if (c.ctUnit == unit) then
+				pcall(c.SetUnit, c, "none");
+				pcall(c.SetUnit, c, unit);
+			end
 		end
 	end
+	-- Name titles (target/focus/pet) track whoever is now there.
+	refreshTitles();
 end);
 
 local ev = CreateFrame("Frame");
