@@ -89,12 +89,38 @@ local function getColor(key)
 	return d[1], d[2], d[3];
 end
 local allButtons = {};	-- every styled CustomAuraButton, so a colour-option change can recolour in place
+local windowFontSize = {};	-- [windowId] = current fontSize option, so a font change can re-font in place
+
+-- Map CT_BuffMod's fontSize option (1=normal, 2=small, 3=large) onto a bar's name/time fontstrings,
+-- mirroring the legacy display's font objects (large reuses the same lazily-created custom fonts).
+local function applyFonts(button, fontSize)
+	local nameFont, timeFont;
+	if (fontSize == 2) then
+		nameFont, timeFont = "GameFontNormalSmall", "ChatFontSmall";
+	elseif (fontSize == 3) then
+		if (not CT_BuffMod_GameFontNormalMed2) then
+			CreateFont("CT_BuffMod_GameFontNormalMed2");
+			local fname, fsize, fargs = GameFontNormal:GetFont();
+			CT_BuffMod_GameFontNormalMed2:SetFont(fname, fsize + 2, fargs);
+		end
+		if (not CT_BuffMod_ChatFontLarge) then
+			CreateFont("CT_BuffMod_ChatFontLarge");
+			local fname, fsize, fargs = ChatFontNormal:GetFont();
+			CT_BuffMod_ChatFontLarge:SetFont(fname, fsize + 2, fargs);
+		end
+		nameFont, timeFont = "CT_BuffMod_GameFontNormalMed2", "CT_BuffMod_ChatFontLarge";
+	else
+		nameFont, timeFont = "GameFontNormal", "ChatFontNormal";
+	end
+	if (button.ctName) then button.ctName:SetFontObject(nameFont); end
+	if (button.ctDuration) then button.ctDuration:SetFontObject(timeFont); end
+end
 
 -- initializeFrame factory: CustomAuraButton is "bring your own regions" -- we create the display
 -- regions and register them; Blizzard's SECURE code fills them from the (secret) aura, so it works in
 -- combat. Returns a closure so different aura GROUPS can paint the bright track in their own colour
 -- (regular buffs green, weapon enchants purple -- matching the original per-type colours).
-local function makeInitButton(colorKey, iconSize, rowW, rowH)
+local function makeInitButton(colorKey, iconSize, rowW, rowH, windowId)
 	iconSize = iconSize or ICON_SIZE;
 	rowW = rowW or ROW_WIDTH;
 	rowH = rowH or ROW_HEIGHT;
@@ -104,6 +130,7 @@ local function makeInitButton(colorKey, iconSize, rowW, rowH)
 		end
 		pcall(button.SetSize, button, rowW, rowH);
 		button.ctColorKey = colorKey;
+		button.ctWindowId = windowId;
 		allButtons[button] = true;
 
 		-- Icon (left).
@@ -202,6 +229,9 @@ local function makeInitButton(colorKey, iconSize, rowW, rowH)
 			button.ctName = name;
 			pcall(button.SetSpellName, button, name);
 		end
+		-- Apply the window's current font size to the name/time text (live lookup, so a button created
+		-- after a font change still gets the right size without a container rebuild).
+		applyFonts(button, windowFontSize[windowId] or 1);
 
 		if (button.SetCancelAuraButtons) then
 			pcall(button.SetCancelAuraButtons, button, "RightButtonUp");	-- right-click cancel (out of combat)
@@ -213,7 +243,16 @@ local function makeInitButton(colorKey, iconSize, rowW, rowH)
 end
 
 -- Fresh option/layout tables per call (don't share one table across containers).
-local function groupOpts(colorKey, iconSize, rowW, rowH) return { templateNames = { "CustomAuraButtonTemplate" }, initializeFrame = makeInitButton(colorKey or "buff", iconSize, rowW, rowH) }; end
+local function groupOpts(colorKey, iconSize, rowW, rowH, windowId) return { templateNames = { "CustomAuraButtonTemplate" }, initializeFrame = makeInitButton(colorKey or "buff", iconSize, rowW, rowH, windowId) }; end
+-- Re-apply a window's current font size to its existing buttons in place (no rebuild), like recolour.
+local function refontWindow(windowId)
+	local fontSize = windowFontSize[windowId] or 1;
+	for button in pairs(allButtons) do
+		if (button.ctWindowId == windowId) then
+			applyFonts(button, fontSize);
+		end
+	end
+end
 -- No inter-row / inter-group spacing: the bars stack tightly like the original CT_BuffMod list.
 local function layout(rowW, rowH) return { elementWidth = rowW or ROW_WIDTH, elementHeight = rowH or ROW_HEIGHT, elementSpacing = 0, lineSpacing = 0, groupLineSpacing = 0 }; end
 
@@ -563,6 +602,7 @@ local function applyGroups(c, w)
 
 	-- Per-window sizes (icon = buffSize1, bar = detailWidth1; row width = icon + bar).
 	local iconSize, rowH, rowW = sizesFor(w.options);
+	local wid = w.windowId;
 
 	-- Vertical column, one aura per row, growing downward (see increment 2d/2e).
 	if (c.SetFlowLayoutMaximumLineSize) then
@@ -614,14 +654,14 @@ local function applyGroups(c, w)
 		if (g.enchant) then
 			-- Temporary weapon enchants are the player's own -- only meaningful on the player window.
 			if (w.unit == "player" and type(AuraContainerItemEnchantmentSlot) == "table" and not addedEnchant) then
-				pcall(c.AddItemEnchantment, c, AuraContainerItemEnchantmentSlot.MainHand, groupOpts(g.colorKey, iconSize, rowW, rowH));
-				pcall(c.AddItemEnchantment, c, AuraContainerItemEnchantmentSlot.OffHand, groupOpts(g.colorKey, iconSize, rowW, rowH));
+				pcall(c.AddItemEnchantment, c, AuraContainerItemEnchantmentSlot.MainHand, groupOpts(g.colorKey, iconSize, rowW, rowH, wid));
+				pcall(c.AddItemEnchantment, c, AuraContainerItemEnchantmentSlot.OffHand, groupOpts(g.colorKey, iconSize, rowW, rowH, wid));
 				pcall(c.SetItemEnchantmentLayout, c, enchantLayout);
 				addedEnchant = true;
 				c.ctEnchantsAdded = true;
 			end
 		else
-			pcall(c.AddAuraGroup, c, g.key, g.filter, groupOpts(g.colorKey, iconSize, rowW, rowH));
+			pcall(c.AddAuraGroup, c, g.key, g.filter, groupOpts(g.colorKey, iconSize, rowW, rowH, wid));
 			pcall(c.SetAuraGroupLayout, c, g.key, layout(rowW, rowH));
 			local sortOk = false;
 			if (sm) then
@@ -662,15 +702,21 @@ end
 -- the window's config signature changes (auto-refresh on reconfigure).
 local function buildWindow(w)
 	local id = w.windowId;
+	-- Live font-size source for this window (read by the init closure for new buttons, and by
+	-- refontWindow for existing ones). Set before any (re)build so freshly-created buttons pick it up.
+	windowFontSize[id] = tonumber(w.options and w.options.fontSize) or 1;
 	local c = containers[id];
 	local gsig = groupSig(w);
 	local ssig = sortSig(w);
 	if ((not c) or c.ctGroupSig ~= gsig) then
 		-- (Re)build. Forbidden frames can't be destroyed and there's no public API to clear an
-		-- AuraContainer's groups, so on a grouping change we hide the old container and build a fresh
-		-- one. The old frame leaks (hidden) -- acceptable for occasional reconfigures; sort-only changes
-		-- take the cheap in-place branch below and never leak.
+		-- AuraContainer's groups, so on a grouping/size change we retire the old container and build a
+		-- fresh one. Hiding the frame alone does NOT remove its (Blizzard-managed) aura buttons -- they
+		-- linger and overlap the new window -- so first drop them by pointing the old container at no
+		-- unit ("none", the same clear the target-switch re-read uses), then unhook and hide it.
 		if (c) then
+			clearVisibility(c);
+			pcall(c.SetUnit, c, "none");
 			c:Hide();
 		end
 		local a = getAnchor(id);
@@ -693,6 +739,10 @@ local function buildWindow(w)
 	c.ctUnit = w.unit or "player";
 	c:SetUnit(c.ctUnit);
 	c:Show();
+	-- Re-apply the font size to this window's existing buttons in place (no rebuild -- a font change is
+	-- like a colour change; putting it in groupSig would recreate the container and leave the old,
+	-- un-destroyable one visible, superimposing the old text under the new).
+	refontWindow(id);
 	-- Apply the window's visibility rule (state driver, or always-show). Done every build so a
 	-- visibility-only change (not in groupSig/sortSig) still takes effect. Applied to the container AND
 	-- the anchor, so the drag grip hides along with the buffs when a visibility condition hides the window.
