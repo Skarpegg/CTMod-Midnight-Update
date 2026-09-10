@@ -8638,8 +8638,10 @@ local function options_updateWindowWidgets(windowId)
 	-- Disable window
 	frame.disableWindow:SetChecked( not not frameOptions.disableWindow );
 	
-	-- Disable tooltips
-	frame.disableTooltips:SetChecked( not not frameOptions.disableTooltips );
+	-- Disable tooltips (absent in AuraContainer mode)
+	if (frame.disableTooltips) then
+		frame.disableTooltips:SetChecked( not not frameOptions.disableTooltips );
+	end
 
 	-- Unlock window
 	frame.lockWindow:SetChecked( not not frameOptions.lockWindow );
@@ -8675,12 +8677,14 @@ local function options_updateWindowWidgets(windowId)
 	end
 	end
 
-	-- Show vehicle buffs when in a vehicle
-	frame.vehicleBuffs:SetChecked( frameOptions.vehicleBuffs ~= false );
-	if (unitType == constants.UNIT_TYPE_PLAYER) then
-		frame.vehicleBuffs:Show();
-	else
-		frame.vehicleBuffs:Hide();
+	-- Show vehicle buffs when in a vehicle (absent in AuraContainer mode)
+	if (frame.vehicleBuffs) then
+		frame.vehicleBuffs:SetChecked( frameOptions.vehicleBuffs ~= false );
+		if (unitType == constants.UNIT_TYPE_PLAYER) then
+			frame.vehicleBuffs:Show();
+		else
+			frame.vehicleBuffs:Hide();
+		end
 	end
 
 	----------
@@ -9724,8 +9728,10 @@ CONSOLIDATION REMOVED FROM GAME --]]
 
 	optionsEndFrame();
 
-	-- Expiration options
-
+	-- Expiration options. The flash is a legacy-display effect the AuraContainer doesn't have, and the
+	-- chat/sound expiration warnings depend on addon aura-tracking that can't read SECRET auras in combat
+	-- (the very thing AuraContainer exists to avoid) -- so the whole section is inapplicable in AC mode.
+	if (not acMode) then
 	optionsAddObject( -15,   13, "font#tl:15:%y#v:GameFontNormal#" .. L["CT_BuffMod/Options/General/Expiration/Heading"]);
 
 	optionsAddObject(-22,   7, "font#l:tl:30:%y#v:ChatFontNormal#" .. L["CT_BuffMod/Options/General/Expiration/FlashSliderLabel"]);
@@ -9761,7 +9767,7 @@ CONSOLIDATION REMOVED FROM GAME --]]
 			optionsAddScript("onshow", enableExpirationChildren);
 		optionsEndFrame();
 	optionsEndFrame()
-	
+	end	-- if (not acMode): Expiration options
 
 	-- Adding and Removing Windows
 	optionsBeginFrame(-20, 0, "frame#tl:0:%y#br:tr:0:%b#i:frameOptions#n:foo");
@@ -9861,7 +9867,11 @@ CONSOLIDATION REMOVED FROM GAME --]]
 		-- Unlock window
 		-- Window cannot be moved off screen
 		optionsAddObject( -5,   26, "checkbutton#tl:30:%y#i:disableWindow#o:disableWindow#" .. L["CT_BuffMod/Options/Window/General/DisableWindowCheckbox"]);
-		optionsAddObject(  6,   26, "checkbutton#tl:30:%y#i:disableTooltips#o:disableTooltips#" .. L["CT_BuffMod/Options/Window/General/DisableTooltipsCheckbox"]);
+		if (not acMode) then
+			-- disableTooltips governs the legacy buttons' hover tooltips; AuraContainer tooltips are
+			-- Blizzard-driven with no simple suppress hook, so hide this in AC mode.
+			optionsAddObject(  6,   26, "checkbutton#tl:30:%y#i:disableTooltips#o:disableTooltips#" .. L["CT_BuffMod/Options/Window/General/DisableTooltipsCheckbox"]);
+		end
 		optionsAddObject(  6,   26, "checkbutton#tl:30:%y#i:lockWindow#o:lockWindow#" .. L["CT_BuffMod/Options/Window/General/PositionLockedCheckbox"]);
 		optionsAddObject(  6,   26, "checkbutton#tl:30:%y#i:clampWindow#o:clampWindow:true#" .. L["CT_BuffMod/Options/Window/General/PositionClampedCheckbox"]);
 		if (acMode) then
@@ -9916,7 +9926,11 @@ CONSOLIDATION REMOVED FROM GAME --]]
 				);
 			optionsEndFrame();
 			end	-- if (not acMode): playerUnsecure
-			optionsAddObject(  0,   26, "checkbutton#tl:30:%y#i:vehicleBuffs#o:vehicleBuffs:true#" .. L["CT_BuffMod/Options/Window/Unit/VehicleCheckbox"]);
+			if (not acMode) then
+				-- vehicleBuffs relies on the legacy frame's vehicle unit-swap, which the AuraContainer
+				-- path doesn't do -- hide it in AC mode.
+				optionsAddObject(  0,   26, "checkbutton#tl:30:%y#i:vehicleBuffs#o:vehicleBuffs:true#" .. L["CT_BuffMod/Options/Window/Unit/VehicleCheckbox"]);
+			end
 		end
 
 		----------
