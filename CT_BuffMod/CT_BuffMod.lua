@@ -7940,6 +7940,7 @@ function module:getAuraContainerWindows()
 				lockWindow = not not po.lockWindow,
 				clampWindow = po.clampWindow ~= false,	-- default is clamped
 				acShowTitle = not not (ok and options and options.acShowTitle),	-- AC-only title bar toggle
+				disableWindow = not not po.disableWindow,	-- a disabled window shows nothing
 			};
 		end
 	end
@@ -8794,8 +8795,9 @@ local function options_updateWindowWidgets(windowId)
 	frame.consolidateFractionPercent:SetValue( frameOptions.consolidateFractionPercent or 10 );
 --]]
 	----------
-	-- Background
+	-- Background / Border / Layout (absent in AuraContainer mode -- the builder skips them there)
 	----------
+	if (frame.showBackground) then
 	-- Show background
 	frame.showBackground:SetChecked( frameOptions.showBackground ~= false );
 
@@ -8890,6 +8892,7 @@ local function options_updateWindowWidgets(windowId)
 	slider = frame.wrapSpacing;
 	slider:SetValue( value );
 	slider.title:SetText(gsub(slider.titleText, "<value>", floor( ( value or slider:GetValue() )*100+0.5)/100));
+	end	-- if (frame.showBackground): Background / Border / Layout
 
 	if UIDropDownMenu_Initialize then
 		----------
@@ -10325,6 +10328,9 @@ CONSOLIDATION REMOVED FROM GAME --]]
 		optionsAddObject(-20,   17, "slider#tl:50:%y#s:240:%s#i:consolidateFractionPercent#o:consolidateFractionPercent:10#<value> %#0:100:0.1");
 CONSOLIDATION REMOVED FROM GAME--]]
 
+		-- Background / Border / Layout all operate on the hidden legacy frame: the AuraContainer draws no
+		-- backdrop or border and uses a fixed vertical list, so none of these apply in AC mode -> skip them.
+		if (not acMode) then
 		----------
 		-- Background
 		----------
@@ -10388,6 +10394,7 @@ CONSOLIDATION REMOVED FROM GAME--]]
 
 		-- Wrap spacing
 		optionsAddObject(-25,   17, "slider#tl:40:%y#s:250:%s#i:wrapSpacing#o:wrapSpacing:0#<value>#0:200:1");
+		end	-- if (not acMode): Background / Border / Layout
 
 		----------
 		-- Font size

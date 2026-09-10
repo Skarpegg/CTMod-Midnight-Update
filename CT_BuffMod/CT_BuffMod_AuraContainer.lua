@@ -702,6 +702,18 @@ end
 -- the window's config signature changes (auto-refresh on reconfigure).
 local function buildWindow(w)
 	local id = w.windowId;
+	-- Disabled window: show nothing. Drop its buttons (SetUnit "none") and hide the container + drag
+	-- handle. On re-enable, buildWindow runs normally again and re-points the container at its unit.
+	if (w.disableWindow) then
+		local c = containers[id];
+		if (c) then
+			clearVisibility(c);
+			pcall(c.SetUnit, c, "none");
+			c:Hide();
+		end
+		if (anchors[id]) then clearVisibility(anchors[id]); anchors[id]:Hide(); end
+		return;
+	end
 	-- Live font-size source for this window (read by the init closure for new buttons, and by
 	-- refontWindow for existing ones). Set before any (re)build so freshly-created buttons pick it up.
 	windowFontSize[id] = tonumber(w.options and w.options.fontSize) or 1;
