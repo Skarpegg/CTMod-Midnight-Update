@@ -6,16 +6,18 @@
 -- for Midnight, this AuraContainer display path was built from scratch against Blizzard's 12.1
 -- AuraContainer API. Author: Skarpegg (CTMod Midnight port), AI-assisted (Claude).
 --
--- Additive + capability-gated + behind a dev flag (default OFF via /ctbuffac). The existing
--- secure/unsecure buff system is completely unaffected unless CT_BuffMod_AuraContainerDB.useAuraContainer
--- is on AND the client has the AuraContainer API (Mainline 12.1+; Classic/Cata don't load this file).
+-- Additive + capability-gated. The engine is the CT_BuffMod "buffEngine" option (1 = AuraContainer,
+-- 2 = Legacy header), chosen in the options panel; the DEFAULT is AuraContainer on capable clients
+-- (retail with Blizzard_AuraContainer). Classic/Cata never load this file, so they stay on the legacy
+-- secure/unsecure header. Selecting Legacy leaves the old secure/unsecure buff system fully in charge.
 --
 -- When active it builds one Blizzard-secure AuraContainer PER CT_BuffMod window (so buffs display and
 -- update IN COMBAT, which the old unsecure path can't) and hides that window's old display -- a true
--- replacement. Each container has a small drag handle; its position persists per window.
+-- replacement. Each window has a drag/title bar; its position persists per window.
 --
--- Still a work in progress: filter is HELPFUL for every window (per-window buff/debuff/cancelable/own
--- option mapping is the next step); weapon enchants only on the player window.
+-- The per-window CT_BuffMod options are mapped onto the container: colours, sizes, font size, grouping
+-- (sortSeq), sort method/direction, own/others split, visibility conditions, lock/clamp/reset, plus AC
+-- extras (row spacing, max-per-type, dispellable-only). Weapon enchants show only on the player window.
 ------------------------------------------------------------------------------------------------------
 
 -- Capability probe (cached). Mainline 12.1+ only; anywhere without the API this returns false -> inert.
@@ -158,18 +160,6 @@ local function makeInitButton(colorKey, iconSize, rowW, rowH, windowId)
 			if (CT_BuffMod_AuraContainerDB and CT_BuffMod_AuraContainerDB.debug) then
 				print("|cff33ff99CTBuffAC|r SetAuraBorder ok=" .. tostring(ok));
 			end
-		end
-		-- Diagnostic (/ctbuffac bordertest): a plain always-visible red border on EVERY icon, NOT driven
-		-- by Blizzard -- proves the border texture renders at the right place/size/layer, without needing
-		-- a typed debuff or being out of combat. If this shows but the real one doesn't, it's Blizzard's
-		-- dispel driving; if this doesn't show either, it's a texture position/size/layer problem.
-		if (CT_BuffMod_AuraContainerDB and CT_BuffMod_AuraContainerDB.borderTest and not button.ctBorderTest) then
-			local t = button:CreateTexture(nil, "OVERLAY");
-			t:SetTexture("Interface\\Buttons\\UI-Debuff-Overlays");
-			t:SetTexCoord(0.296875, 0.5703125, 0, 0.515625);
-			t:SetAllPoints(button.ctIcon);
-			t:SetVertexColor(1, 0, 0, 1);
-			button.ctBorderTest = t;
 		end
 		-- Track: the BRIGHT "full" bar, filling the row right of the icon. This is the remaining-time
 		-- look; the dark fill (below) grows over it to mark the used-up part. A no-duration buff keeps a
@@ -929,67 +919,29 @@ ev:SetScript("OnEvent", function(_, event)
 		end
 		return;
 	end
-	-- PLAYER_LOGIN: delay so CT_BuffMod has created its own windows before we read/hide them, then
-	-- enable auto-refresh (notifies before this are ignored -- config is still settling at startup).
+	-- PLAYER_LOGIN: enable auto-refresh RIGHT AWAY so the first window CT_BuffMod creates fires a notify
+	-- that builds the AC display and hides the legacy frame immediately -- this avoids the multi-second
+	-- flash of the legacy display we used to get while waiting a fixed delay. Staggered catch-up refreshes
+	-- cover windows that finish initialising a little later, or a creation path that fires no notify.
+	loginDone = true;
+	refresh();
 	if (C_Timer and C_Timer.After) then
-		C_Timer.After(3, function() loginDone = true; refresh(); end);
-	else
-		loginDone = true;
-		refresh();
+		C_Timer.After(0.5, refresh);
+		C_Timer.After(1.5, refresh);
+		C_Timer.After(3, refresh);
 	end
 end);
 
--- /ctbuffac [on|off|debug] -- on/off pick the buff engine (also selectable in the options panel);
--- debug toggles the per-window group dump. The engine now lives in the "buffEngine" CT_BuffMod option.
+-- /ctbuffac debug -- toggle the per-window group-dump logging (support diagnostic). The buff engine is
+-- chosen in the options panel (CT > BuffMod > Buff display engine), not here.
 SLASH_CTBUFFMODAC1 = "/ctbuffac";
 SlashCmdList.CTBUFFMODAC = function(msg)
 	CT_BuffMod_AuraContainerDB = CT_BuffMod_AuraContainerDB or {};
 	msg = (msg or ""):lower():gsub("%s", "");
 	if (msg == "debug") then
 		CT_BuffMod_AuraContainerDB.debug = not CT_BuffMod_AuraContainerDB.debug;
-		print("|cff33ff99CT_BuffMod|r AuraContainer debug: " .. (CT_BuffMod_AuraContainerDB.debug and "ON (rebuild with /ctbuffac off then on)" or "OFF"));
-		return;
-	elseif (msg == "bordertest") then
-		CT_BuffMod_AuraContainerDB.borderTest = not CT_BuffMod_AuraContainerDB.borderTest;
-		print("|cff33ff99CT_BuffMod|r border test overlay: " .. (CT_BuffMod_AuraContainerDB.borderTest and "ON -- a red border on every icon after /reload" or "OFF -- /reload to remove"));
-		return;
-	elseif (msg:sub(1, 6) == "border") then
-		-- /ctbuffac border [unit] -- list a unit's debuffs and their dispel types so you can tell which
-		-- SHOULD show a coloured border (only typed debuffs do). Readable out of combat only (secret in
-		-- combat). Default unit is target.
-		local unit = msg:sub(7);
-		if (unit == "") then unit = "target"; end
-		print(("|cff33ff99CTBuffAC|r HARMFUL auras on '%s' (border shows only for typed):"):format(unit));
-		local n = 0;
-		for i = 1, 40 do
-			local ok, aura = pcall(C_UnitAuras.GetAuraDataByIndex, unit, i, "HARMFUL");
-			if (not ok) then print("  (auras unreadable -- in combat?)"); break; end
-			if (not aura) then break; end
-			n = n + 1;
-			local dispel = aura.dispelName;
-			print(("  %s -- dispel=%s -> %s"):format(tostring(aura.name), tostring(dispel),
-				(dispel and "|cff40ff40coloured border expected|r" or "no border (untyped)")));
-		end
-		if (n == 0) then print("  (none)"); end
-		return;
-	end
-	local mod = _G["CT_BuffMod"];
-	if (not mod or not mod.setOption) then
-		return;
-	end
-	local eng = mod:getOption("buffEngine");
-	local newEng;
-	if (msg == "on") then
-		newEng = 1;
-	elseif (msg == "off") then
-		newEng = 2;
+		print("|cff33ff99CT_BuffMod|r AuraContainer debug: " .. (CT_BuffMod_AuraContainerDB.debug and "ON (/reload to rebuild with group dumps)" or "OFF"));
 	else
-		newEng = (eng == 2) and 1 or 2;	-- toggle (default is AuraContainer)
+		print("|cff33ff99CT_BuffMod|r /ctbuffac debug -- toggle AuraContainer group-dump logging. Pick the buff engine in the CT_BuffMod options panel.");
 	end
-	if (newEng == 1 and not isCapable()) then
-		print("|cffff4040CT_BuffMod|r AuraContainer API not available on this client.");
-		return;
-	end
-	mod:setOption("buffEngine", newEng);	-- triggers the option update (refresh + options-panel rebuild)
-	print("|cff33ff99CT_BuffMod|r buff engine: " .. ((newEng == 1) and "AuraContainer" or "Legacy header"));
 end
