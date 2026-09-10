@@ -8978,6 +8978,15 @@ local function options_updateWindowWidgets(windowId)
 	if (frame.acDetailWidth1) then
 		frame.acDetailWidth1:SetValue( frameOptions.detailWidth1 or constants.DEFAULT_DETAIL_WIDTH );
 	end
+	if (frame.acBuffSpacing) then
+		frame.acBuffSpacing:SetValue( frameOptions.buffSpacing or 0 );
+	end
+	if (frame.acMaxCount) then
+		frame.acMaxCount:SetValue( frameOptions.acMaxCount or 0 );
+	end
+	if (frame.acDispellableOnly) then
+		frame.acDispellableOnly:SetChecked( not not frameOptions.acDispellableOnly );
+	end
 
 	----------
 	-- Style 2
@@ -9424,6 +9433,8 @@ module.optionUpdate = function(self, optName, value)
 		optName == "userEdgeTop" or
 		optName == "userEdgeBottom" or
 		optName == "acShowTitle" or		-- AuraContainer-only title bar toggle (handled entirely by the AC path)
+		optName == "acMaxCount" or		-- AuraContainer-only: cap buttons per group
+		optName == "acDispellableOnly" or	-- AuraContainer-only: debuff groups show only dispellable
 		optName == "fontSize"
 	) then
 		options_updateUnprotected(optName, value, windowId);
@@ -10616,12 +10627,21 @@ CONSOLIDATION REMOVED FROM GAME--]]
 		-- just those two as a compact "Bar size" section. They write the same per-window options; the AC
 		-- display rebuilds to the new size on change (buffSize1/detailWidth1 are in its groupSig).
 		if (acMode) then
-			optionsAddObject(-25, 1*13, "font#tl:15:%y#Bar size");
+			optionsAddObject(-25, 1*13, "font#tl:15:%y#Bar size & layout");
 
 			optionsAddObject(-20,   14, "font#tl:35:%y#v:ChatFontNormal#" .. L["CT_BuffMod/Options/Window/Button/General/IconSizeSliderLabel"]);
 			optionsAddObject( 15,   17, "slider#tl:165:%y#s:120:%s#i:acBuffSize1#o:buffSize1:" .. constants.BUFF_SIZE_DEFAULT .. "#<value>#" .. constants.BUFF_SIZE_MINIMUM .. ":" .. constants.BUFF_SIZE_MAXIMUM .. ":1");
 
 			optionsAddObject(-20,   17, "slider#tl:40:%y#s:250:%s#i:acDetailWidth1#o:detailWidth1:" .. constants.DEFAULT_DETAIL_WIDTH .. "#Bar width = <value>#0:400:1");
+
+			-- Row spacing (buffSpacing, shared with the Legacy option; a gap between the stacked bars).
+			optionsAddObject(-20,   17, "slider#tl:40:%y#s:250:%s#i:acBuffSpacing#o:buffSpacing:0#Row spacing = <value>#0:40:1");
+
+			-- Max buffs shown per type (0 = show all). Maps to SetAuraGroupMaxFrameCount per group.
+			optionsAddObject(-20,   17, "slider#tl:40:%y#s:250:%s#i:acMaxCount#o:acMaxCount:0#Max buffs per type = <value>:0 = all:40#0:40:1");
+
+			-- Show only dispellable debuffs (displayOnlyDispellableDebuffs on debuff groups).
+			optionsAddObject(-15,   26, "checkbutton#tl:30:%y#i:acDispellableOnly#o:acDispellableOnly#Show only dispellable debuffs");
 		end
 
 		----------

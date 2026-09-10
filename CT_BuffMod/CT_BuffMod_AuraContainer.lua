@@ -242,8 +242,15 @@ local function makeInitButton(colorKey, iconSize, rowW, rowH, windowId)
 	end
 end
 
--- Fresh option/layout tables per call (don't share one table across containers).
-local function groupOpts(colorKey, iconSize, rowW, rowH, windowId) return { templateNames = { "CustomAuraButtonTemplate" }, initializeFrame = makeInitButton(colorKey or "buff", iconSize, rowW, rowH, windowId) }; end
+-- Fresh option/layout tables per call (don't share one table across containers). `dispellable` sets the
+-- container's displayOnlyDispellableDebuffs option for a debuff group (show only debuffs you can remove).
+local function groupOpts(colorKey, iconSize, rowW, rowH, windowId, dispellable)
+	return {
+		templateNames = { "CustomAuraButtonTemplate" },
+		initializeFrame = makeInitButton(colorKey or "buff", iconSize, rowW, rowH, windowId),
+		displayOnlyDispellableDebuffs = dispellable or nil,
+	};
+end
 -- Re-apply a window's current font size to its existing buttons in place (no rebuild), like recolour.
 local function refontWindow(windowId)
 	local fontSize = windowFontSize[windowId] or 1;
@@ -253,8 +260,9 @@ local function refontWindow(windowId)
 		end
 	end
 end
--- No inter-row / inter-group spacing: the bars stack tightly like the original CT_BuffMod list.
-local function layout(rowW, rowH) return { elementWidth = rowW or ROW_WIDTH, elementHeight = rowH or ROW_HEIGHT, elementSpacing = 0, lineSpacing = 0, groupLineSpacing = 0 }; end
+-- Default is no inter-row / inter-group spacing (bars stack tightly like the original list); the window's
+-- buffSpacing option opens a gap between rows.
+local function layout(rowW, rowH, spacing) return { elementWidth = rowW or ROW_WIDTH, elementHeight = rowH or ROW_HEIGHT, elementSpacing = spacing or 0, lineSpacing = spacing or 0, groupLineSpacing = spacing or 0 }; end
 
 -- Map a window's CT_BuffMod sortMethod/sortDirection onto the container's secure sort enums.
 local function sortFor(opts)
@@ -571,6 +579,7 @@ local function groupSig(w)
 		tostring(o.sortSeq1), tostring(o.sortSeq2), tostring(o.sortSeq3), tostring(o.sortSeq4), tostring(o.sortSeq5),
 		tostring(o.separateOwn),
 		tostring(o.buffSize1), tostring(o.detailWidth1),
+		tostring(o.buffSpacing), tostring(o.acMaxCount), tostring(o.acDispellableOnly),
 	}, ":");
 end
 local function sortSig(w)
@@ -603,6 +612,10 @@ local function applyGroups(c, w)
 	-- Per-window sizes (icon = buffSize1, bar = detailWidth1; row width = icon + bar).
 	local iconSize, rowH, rowW = sizesFor(w.options);
 	local wid = w.windowId;
+	local o = w.options or {};
+	local spacing = tonumber(o.buffSpacing) or 0;			-- inter-row gap
+	local maxCount = tonumber(o.acMaxCount) or 0;			-- 0 = unlimited; else cap buttons per group
+	local dispellableOnly = not not o.acDispellableOnly;	-- debuff groups: show only dispellable debuffs
 
 	-- Vertical column, one aura per row, growing downward (see increment 2d/2e).
 	if (c.SetFlowLayoutMaximumLineSize) then
@@ -632,7 +645,7 @@ local function applyGroups(c, w)
 	-- Weapon-enchant placement: the container can only put enchants BEFORE or AFTER all aura groups
 	-- (not at an arbitrary sortSeq slot). Put them after the aura groups if any group is configured
 	-- before the weapon, else before -- the closest we can get to the configured position.
-	local enchantLayout = { elementWidth = rowW, elementHeight = rowH, elementSpacing = 0, lineSpacing = 0 };
+	local enchantLayout = { elementWidth = rowW, elementHeight = rowH, elementSpacing = spacing, lineSpacing = spacing };
 	if (type(CustomAuraContainerItemEnchantmentPlacement) == "table") then
 		local weaponOrder;
 		for _, g in ipairs(plan) do
@@ -661,8 +674,13 @@ local function applyGroups(c, w)
 				c.ctEnchantsAdded = true;
 			end
 		else
-			pcall(c.AddAuraGroup, c, g.key, g.filter, groupOpts(g.colorKey, iconSize, rowW, rowH, wid));
-			pcall(c.SetAuraGroupLayout, c, g.key, layout(rowW, rowH));
+			-- displayOnlyDispellableDebuffs only makes sense on a debuff (HARMFUL) group.
+			local dispel = dispellableOnly and (g.colorKey == "debuff") or false;
+			pcall(c.AddAuraGroup, c, g.key, g.filter, groupOpts(g.colorKey, iconSize, rowW, rowH, wid, dispel));
+			pcall(c.SetAuraGroupLayout, c, g.key, layout(rowW, rowH, spacing));
+			if (maxCount > 0) then
+				pcall(c.SetAuraGroupMaxFrameCount, c, g.key, maxCount);
+			end
 			local sortOk = false;
 			if (sm) then
 				sortOk = pcall(c.SetAuraGroupSortMethod, c, g.key, sm, sdir);
