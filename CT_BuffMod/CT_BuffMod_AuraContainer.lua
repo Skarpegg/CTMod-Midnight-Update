@@ -358,11 +358,20 @@ local anchors = {};		-- [windowId] = normal anchor frame (draggable position sto
 local UNIT_LABEL = { player = "Player", pet = "Pet", target = "Target", focus = "Focus", vehicle = "Vehicle" };
 local function titleText(unit)
 	unit = unit or "player";
-	local name;
-	if (UnitExists(unit)) then
-		name = UnitName(unit);
-	end
-	if (name and name ~= "" and name ~= UNKNOWN) then
+	-- On Midnight UnitName can return a SECRET string when tainted (e.g. the target during an encounter);
+	-- comparing it throws ("attempt to compare ... a secret string value"). Resolve inside pcall so a
+	-- secret/unreadable name safely falls back to the unit-type word -- and we never hand a secret string
+	-- to the fontstring's SetText (only a name that compared cleanly, i.e. non-secret, is returned).
+	local ok, name = pcall(function()
+		if (UnitExists(unit)) then
+			local n = UnitName(unit);
+			if (n and n ~= "" and n ~= UNKNOWN) then
+				return n;
+			end
+		end
+		return nil;
+	end);
+	if (ok and name) then
 		return name;
 	end
 	return UNIT_LABEL[unit] or unit;
