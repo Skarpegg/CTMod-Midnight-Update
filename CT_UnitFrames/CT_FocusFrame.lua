@@ -11,6 +11,15 @@
 
 local module = select(2, ...);
 
+-- Midnight: Unit* relationship/faction queries can return a SECRET value on a tainted secret unit
+-- (e.g. target/focus during an encounter); testing it throws. Read safely -> the value, or nil when
+-- unreadable (callers then treat it as "not friend / no PvP", the safe default).
+local function safeQuery(func, ...)
+	local ok, a, b = pcall(func, ...);
+	if (ok) then return a, b; end
+	return nil;
+end
+
 --------------------------------------------
 -- This is a modified version of Blizzard's TargetFrame
 -- (originally based on the 3.2 source, adapted since)
@@ -447,8 +456,8 @@ function CT_FocusFrame_CheckFaction(self)
 	end
 
 	if ( self.showPVP ) then
-		local factionGroup = UnitFactionGroup(self.unit);
-		if ( UnitIsPVPFreeForAll(self.unit) ) then
+		local factionGroup = safeQuery(UnitFactionGroup, self.unit);
+		if ( safeQuery(UnitIsPVPFreeForAll, self.unit) ) then
 			local honorLevel = UnitHonorLevel and UnitHonorLevel(self.unit);
 			local honorRewardInfo = honorLevel and C_PvP.GetHonorRewardInfo and C_PvP.GetHonorRewardInfo(honorLevel);
 			if (honorRewardInfo) then
@@ -463,7 +472,7 @@ function CT_FocusFrame_CheckFaction(self)
 				self.pvpIcon:SetTexture("Interface\\TargetingFrame\\UI-PVP-FFA");
 				self.pvpIcon:Show();
 			end
-		elseif ( factionGroup and factionGroup ~= "Neutral" and UnitIsPVP(self.unit) ) then
+		elseif ( factionGroup and factionGroup ~= "Neutral" and safeQuery(UnitIsPVP, self.unit) ) then
 			local honorLevel = UnitHonorLevel and UnitHonorLevel(self.unit);
 			local honorRewardInfo = honorLevel and C_PvP.GetHonorRewardInfo and C_PvP.GetHonorRewardInfo(honorLevel);
 			if (honorRewardInfo) then
@@ -850,7 +859,7 @@ function CT_FocusFrame_UpdateBuffAnchor(self, buffName, index, numDebuffs, ancho
 
 	local buff = _G[buffName..index];
 	if ( index == 1 ) then
-		if ( UnitIsFriend("player", self.unit) or numDebuffs == 0 ) then
+		if ( safeQuery(UnitIsFriend, "player", self.unit) or numDebuffs == 0 ) then
 			-- unit is friendly or there are no debuffs...buffs start on top
 			buff:SetPoint(point.."LEFT", self, relativePoint.."LEFT", AURA_START_X, startY);
 		else
@@ -878,7 +887,7 @@ end
 function CT_FocusFrame_UpdateDebuffAnchor(self, debuffName, index, numBuffs, anchorIndex, size, offsetX, offsetY, mirrorVertically)
 	-- self == The main unit frame
 	local buff = _G[debuffName..index];
-	local isFriend = UnitIsFriend("player", self.unit);
+	local isFriend = safeQuery(UnitIsFriend, "player", self.unit);
 
 	--For mirroring vertically
 	local point, relativePoint;
@@ -1323,7 +1332,7 @@ local function CT_FocusFrame_TextStatusBar_UpdateTextString(bar)
 	if (bar == self.healthbar) then
 		if (CT_UnitFramesOptions) then
 			local style;
-			if (UnitIsFriend(self.unit, "player")) then
+			if (safeQuery(UnitIsFriend, self.unit, "player")) then
 				style = CT_UnitFramesOptions.styles[5][1];
 			else
 				style = CT_UnitFramesOptions.styles[5][5];
