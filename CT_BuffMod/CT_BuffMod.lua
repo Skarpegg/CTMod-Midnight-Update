@@ -4171,6 +4171,15 @@ function frameClass:resetPosition()
 
 	-- Save the frame's position
 	self:savePosition();
+
+	-- In AuraContainer mode the window is positioned by the AC anchor, not this (hidden) legacy frame,
+	-- so reset that too. Central point for all reset paths (options button, window clone/new, etc.).
+	if (CT_BuffMod_AuraContainerResetPosition) then
+		local ok, id = pcall(self.getWindowId, self);
+		if (ok and id) then
+			CT_BuffMod_AuraContainerResetPosition(id);
+		end
+	end
 end
 
 function frameClass:setAnchorPoint(keepOnScreen)
@@ -5809,6 +5818,9 @@ function primaryClass:applyProtectedOptions(initFlag)
 		-- Force the buttons to be reconfigured.
 		self:reconfigureButtons();
 	end
+
+	-- Config just (re)applied -> let the AuraContainer display path rebuild this window (auto-refresh).
+	if (CT_BuffMod_AuraContainerNotify) then CT_BuffMod_AuraContainerNotify(); end
 end
 
 function primaryClass:setSpecialAttributes()
@@ -7883,6 +7895,78 @@ function windowListClass:new()
 	return object;
 end
 
+-- Read-only snapshot of the buff windows, for the AuraContainer display path (CT_BuffMod_AuraContainer.lua).
+-- Returns a list of { windowId, unit, auraFrame, altFrame, options } for each primary window. Additive
+-- accessor only -- does not modify anything.
+function module:getAuraContainerWindows()
+	local result = {};
+	local windowList = globalObject and globalObject.windowListObject;
+	if (not windowList) then
+		return result;
+	end
+	for num = 1, windowList:getWindowCount() do
+		local id = windowList:windowNumToId(num);
+		local w = id and windowList.windowObjects[id];
+		local po = w and w.primaryObject;
+		if (po) then
+			local auraFrame = po.auraFrame;
+			local ok, options = pcall(w.getPrimaryOptions, w, 1, false);
+			-- The display actually renders from the primaryObject's RESOLVED fields (set from the stored
+			-- options with defaults applied); expose those too, since they can differ from the raw table.
+			local resolved = {
+				sortSeq1 = po.sortSeq1, sortSeq2 = po.sortSeq2, sortSeq3 = po.sortSeq3,
+				sortSeq4 = po.sortSeq4, sortSeq5 = po.sortSeq5,
+				sortMethod = po.sortMethod, sortDirection = po.sortDirection,
+				separateOwn = po.separateOwn, groupByPriority = po.groupByPriority,
+			};
+			-- Visibility: the legacy frame uses a "visibility" state driver (macro conditions) or is always
+			-- shown. Compute the same condition string here so the AuraContainer can drive its own show/hide
+			-- with the identical secure mechanism. nil = always show.
+			local visMode = po.visWindow or constants.VISIBILITY_SHOW;
+			local visCondition;
+			if (visMode == constants.VISIBILITY_BASIC) then
+				visCondition = po:buildBasicCondition();
+			elseif (visMode == constants.VISIBILITY_ADVANCED) then
+				visCondition = buildCondition(po.visCondition or "");
+			end
+			result[#result + 1] = {
+				windowId = id,
+				unit = po:getUnitId(),
+				auraFrame = auraFrame,
+				altFrame = auraFrame and auraFrame.altFrame,
+				options = ok and options or nil,
+				resolved = resolved,
+				visCondition = visCondition,
+				lockWindow = not not po.lockWindow,
+				clampWindow = po.clampWindow ~= false,	-- default is clamped
+				acShowTitle = not not (ok and options and options.acShowTitle),	-- AC-only title bar toggle
+				disableWindow = not not po.disableWindow,	-- a disabled window shows nothing
+			};
+		end
+	end
+	return result;
+end
+
+-- Called by the AuraContainer path when a window is dragged/reset there, so the (hidden) legacy frame is
+-- kept at the same screen position. Given a TOP-LEFT offset from UIParent's top-left, we point the legacy
+-- frame's TOPLEFT there and save it -- both engines grow down/right from the top-left, so the window then
+-- appears in the same spot when you switch back to the Legacy engine.
+function CT_BuffMod_SyncLegacyPosition(windowId, xOff, yOff)
+	local windowList = globalObject and globalObject.windowListObject;
+	local windowObject = windowList and windowList:findWindow(windowId);
+	local po = windowObject and windowObject.primaryObject;
+	local auraFrame = po and po.auraFrame;
+	if (not auraFrame) then
+		return;
+	end
+	if (auraFrame:IsProtected() and InCombatLockdown()) then
+		return;	-- can't move a protected frame in combat; the AC anchor still moved
+	end
+	auraFrame:ClearAllPoints();
+	auraFrame:SetPoint("TOPLEFT", UIParent, "TOPLEFT", xOff or 0, yOff or 0);
+	po:savePosition();
+end
+
 function windowListClass:getWindowCount()
 	return #self.windowIds;
 end
@@ -8033,6 +8117,9 @@ function windowListClass:addWindow(unitId, windowId, windowObjectToClone)
 	-- Create the window (the actual buff frames, apply options, etc.)
 	windowObject:createWindow(windowObjectToClone);
 
+	-- Let the AuraContainer display path pick up the new window (auto-refresh, no-op if inactive).
+	if (CT_BuffMod_AuraContainerNotify) then CT_BuffMod_AuraContainerNotify(); end
+
 	return windowObject;
 end
 
@@ -8059,6 +8146,8 @@ function windowListClass:deleteWindow(windowId)
 			end
 		end
 	end
+	-- Let the AuraContainer display path hide the removed window's container (auto-refresh).
+	if (CT_BuffMod_AuraContainerNotify) then CT_BuffMod_AuraContainerNotify(); end
 	return nil;
 end
 
@@ -8138,6 +8227,12 @@ end
 function windowListClass:setCurrentWindow(windowId, showTitle)
 	for winId, windowObject in pairs(self.windowObjects) do
 		windowObject:setCurrentWindow(winId == windowId, showTitle);
+	end
+	-- Mirror the legacy "Window N" title onto the AuraContainer windows: when the options panel is open
+	-- (showTitle) the AC bars show their window number (current one highlighted), overriding the per-
+	-- window title-bar toggle; closed, they revert. Single hook -- fires on open, close and window switch.
+	if (CT_BuffMod_AuraContainerSetConfig) then
+		CT_BuffMod_AuraContainerSetConfig(showTitle, windowId);
 	end
 end
 
@@ -8543,14 +8638,21 @@ local function options_updateWindowWidgets(windowId)
 	-- Disable window
 	frame.disableWindow:SetChecked( not not frameOptions.disableWindow );
 	
-	-- Disable tooltips
-	frame.disableTooltips:SetChecked( not not frameOptions.disableTooltips );
+	-- Disable tooltips (absent in AuraContainer mode)
+	if (frame.disableTooltips) then
+		frame.disableTooltips:SetChecked( not not frameOptions.disableTooltips );
+	end
 
 	-- Unlock window
 	frame.lockWindow:SetChecked( not not frameOptions.lockWindow );
 
 	-- Window cannot be moved off screen
 	frame.clampWindow:SetChecked( frameOptions.clampWindow ~= false );
+
+	-- Show title bar (AuraContainer mode only -- checkbox is absent otherwise)
+	if (frame.acShowTitle) then
+		frame.acShowTitle:SetChecked( not not frameOptions.acShowTitle );
+	end
 
 	----------
 	-- Unit
@@ -8565,6 +8667,7 @@ local function options_updateWindowWidgets(windowId)
 	end
 
 	-- Use unsecure buttons
+	if (frame.playerUnsecure) then	-- absent in AuraContainer mode
 	frame.playerUnsecure:SetChecked( playerUnsecure );
 	if (unitType == constants.UNIT_TYPE_PLAYER or unitType == constants.UNIT_TYPE_VEHICLE) then
 		frame.playerUnsecure:Show();
@@ -8572,13 +8675,16 @@ local function options_updateWindowWidgets(windowId)
 		frame.playerUnsecure:Hide();
 		playerUnsecure = true;
 	end
+	end
 
-	-- Show vehicle buffs when in a vehicle
-	frame.vehicleBuffs:SetChecked( frameOptions.vehicleBuffs ~= false );
-	if (unitType == constants.UNIT_TYPE_PLAYER) then
-		frame.vehicleBuffs:Show();
-	else
-		frame.vehicleBuffs:Hide();
+	-- Show vehicle buffs when in a vehicle (absent in AuraContainer mode)
+	if (frame.vehicleBuffs) then
+		frame.vehicleBuffs:SetChecked( frameOptions.vehicleBuffs ~= false );
+		if (unitType == constants.UNIT_TYPE_PLAYER) then
+			frame.vehicleBuffs:Show();
+		else
+			frame.vehicleBuffs:Hide();
+		end
 	end
 
 	----------
@@ -8592,6 +8698,7 @@ local function options_updateWindowWidgets(windowId)
 		UIDropDownMenu_SetSelectedValue( dropdown, sortMethod );
 	end
 
+	if (frame.separateZero) then	-- absent in AuraContainer mode
 	dropdown = frame.separateZero.dropdown;
 	if UIDropDownMenu_Initialize then
 		UIDropDownMenu_Initialize( dropdown, dropdown.initialize );
@@ -8604,7 +8711,9 @@ local function options_updateWindowWidgets(windowId)
 			UIDropDownMenu_DisableDropDown(dropdown);
 		end
 	end
+	end
 	
+	if (frame.groupByPriority) then	-- absent in AuraContainer mode
 	dropdown = frame.groupByPriority.dropdown;
 	if UIDropDownMenu_Initialize then
 		UIDropDownMenu_Initialize( dropdown, dropdown.initialize );
@@ -8616,6 +8725,7 @@ local function options_updateWindowWidgets(windowId)
 			frame.groupByPriority.label:SetAlpha(0.5);
 			UIDropDownMenu_DisableDropDown(dropdown);
 		end
+	end
 	end
 
 	frame.sortDirection:SetChecked( not not frameOptions.sortDirection );
@@ -8689,8 +8799,9 @@ local function options_updateWindowWidgets(windowId)
 	frame.consolidateFractionPercent:SetValue( frameOptions.consolidateFractionPercent or 10 );
 --]]
 	----------
-	-- Background
+	-- Background / Border / Layout (absent in AuraContainer mode -- the builder skips them there)
 	----------
+	if (frame.showBackground) then
 	-- Show background
 	frame.showBackground:SetChecked( frameOptions.showBackground ~= false );
 
@@ -8785,6 +8896,7 @@ local function options_updateWindowWidgets(windowId)
 	slider = frame.wrapSpacing;
 	slider:SetValue( value );
 	slider.title:SetText(gsub(slider.titleText, "<value>", floor( ( value or slider:GetValue() )*100+0.5)/100));
+	end	-- if (frame.showBackground): Background / Border / Layout
 
 	if UIDropDownMenu_Initialize then
 		----------
@@ -8798,14 +8910,17 @@ local function options_updateWindowWidgets(windowId)
 		----------
 		-- Appearance
 		----------
-		dropdown = CT_BuffModDropdown_buttonStyle;
-		UIDropDownMenu_Initialize( dropdown, dropdown.initialize );
-		UIDropDownMenu_SetSelectedValue( dropdown, frameOptions.buttonStyle or 1 );
+		if (CT_BuffModDropdown_buttonStyle) then	-- absent in AuraContainer mode
+			dropdown = CT_BuffModDropdown_buttonStyle;
+			UIDropDownMenu_Initialize( dropdown, dropdown.initialize );
+			UIDropDownMenu_SetSelectedValue( dropdown, frameOptions.buttonStyle or 1 );
+		end
 	end
 	
 	----------
 	-- Style 1
 	----------
+	if (frame.style1Collapsible) then	-- absent in AuraContainer mode (Style1/Style2 sections skipped)
 	frame.style1Collapsible.buffSize1:SetValue( frameOptions.buffSize1 or constants.BUFF_SIZE_DEFAULT );
 	frame.style1Collapsible.colorCodeIcons1:SetChecked( not not frameOptions.colorCodeIcons1 );
 	frame.style1Collapsible.normalIconBorder1:SetChecked( not not frameOptions.normalIconBorder1 );
@@ -8854,10 +8969,29 @@ local function options_updateWindowWidgets(windowId)
 
 	frame.style1Collapsible.spacingOnLeft1:SetValue( frameOptions.spacingOnLeft1 or 0 );
 	frame.style1Collapsible.spacingOnRight1:SetValue( frameOptions.spacingOnRight1 or 0 );
+	end	-- if (frame.style1Collapsible)
+
+	-- AuraContainer mode's "Bar size" sliders (present only in AC mode; Style1 block is hidden there).
+	if (frame.acBuffSize1) then
+		frame.acBuffSize1:SetValue( frameOptions.buffSize1 or constants.BUFF_SIZE_DEFAULT );
+	end
+	if (frame.acDetailWidth1) then
+		frame.acDetailWidth1:SetValue( frameOptions.detailWidth1 or constants.DEFAULT_DETAIL_WIDTH );
+	end
+	if (frame.acBuffSpacing) then
+		frame.acBuffSpacing:SetValue( frameOptions.buffSpacing or 0 );
+	end
+	if (frame.acMaxCount) then
+		frame.acMaxCount:SetValue( frameOptions.acMaxCount or 0 );
+	end
+	if (frame.acDispellableOnly) then
+		frame.acDispellableOnly:SetChecked( not not frameOptions.acDispellableOnly );
+	end
 
 	----------
 	-- Style 2
 	----------
+	if (frame.style2Collapsible) then	-- absent in AuraContainer mode
 	frame.style2Collapsible.buffSize2:SetValue( frameOptions.buffSize2 or constants.BUFF_SIZE_DEFAULT );
 	frame.style2Collapsible.colorCodeIcons2:SetChecked( not not frameOptions.colorCodeIcons2 );
 	frame.style2Collapsible.normalIconBorder2:SetChecked( not not frameOptions.normalIconBorder2 );
@@ -8875,6 +9009,7 @@ local function options_updateWindowWidgets(windowId)
 	end
 	
 	frame.style2Collapsible.spacingFromIcon2:SetValue( frameOptions.spacingFromIcon2 or 0 );
+	end	-- if (frame.style2Collapsible)
 
 	doNotUpdateFlag = nil;
 end
@@ -8935,6 +9070,11 @@ local function options_updateValue(optName, value, windowId)
 			frameOptions[optName] = value;
 		end
 		primaryObject:setOptions(frameOptions);
+
+		-- Let the AuraContainer display path pick up the change (auto-refresh). This is the single choke
+		-- point all window option edits flow through; the AC side only rebuilds when grouping/sort
+		-- actually changed, and it's a no-op when the AC display is inactive.
+		if (CT_BuffMod_AuraContainerNotify) then CT_BuffMod_AuraContainerNotify(); end
 
 		-- Return the primaryObject of the window being edited.
 		return primaryObject;
@@ -9023,6 +9163,10 @@ local function options_updateGlobal(optName, value)
 		optName == "bgColorCONSOLIDATED"
 	) then
 		globalObject.windowListObject:refreshAuraButtons();
+		-- AuraContainer bars read the same bgColor* options -- recolour them live too.
+		if (CT_BuffMod_AuraContainerRecolor) then
+			CT_BuffMod_AuraContainerRecolor();
+		end
 
 	elseif (optName == "backgroundColor") then
 		globalObject.windowListObject:setBackground();
@@ -9224,7 +9368,28 @@ module.optionUpdate = function(self, optName, value)
 		value = constants.VISIBILITY_ADVANCED;
 	end
 
-	if (optName == "editWindow") then
+	if (optName == "buffEngine") then
+		-- Switch the buff display engine (1 = AuraContainer, 2 = Legacy header). The display switches
+		-- immediately, but the options panel is cached by CT_Library and only rebuilds correctly on a
+		-- full reload (an in-place rebuild or a reopen leaves controls duplicated / the window list
+		-- unpopulated), so prompt the user with a reload dialog.
+		if (CT_BuffMod_AuraContainerRefresh) then
+			CT_BuffMod_AuraContainerRefresh();
+		end
+		if (isOptionsFrameShown()) then
+			StaticPopupDialogs["CT_BUFFMOD_ENGINE_RELOAD"] = StaticPopupDialogs["CT_BUFFMOD_ENGINE_RELOAD"] or {
+				text = "CT_BuffMod: buff engine set to %s.\n\nReload the UI now so these options match the new engine?",
+				button1 = "Reload Now",
+				button2 = "Later",
+				OnAccept = function() ReloadUI(); end,
+				-- Later: close the options window, since it's stale (wrong engine) until a reload.
+				OnCancel = function() if (CTCONTROLPANEL and CTCONTROLPANEL:IsShown()) then CTCONTROLPANEL:Hide(); end end,
+				timeout = 0, whileDead = true, hideOnEscape = true, preferredIndex = 3,
+			};
+			StaticPopup_Show("CT_BUFFMOD_ENGINE_RELOAD", (value == 1) and "AuraContainer" or "Legacy header");
+		end
+
+	elseif (optName == "editWindow") then
 		options_editWindow(value);
 
 	-- Other options
@@ -9267,6 +9432,9 @@ module.optionUpdate = function(self, optName, value)
 		optName == "userEdgeRight" or
 		optName == "userEdgeTop" or
 		optName == "userEdgeBottom" or
+		optName == "acShowTitle" or		-- AuraContainer-only title bar toggle (handled entirely by the AC path)
+		optName == "acMaxCount" or		-- AuraContainer-only: cap buttons per group
+		optName == "acDispellableOnly" or	-- AuraContainer-only: debuff groups show only dispellable
 		optName == "fontSize"
 	) then
 		options_updateUnprotected(optName, value, windowId);
@@ -9417,6 +9585,30 @@ module.frame = function()
 
 	optionsInit();
 
+	-- === Buff display engine (very top of the panel) ===
+	-- The AuraContainer file exposes CT_BuffMod_AuraContainerActive() only on clients that have the API
+	-- (Retail 12.1+); on Classic/Cata it isn't loaded, so there's no selector and the legacy panel shows.
+	-- In AuraContainer mode (acMode) the legacy-engine-only sections below are skipped.
+	local acAvailable = (CT_BuffMod_AuraContainerActive ~= nil);
+	local acMode = acAvailable and CT_BuffMod_AuraContainerActive();
+	if (acAvailable) then
+		optionsBeginFrame(-5, 0, "frame#tl:0:%y#r");
+			optionsAddObject(  0,   17, "font#tl:5:%y#v:GameFontNormalLarge#Buff display engine");
+			optionsBeginFrame(-15,   20, "dropdown#tl:15:%y#s:240:%s#n:CT_BuffModDropdown_buffEngine#i:buffEngine#o:buffEngine:1#AuraContainer (recommended)#Legacy header");
+				optionsAddScript("onenter", function(self)
+					GameTooltip:SetOwner(self, "ANCHOR_CURSOR");
+					GameTooltip:SetText("Buff display engine", 1, 0.82, 0, 1, true);
+					GameTooltip:AddLine("AuraContainer (default) shows buffs in combat.", 1, 1, 1, true);
+					GameTooltip:AddLine("Legacy is the classic secure/unsecure header, limited in combat.", 1, 1, 1, true);
+					GameTooltip:Show();
+				end);
+				optionsAddScript("onleave", function(self)
+					GameTooltip:Hide();
+				end);
+			optionsEndFrame();
+		optionsEndFrame();
+	end
+
 	-- Tips
 	optionsBeginFrame(-5, 0, "frame#tl:0:%y#r");
 		optionsAddObject(  0,   17, "font#tl:5:%y#v:GameFontNormalLarge#" .. L["CT_BuffMod/Options/Tips/Heading"]);
@@ -9445,25 +9637,74 @@ CONSOLIDATION REMOVED FROM GAME --]]
 
 		optionsAddObject(-15, 1*13, "font#tl:15:%y#" .. L["CT_BuffMod/Options/General/Colors/Heading"]);
 
-		-- Window background color
-		optionsAddObject(-10,   16, "colorswatch#tl:35:%y#s:16:16#o:backgroundColor:" .. defaultWindowColor[1] .. "," .. defaultWindowColor[2] .. "," .. defaultWindowColor[3] .. "," .. defaultWindowColor[4] .. "#true");
-		optionsAddObject( 14,   15, "font#tl:60:%y#v:ChatFontNormal#" .. L["CT_BuffMod/Options/General/Colors/Background"]);
+		if (not acMode) then
+			-- Window background color
+			optionsAddObject(-10,   16, "colorswatch#tl:35:%y#s:16:16#o:backgroundColor:" .. defaultWindowColor[1] .. "," .. defaultWindowColor[2] .. "," .. defaultWindowColor[3] .. "," .. defaultWindowColor[4] .. "#true");
+			optionsAddObject( 14,   15, "font#tl:60:%y#v:ChatFontNormal#" .. L["CT_BuffMod/Options/General/Colors/Background"]);
 
-		-- Aura color
-		-- Buff color
-		-- Debuff color
-		-- Weapon buff color
-		optionsAddObject(-15,   16, "colorswatch#tl:35:%y#s:16:16#i:bgColorAURA#o:bgColorAURA:0.35,0.8,0.15,0.5#true");
-		optionsAddObject( 14,   15, "font#tl:60:%y#v:ChatFontNormal#" .. L["CT_BuffMod/Options/General/Colors/Aura"]);
+			-- Aura color
+			-- Buff color
+			-- Debuff color
+			-- Weapon buff color
+			optionsAddObject(-15,   16, "colorswatch#tl:35:%y#s:16:16#i:bgColorAURA#o:bgColorAURA:0.35,0.8,0.15,0.5#true");
+			optionsAddObject( 14,   15, "font#tl:60:%y#v:ChatFontNormal#" .. L["CT_BuffMod/Options/General/Colors/Aura"]);
 
-		optionsAddObject( 15,   16, "colorswatch#tl:175:%y#s:16:16#i:bgColorBUFF#o:bgColorBUFF:0.1,0.4,0.85,0.5#true");
-		optionsAddObject( 14,   15, "font#tl:200:%y#v:ChatFontNormal#" .. L["CT_BuffMod/Options/General/Colors/Buff"]);
+			optionsAddObject( 15,   16, "colorswatch#tl:175:%y#s:16:16#i:bgColorBUFF#o:bgColorBUFF:0.1,0.4,0.85,0.5#true");
+			optionsAddObject( 14,   15, "font#tl:200:%y#v:ChatFontNormal#" .. L["CT_BuffMod/Options/General/Colors/Buff"]);
 
-		optionsAddObject( -2,   16, "colorswatch#tl:35:%y#s:16:16#i:bgColorDEBUFF#o:bgColorDEBUFF:1,0,0,0.85#true");
-		optionsAddObject( 14,   15, "font#tl:60:%y#v:ChatFontNormal#" .. L["CT_BuffMod/Options/General/Colors/Debuff"]);
+			optionsAddObject( -2,   16, "colorswatch#tl:35:%y#s:16:16#i:bgColorDEBUFF#o:bgColorDEBUFF:1,0,0,0.85#true");
+			optionsAddObject( 14,   15, "font#tl:60:%y#v:ChatFontNormal#" .. L["CT_BuffMod/Options/General/Colors/Debuff"]);
 
-		optionsAddObject( 15,   16, "colorswatch#tl:175:%y#s:16:16#i:bgColorITEM#o:bgColorITEM:0.75,0.25,1,0.75#true");
-		optionsAddObject( 14,   15, "font#tl:200:%y#v:ChatFontNormal#" .. L["CT_BuffMod/Options/General/Colors/Weapon"]);
+			optionsAddObject( 15,   16, "colorswatch#tl:175:%y#s:16:16#i:bgColorITEM#o:bgColorITEM:0.75,0.25,1,0.75#true");
+			optionsAddObject( 14,   15, "font#tl:200:%y#v:ChatFontNormal#" .. L["CT_BuffMod/Options/General/Colors/Weapon"]);
+		else
+			-- AuraContainer mode: only the colours that actually apply.
+			--  * No window-background colour -- AuraContainer draws no backdrop behind the bars.
+			--  * ONE buff colour (bound to bgColorAURA, labelled "Buff"): the secure container can't tell
+			--    timed buffs from permanent ones, so every buff bar shares this colour. The separate
+			--    "Buff" (timed) colour has no meaning here, so it's hidden.
+			optionsAddObject(-10,   16, "colorswatch#tl:35:%y#s:16:16#i:bgColorAURA#o:bgColorAURA:0.35,0.8,0.15,0.5#true");
+			optionsAddObject( 14,   15, "font#tl:60:%y#v:ChatFontNormal#" .. L["CT_BuffMod/Options/General/Colors/Buff"]);
+
+			optionsAddObject( 15,   16, "colorswatch#tl:175:%y#s:16:16#i:bgColorDEBUFF#o:bgColorDEBUFF:1,0,0,0.85#true");
+			optionsAddObject( 14,   15, "font#tl:200:%y#v:ChatFontNormal#" .. L["CT_BuffMod/Options/General/Colors/Debuff"]);
+
+			optionsAddObject( -2,   16, "colorswatch#tl:35:%y#s:16:16#i:bgColorITEM#o:bgColorITEM:0.75,0.25,1,0.75#true");
+			optionsAddObject( 14,   15, "font#tl:60:%y#v:ChatFontNormal#" .. L["CT_BuffMod/Options/General/Colors/Weapon"]);
+		end
+
+		-- Reset every colour swatch above to its built-in default. A colour option cleared to nil falls
+		-- back to the default in both displays (applyGlobalOptions / the AuraContainer getColor), so we just
+		-- clear them, refresh live, and repaint the swatch squares that are currently shown (mode-dependent).
+		optionsBeginFrame( -10,   22, "button#tl:35:%y#s:170:%s#v:UIPanelButtonTemplate#" .. L["CT_BuffMod/Options/General/Colors/ResetButton"]);
+			optionsAddScript("onclick",
+				function(self)
+					local colorOpts = { "backgroundColor", "bgColorAURA", "bgColorBUFF", "bgColorDEBUFF", "bgColorITEM", "bgColorCONSOLIDATED" };
+					for _, opt in ipairs(colorOpts) do
+						module:setOption(opt, nil, false);
+					end
+					globalObject:applyGlobalOptions(false);
+					if (globalObject.windowListObject and globalObject.windowListObject.refreshAuraButtons) then
+						globalObject.windowListObject:refreshAuraButtons();
+					end
+					if (CT_BuffMod_AuraContainerRecolor) then
+						CT_BuffMod_AuraContainerRecolor();
+					end
+					-- Repaint the swatch squares sitting next to this button (the ones for the current mode).
+					local parent = self:GetParent();
+					if (parent and parent.GetChildren) then
+						for _, child in ipairs({ parent:GetChildren() }) do
+							if (child.normalTexture and child.option and child.object) then
+								local c = child.object:getDisplayValue(child.option);
+								if (type(c) == "table" and c[1]) then
+									child.normalTexture:SetVertexColor(c[1], c[2], c[3]);
+								end
+							end
+						end
+					end
+				end
+			);
+		optionsEndFrame();
 
 --[[ CONSOLIDATION REMOVED FROM GAME
 		optionsAddObject( -15,   16, "colorswatch#tl:35:%y#s:16:16#o:consolidatedColor:" .. defaultConsolidatedColor[1] .. "," .. defaultConsolidatedColor[2] .. "," .. defaultConsolidatedColor[3] .. "," .. defaultConsolidatedColor[4] .. "#true");
@@ -9498,8 +9739,10 @@ CONSOLIDATION REMOVED FROM GAME --]]
 
 	optionsEndFrame();
 
-	-- Expiration options
-
+	-- Expiration options. The flash is a legacy-display effect the AuraContainer doesn't have, and the
+	-- chat/sound expiration warnings depend on addon aura-tracking that can't read SECRET auras in combat
+	-- (the very thing AuraContainer exists to avoid) -- so the whole section is inapplicable in AC mode.
+	if (not acMode) then
 	optionsAddObject( -15,   13, "font#tl:15:%y#v:GameFontNormal#" .. L["CT_BuffMod/Options/General/Expiration/Heading"]);
 
 	optionsAddObject(-22,   7, "font#l:tl:30:%y#v:ChatFontNormal#" .. L["CT_BuffMod/Options/General/Expiration/FlashSliderLabel"]);
@@ -9535,7 +9778,7 @@ CONSOLIDATION REMOVED FROM GAME --]]
 			optionsAddScript("onshow", enableExpirationChildren);
 		optionsEndFrame();
 	optionsEndFrame()
-	
+	end	-- if (not acMode): Expiration options
 
 	-- Adding and Removing Windows
 	optionsBeginFrame(-20, 0, "frame#tl:0:%y#br:tr:0:%b#i:frameOptions#n:foo");
@@ -9635,9 +9878,18 @@ CONSOLIDATION REMOVED FROM GAME --]]
 		-- Unlock window
 		-- Window cannot be moved off screen
 		optionsAddObject( -5,   26, "checkbutton#tl:30:%y#i:disableWindow#o:disableWindow#" .. L["CT_BuffMod/Options/Window/General/DisableWindowCheckbox"]);
-		optionsAddObject(  6,   26, "checkbutton#tl:30:%y#i:disableTooltips#o:disableTooltips#" .. L["CT_BuffMod/Options/Window/General/DisableTooltipsCheckbox"]);
+		if (not acMode) then
+			-- disableTooltips governs the legacy buttons' hover tooltips; AuraContainer tooltips are
+			-- Blizzard-driven with no simple suppress hook, so hide this in AC mode.
+			optionsAddObject(  6,   26, "checkbutton#tl:30:%y#i:disableTooltips#o:disableTooltips#" .. L["CT_BuffMod/Options/Window/General/DisableTooltipsCheckbox"]);
+		end
 		optionsAddObject(  6,   26, "checkbutton#tl:30:%y#i:lockWindow#o:lockWindow#" .. L["CT_BuffMod/Options/Window/General/PositionLockedCheckbox"]);
 		optionsAddObject(  6,   26, "checkbutton#tl:30:%y#i:clampWindow#o:clampWindow:true#" .. L["CT_BuffMod/Options/Window/General/PositionClampedCheckbox"]);
+		if (acMode) then
+			-- AuraContainer-only: a title bar above the window showing the unit/character name (it also
+			-- doubles as the drag handle when the window is unlocked).
+			optionsAddObject(  6,   26, "checkbutton#tl:30:%y#i:acShowTitle#o:acShowTitle#" .. L["CT_BuffMod/Options/Window/General/ShowTitleBarCheckbox"]);
+		end
 
 		optionsBeginFrame( -5,   30, "button#t:0:%y#s:180:%s#n:CT_BuffMod_ResetPosition_Button#v:GameMenuButtonTemplate#" .. L["CT_BuffMod/Options/Window/General/PositionResetButton"]);
 			optionsAddScript("onclick",
@@ -9668,6 +9920,7 @@ CONSOLIDATION REMOVED FROM GAME --]]
 			-- Show vehicle buffs when in a vehicle
 			optionsAddObject(-10,   14, "font#tl:34:%y#v:ChatFontNormal#" .. L["CT_BuffMod/Options/Window/Unit/UnitDropdownLabel"]);
 			optionsAddObject( 15,   20, "dropdown#tl:140:%y#s:100:%s#n:CT_BuffModDropdown_unitType#i:unitType#o:unitType:" .. constants.UNIT_TYPE_PLAYER .. L["CT_BuffMod/Options/Window/Unit/UnitDropdownOptions"]);
+			if (not acMode) then	-- playerUnsecure is the Legacy engine's secure/unsecure choice
 			optionsBeginFrame(  0,   26, "checkbutton#tl:30:%y#i:playerUnsecure#o:playerUnsecure#" .. L["CT_BuffMod/Options/Window/Unit/NonSecureCheckbox"]);
 				optionsAddScript("onenter",
 					function(button)
@@ -9683,7 +9936,12 @@ CONSOLIDATION REMOVED FROM GAME --]]
 					end
 				);
 			optionsEndFrame();
-			optionsAddObject(  0,   26, "checkbutton#tl:30:%y#i:vehicleBuffs#o:vehicleBuffs:true#" .. L["CT_BuffMod/Options/Window/Unit/VehicleCheckbox"]);
+			end	-- if (not acMode): playerUnsecure
+			if (not acMode) then
+				-- vehicleBuffs relies on the legacy frame's vehicle unit-swap, which the AuraContainer
+				-- path doesn't do -- hide it in AC mode.
+				optionsAddObject(  0,   26, "checkbutton#tl:30:%y#i:vehicleBuffs#o:vehicleBuffs:true#" .. L["CT_BuffMod/Options/Window/Unit/VehicleCheckbox"]);
+			end
 		end
 
 		----------
@@ -9692,6 +9950,7 @@ CONSOLIDATION REMOVED FROM GAME --]]
 
 		optionsAddObject(-20, 1*13, "font#tl:15:%y#" .. L["CT_BuffMod/Options/Window/Grouping/Heading"]);
 		
+		if (not acMode) then	-- groupByPriority: only the default order maps onto AuraContainer groups
 		-- What sequence to apply grouping in
 		optionsBeginFrame( 0,    0, "frame#tl:0:%y#br:tr:0:%b#i:groupByPriority");
 		
@@ -9718,7 +9977,8 @@ CONSOLIDATION REMOVED FROM GAME --]]
 				end
 			end);
 		optionsEndFrame();
-		
+		end	-- if (not acMode): groupByPriority
+
 		-- Buffs you cast
 		optionsAddObject(-10,   14, "font#tl:35:%y#v:ChatFontNormal#" .. L["CT_BuffMod/Options/Window/Grouping/PlayerBuffsLabel"]);
 		-- Bug: Omit 3rd menu item while waiting for Blizzard to fix the "Sort with others" bug
@@ -9728,6 +9988,7 @@ CONSOLIDATION REMOVED FROM GAME --]]
 		--
 		optionsAddObject( 15,   20, "dropdown#tl:140:%y#s:130:%s#n:CT_BuffModDropdown_separateOwn#i:separateOwn#o:separateOwn:" .. constants.SEPARATE_OWN_WITH .. L["CT_BuffMod/Options/Window/Grouping/PlayerBuffsDropdown"]);
 
+		if (not acMode) then	-- separateZero: timed/permanent split isn't expressible in AuraContainer
 		-- Sort zero duration buffs
 		optionsBeginFrame( 0,    0, "frame#tl:0:%y#br:tr:0:%b#i:separateZero");
 			optionsAddObject(-10,   14, "font#tl:35:%y#v:ChatFontNormal#i:label#" .. L["CT_BuffMod/Options/Window/Grouping/NonExpiringBuffsLabel"]);
@@ -9742,6 +10003,7 @@ CONSOLIDATION REMOVED FROM GAME --]]
 				end
 			end);
 		optionsEndFrame();
+		end	-- if (not acMode): separateZero
 
 		-- Group by
 		do
@@ -9791,16 +10053,19 @@ CONSOLIDATION REMOVED FROM GAME --]]
 		
 		local function toggleBasicConditions(checkbutton)
 			checkbutton:HookScript("OnClick",
-				function()
+				function(self)
+					-- The vis* checkbuttons are stored on the parent frame (i: identifiers), not as globals,
+					-- so reach them through the clicked button's parent.
+					local parent = (self or checkbutton):GetParent();
 					if (
-						visHideInVehicle:GetChecked() 
-						or visHideNotVehicle:GetChecked()
-						or visHideInCombat:GetChecked() 
-						or visHideNotCombat:GetChecked()
+						parent.visHideInVehicle:GetChecked()
+						or parent.visHideNotVehicle:GetChecked()
+						or parent.visHideInCombat:GetChecked()
+						or parent.visHideNotCombat:GetChecked()
 					) then
-						visBasic:Click();
+						parent.visBasic:Click();
 					else
-						visShow:Click();
+						parent.visShow:Click();
 					end
 				end
 			);
@@ -10088,6 +10353,9 @@ CONSOLIDATION REMOVED FROM GAME --]]
 		optionsAddObject(-20,   17, "slider#tl:50:%y#s:240:%s#i:consolidateFractionPercent#o:consolidateFractionPercent:10#<value> %#0:100:0.1");
 CONSOLIDATION REMOVED FROM GAME--]]
 
+		-- Background / Border / Layout all operate on the hidden legacy frame: the AuraContainer draws no
+		-- backdrop or border and uses a fixed vertical list, so none of these apply in AC mode -> skip them.
+		if (not acMode) then
 		----------
 		-- Background
 		----------
@@ -10151,6 +10419,7 @@ CONSOLIDATION REMOVED FROM GAME--]]
 
 		-- Wrap spacing
 		optionsAddObject(-25,   17, "slider#tl:40:%y#s:250:%s#i:wrapSpacing#o:wrapSpacing:0#<value>#0:200:1");
+		end	-- if (not acMode): Background / Border / Layout
 
 		----------
 		-- Font size
@@ -10162,6 +10431,10 @@ CONSOLIDATION REMOVED FROM GAME--]]
 
 		----------
 		-- Button appearance
+		-- AuraContainer draws its own bar style; the legacy Style1/Style2 appearance options apply only
+		-- to the Legacy header engine, so skip this whole block (heading + buttonStyle + Style1/Style2)
+		-- in AuraContainer mode. (Matching guards exist in updateWindowWidgets.)
+		if (not acMode) then
 		----------
 		optionsAddObject(-25, 1*13, "font#tl:15:%y#Button appearance");
 
@@ -10347,7 +10620,30 @@ CONSOLIDATION REMOVED FROM GAME--]]
 			optionsEndFrame();
 		
 		optionsEndFrame()
-		
+		end	-- if (not acMode): end of legacy Style1/Style2 appearance block
+
+		-- AuraContainer mode: the Style1/Style2 button-appearance block above is hidden, but its two SIZE
+		-- controls still drive the AuraContainer bars (icon = buffSize1, bar width = detailWidth1). Surface
+		-- just those two as a compact "Bar size" section. They write the same per-window options; the AC
+		-- display rebuilds to the new size on change (buffSize1/detailWidth1 are in its groupSig).
+		if (acMode) then
+			optionsAddObject(-25, 1*13, "font#tl:15:%y#Bar size & layout");
+
+			optionsAddObject(-20,   14, "font#tl:35:%y#v:ChatFontNormal#" .. L["CT_BuffMod/Options/Window/Button/General/IconSizeSliderLabel"]);
+			optionsAddObject( 15,   17, "slider#tl:165:%y#s:120:%s#i:acBuffSize1#o:buffSize1:" .. constants.BUFF_SIZE_DEFAULT .. "#<value>#" .. constants.BUFF_SIZE_MINIMUM .. ":" .. constants.BUFF_SIZE_MAXIMUM .. ":1");
+
+			optionsAddObject(-20,   17, "slider#tl:40:%y#s:250:%s#i:acDetailWidth1#o:detailWidth1:" .. constants.DEFAULT_DETAIL_WIDTH .. "#Bar width = <value>#0:400:1");
+
+			-- Row spacing (buffSpacing, shared with the Legacy option; a gap between the stacked bars).
+			optionsAddObject(-20,   17, "slider#tl:40:%y#s:250:%s#i:acBuffSpacing#o:buffSpacing:0#Row spacing = <value>#0:40:1");
+
+			-- Max buffs shown per type (0 = show all). Maps to SetAuraGroupMaxFrameCount per group.
+			optionsAddObject(-20,   17, "slider#tl:40:%y#s:250:%s#i:acMaxCount#o:acMaxCount:0#Max buffs per type = <value>:0 = all:40#0:40:1");
+
+			-- Show only dispellable debuffs (displayOnlyDispellableDebuffs on debuff groups).
+			optionsAddObject(-15,   26, "checkbutton#tl:30:%y#i:acDispellableOnly#o:acDispellableOnly#Show only dispellable debuffs");
+		end
+
 		----------
 		-- Scripts
 		----------

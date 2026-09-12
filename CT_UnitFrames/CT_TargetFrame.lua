@@ -11,6 +11,15 @@
 
 local module = select(2, ...);
 
+-- Midnight: Unit* relationship/faction queries can return a SECRET value on a tainted secret unit
+-- (e.g. target/focus during an encounter); testing it throws. Read safely -> the value, or nil when
+-- unreadable (callers then treat it as "not friend / no PvP", the safe default).
+local function safeQuery(func, ...)
+	local ok, a, b = pcall(func, ...);
+	if (ok) then return a, b; end
+	return nil;
+end
+
 -- before/after WoW 10.x
 local healthBar = TargetFrameHealthBar or TargetFrame.TargetFrameContent.TargetFrameContentMain.HealthBar or TargetFrame.TargetFrameContent.TargetFrameContentMain.HealthBarsContainer.HealthBar
 local manaBar = TargetFrameManaBar or TargetFrame.TargetFrameContent.TargetFrameContentMain.ManaBar
@@ -49,7 +58,7 @@ end
 -- Adapting code by github user shoestare, this function now performs two tasks:
 --   STEP 1 (original): Displays the unit class or creature type in the target class frame
 --   STEP 2 (new in 8.2.0.8): Changes the color of the target class frame to indicate friend, hostile, pvp, etc.
-function CT_SetTargetClass()
+local function setTargetClass_impl()
 	-- STEP 1:
 	if ( CT_UnitFramesOptions.displayTargetClass and UnitExists("target") ) then
 		if ( UnitIsPlayer("target") ) then
@@ -94,6 +103,16 @@ function CT_SetTargetClass()
 		end
 	end
 	CT_TargetFrameClassFrame:SetBackdropColor(r, g, b, 0.5);
+end
+
+-- On Midnight a "secret" target (execution tainted during an encounter) makes the Unit* relationship/
+-- class queries above return secret values that throw when tested. Run the logic in a pcall; if it
+-- throws, degrade gracefully -- clear the class text and use a neutral backdrop -- rather than erroring.
+function CT_SetTargetClass()
+	if (not pcall(setTargetClass_impl)) then
+		pcall(function() CT_TargetFrameClassFrameText:SetText(""); end);
+		pcall(CT_TargetFrameClassFrame.SetBackdropColor, CT_TargetFrameClassFrame, 0, 0, 0, 0.5);
+	end
 end
 
 if TargetofTargetHealthCheck then
@@ -181,7 +200,7 @@ end
 local function CT_TargetFrame_HealthTextStatusBar_UpdateTextString(bar)
 	if (CT_UnitFramesOptions) then
 		local style;
-		if (UnitIsFriend("target", "player")) then
+		if (safeQuery(UnitIsFriend, "target", "player")) then
 			style = CT_UnitFramesOptions.styles[3][1];
 		else
 			style = CT_UnitFramesOptions.styles[3][5];
