@@ -1,5 +1,5 @@
 ## Interface: 110100, 120000, 120100
-## Version: 12.1.0
+## Version: 12.1.1
 ## Title: CTMod Midnight - MailMod
 ## Author: Cide & TS (Original CTMod); Midnight community port
 ## Notes: Heavily improves the in-game mail functionality.

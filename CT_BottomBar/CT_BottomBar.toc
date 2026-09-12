@@ -1,5 +1,5 @@
 ## Interface: 110100, 120000, 120100
-## Version: 12.1.0
+## Version: 12.1.1
 ## Title: CTMod Midnight - BottomBar |cFF808080(disabled on retail)|r
 ## Author: Cide & TS (Original CTMod); Midnight community port
 ## Notes: Breaks up the main menu bar into movable pieces.

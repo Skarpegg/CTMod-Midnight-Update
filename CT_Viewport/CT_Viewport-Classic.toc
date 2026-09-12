@@ -1,5 +1,5 @@
 ## Interface: 11506
-## Version: 12.1.0
+## Version: 12.1.1
 ## Title: CTMod Midnight - Viewport
 ## Author: Cide & TS (Original CTMod); Midnight community port
 ## Notes: Allows you to change the rendered world's size.

@@ -1,5 +1,5 @@
 ## Interface: 40402
-## Version: 12.1.0
+## Version: 12.1.1
 ## Title: CTMod Midnight - Library
 ## Notes: Required for all CTMod modules
 ## DefaultState: Enabled
