@@ -70,6 +70,7 @@ local BAR_TEXTURE = "Interface\\AddOns\\CT_BuffMod\\Images\\barSmooth";
 local BUFF_R, BUFF_G, BUFF_B = 0.35, 0.8, 0.15;			-- original AURATYPE_AURA background colour (green)
 local ENCHANT_R, ENCHANT_G, ENCHANT_B = 0.75, 0.25, 1;	-- original AURATYPE_ENCHANT background colour (purple)
 local DEBUFF_R, DEBUFF_G, DEBUFF_B = 1, 0, 0;			-- original AURATYPE_DEBUFF background colour (red)
+local DEPL_R, DEPL_G, DEPL_B = 0.1, 0.4, 0.85;			-- original AURATYPE_BUFF (timed) blue, reused for the depletion overlay
 
 -- CT_BuffMod per-window config we map onto AuraContainer groups (values are CT_BuffMod constants):
 -- each window lists an ordered sequence of aura-type "filters" (sortSeq1..5) plus a sort method.
@@ -78,9 +79,11 @@ local SM_NAME, SM_TIME, SM_INDEX = 1, 2, 3;
 local SO_BEFORE, SO_AFTER, SO_WITH = 1, 2, 3;	-- separateOwn: own auras before / after / mixed with others
 -- Bar colours come from CT_BuffMod's global colour options so they're user-configurable and stay in
 -- sync with the legacy display: buff bar <- bgColorAURA, debuff <- bgColorDEBUFF, weapon <- bgColorITEM.
--- (AuraContainer can't tell timed vs permanent buffs apart, so all buffs use the one AURA colour.)
-local COLOR_OPTION  = { buff = "bgColorAURA", debuff = "bgColorDEBUFF", enchant = "bgColorITEM" };
-local COLOR_DEFAULT = { buff = { BUFF_R, BUFF_G, BUFF_B }, debuff = { DEBUFF_R, DEBUFF_G, DEBUFF_B }, enchant = { ENCHANT_R, ENCHANT_G, ENCHANT_B } };
+-- (AuraContainer can't tell timed vs permanent buffs apart in Lua, so the TRACK/full bar uses the one
+-- AURA colour.) The DEPLETION overlay (drawn by Blizzard only on timed auras) reuses the legacy
+-- timed-buff colour (bgColorBUFF, blue) so a depleting buff reads distinctly from a static/permanent one.
+local COLOR_OPTION  = { buff = "bgColorAURA", debuff = "bgColorDEBUFF", enchant = "bgColorITEM", depletion = "bgColorBUFF" };
+local COLOR_DEFAULT = { buff = { BUFF_R, BUFF_G, BUFF_B }, debuff = { DEBUFF_R, DEBUFF_G, DEBUFF_B }, enchant = { ENCHANT_R, ENCHANT_G, ENCHANT_B }, depletion = { DEPL_R, DEPL_G, DEPL_B } };
 local function getColor(key)
 	local mod = _G["CT_BuffMod"];
 	local c = mod and mod.getOption and mod:getOption(COLOR_OPTION[key]);
@@ -183,7 +186,8 @@ local function makeInitButton(colorKey, iconSize, rowW, rowH, windowId)
 		if (not button.ctBar) then
 			local bar = CreateFrame("StatusBar", nil, button);
 			bar:SetStatusBarTexture(BAR_TEXTURE);
-			bar:SetStatusBarColor(0.05, 0.05, 0.08, 0.8);
+			local pr, pg, pb = getColor("depletion");	-- elapsed-time overlay colour (bgColorBUFF, blue)
+			bar:SetStatusBarColor(pr, pg, pb, 0.85);
 			bar:SetPoint("TOPLEFT", button.ctIcon, "TOPRIGHT", 1, 0);
 			bar:SetPoint("BOTTOMRIGHT", button, "BOTTOMRIGHT", 0, 0);
 			if (bar.SetReverseFill) then
@@ -880,13 +884,17 @@ end
 _G.CT_BuffMod_AuraContainerNotify = scheduleRefresh;
 _G.CT_BuffMod_AuraContainerRefresh = refresh;	-- immediate refresh (used when the engine option changes)
 
--- Live recolour: repaint every existing button's bright track from the current colour options, in
--- place (no rebuild). Called when the user changes a bgColor* swatch so bars recolour immediately.
+-- Live recolour: repaint every existing button's bright track and depletion overlay from the current
+-- colour options, in place (no rebuild). Called when the user changes a bgColor* swatch.
 local function recolor()
+	local pr, pg, pb = getColor("depletion");
 	for button in pairs(allButtons) do
 		if (button.ctTrack and button.ctColorKey) then
 			local r, g, b = getColor(button.ctColorKey);
 			button.ctTrack:SetVertexColor(r, g, b, 0.55);
+		end
+		if (button.ctBar) then
+			button.ctBar:SetStatusBarColor(pr, pg, pb, 0.85);
 		end
 	end
 end

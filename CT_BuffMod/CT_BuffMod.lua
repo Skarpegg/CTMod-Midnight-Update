@@ -9660,9 +9660,10 @@ CONSOLIDATION REMOVED FROM GAME --]]
 		else
 			-- AuraContainer mode: only the colours that actually apply.
 			--  * No window-background colour -- AuraContainer draws no backdrop behind the bars.
-			--  * ONE buff colour (bound to bgColorAURA, labelled "Buff"): the secure container can't tell
-			--    timed buffs from permanent ones, so every buff bar shares this colour. The separate
-			--    "Buff" (timed) colour has no meaning here, so it's hidden.
+			--  * ONE buff TRACK colour (bound to bgColorAURA, labelled "Buff"): the secure container can't
+			--    tell timed buffs from permanent ones, so every buff's full bar shares this colour.
+			--  * bgColorBUFF is reused as the DEPLETION colour -- the elapsed part Blizzard draws only on
+			--    timed auras -- so timed (depleting) buffs read apart from permanent ones.
 			optionsAddObject(-10,   16, "colorswatch#tl:35:%y#s:16:16#i:bgColorAURA#o:bgColorAURA:0.35,0.8,0.15,0.5#true");
 			optionsAddObject( 14,   15, "font#tl:60:%y#v:ChatFontNormal#" .. L["CT_BuffMod/Options/General/Colors/Buff"]);
 
@@ -9671,6 +9672,11 @@ CONSOLIDATION REMOVED FROM GAME --]]
 
 			optionsAddObject( -2,   16, "colorswatch#tl:35:%y#s:16:16#i:bgColorITEM#o:bgColorITEM:0.75,0.25,1,0.75#true");
 			optionsAddObject( 14,   15, "font#tl:60:%y#v:ChatFontNormal#" .. L["CT_BuffMod/Options/General/Colors/Weapon"]);
+
+			optionsAddObject( 15,   16, "colorswatch#tl:175:%y#s:16:16#i:bgColorBUFF#o:bgColorBUFF:0.1,0.4,0.85,0.5#true");
+			optionsAddObject( 14,   15, "font#tl:200:%y#v:ChatFontNormal#" .. L["CT_BuffMod/Options/General/Colors/Depletion"]);
+
+			optionsAddObject( -8, 3*13, "font#tl:35:%y#s:0:%s#l:13:0#r#" .. L["CT_BuffMod/Options/General/Colors/DepletionTip"] .. "#" .. textColor2 .. ":l");
 		end
 
 		-- Reset every colour swatch above to its built-in default. A colour option cleared to nil falls
