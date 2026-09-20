@@ -8978,6 +8978,11 @@ local function options_updateWindowWidgets(windowId)
 	if (frame.acDetailWidth1) then
 		frame.acDetailWidth1:SetValue( frameOptions.detailWidth1 or constants.DEFAULT_DETAIL_WIDTH );
 	end
+	if (frame.acRightAlign1 and UIDropDownMenu_Initialize) then
+		dropdown = CT_BuffModDropdown_acRightAlign1;
+		UIDropDownMenu_Initialize( dropdown, dropdown.initialize );
+		UIDropDownMenu_SetSelectedValue( dropdown, tonumber(frameOptions.rightAlign1) or constants.RIGHT_ALIGN_DEFAULT );
+	end
 	if (frame.acBuffSpacing) then
 		frame.acBuffSpacing:SetValue( frameOptions.buffSpacing or 0 );
 	end
@@ -8986,6 +8991,12 @@ local function options_updateWindowWidgets(windowId)
 	end
 	if (frame.acDispellableOnly) then
 		frame.acDispellableOnly:SetChecked( not not frameOptions.acDispellableOnly );
+	end
+	if (frame.acShowNames1) then
+		frame.acShowNames1:SetChecked( frameOptions.showNames1 ~= false );
+	end
+	if (frame.acShowTimers1) then
+		frame.acShowTimers1:SetChecked( frameOptions.showTimers1 ~= false );
 	end
 
 	----------
@@ -10638,6 +10649,11 @@ CONSOLIDATION REMOVED FROM GAME--]]
 			optionsAddObject(-20,   14, "font#tl:35:%y#v:ChatFontNormal#" .. L["CT_BuffMod/Options/Window/Button/General/IconSizeSliderLabel"]);
 			optionsAddObject( 15,   17, "slider#tl:165:%y#s:120:%s#i:acBuffSize1#o:buffSize1:" .. constants.BUFF_SIZE_DEFAULT .. "#<value>#" .. constants.BUFF_SIZE_MINIMUM .. ":" .. constants.BUFF_SIZE_MAXIMUM .. ":1");
 
+			-- Icon position: put the icon at the left or right end of the bar (writes the same rightAlign1
+			-- option the Legacy Style1 dropdown does; the AC display rebuilds to the new side on change).
+			optionsAddObject(-20,   15, "font#tl:35:%y#v:ChatFontNormal#" .. L["CT_BuffMod/Options/Window/Button/Style1/IconPositionLabel"]);
+			optionsAddObject( 15,   20, "dropdown#tl:140:%y#s:120:%s#n:CT_BuffModDropdown_acRightAlign1#i:acRightAlign1#o:rightAlign1:" .. constants.RIGHT_ALIGN_DEFAULT .. L["CT_BuffMod/Options/Window/Button/Style1/IconPositionDropdown"]);
+
 			optionsAddObject(-20,   17, "slider#tl:40:%y#s:250:%s#i:acDetailWidth1#o:detailWidth1:" .. constants.DEFAULT_DETAIL_WIDTH .. "#Bar width = <value>#0:400:1");
 
 			-- Row spacing (buffSpacing, shared with the Legacy option; a gap between the stacked bars).
@@ -10648,6 +10664,11 @@ CONSOLIDATION REMOVED FROM GAME--]]
 
 			-- Show only dispellable debuffs (displayOnlyDispellableDebuffs on debuff groups).
 			optionsAddObject(-15,   26, "checkbutton#tl:30:%y#i:acDispellableOnly#o:acDispellableOnly#Show only dispellable debuffs");
+
+			-- Show / hide the on-bar text (writes the same showNames1/showTimers1 options the Legacy Style1
+			-- checkboxes do; off omits that fontstring from the bar. The AC display rebuilds on change).
+			optionsAddObject(-15,   26, "checkbutton#tl:30:%y#i:acShowNames1#o:showNames1:true#" .. L["CT_BuffMod/Options/Window/Button/Style1/ShowNameCheckbox"]);
+			optionsAddObject( -5,   26, "checkbutton#tl:30:%y#i:acShowTimers1#o:showTimers1:true#" .. L["CT_BuffMod/Options/Window/Button/General/TimeRemainingCheckbox"]);
 		end
 
 		----------

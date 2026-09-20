@@ -125,7 +125,7 @@ end
 -- regions and register them; Blizzard's SECURE code fills them from the (secret) aura, so it works in
 -- combat. Returns a closure so different aura GROUPS can paint the bright track in their own colour
 -- (regular buffs green, weapon enchants purple -- matching the original per-type colours).
-local function makeInitButton(colorKey, iconSize, rowW, rowH, windowId)
+local function makeInitButton(colorKey, iconSize, rowW, rowH, windowId, iconRight, showName, showTime)
 	iconSize = iconSize or ICON_SIZE;
 	rowW = rowW or ROW_WIDTH;
 	rowH = rowH or ROW_HEIGHT;
@@ -138,11 +138,16 @@ local function makeInitButton(colorKey, iconSize, rowW, rowH, windowId)
 		button.ctWindowId = windowId;
 		allButtons[button] = true;
 
-		-- Icon (left).
+		-- Icon: LEFT by default, or the RIGHT end of the row when the window's icon-position option
+		-- (rightAlign1) is set to "Right side" -- the coloured bar then fills the space to its left.
 		if (not button.ctIcon) then
 			local icon = button:CreateTexture(nil, "ARTWORK");
 			icon:SetSize(iconSize, iconSize);
-			icon:SetPoint("LEFT", button, "LEFT", 0, 0);
+			if (iconRight) then
+				icon:SetPoint("RIGHT", button, "RIGHT", 0, 0);
+			else
+				icon:SetPoint("LEFT", button, "LEFT", 0, 0);
+			end
 			icon:SetTexCoord(0.08, 0.92, 0.08, 0.92);
 			button.ctIcon = icon;
 			pcall(button.SetIcon, button, icon);
@@ -172,8 +177,13 @@ local function makeInitButton(colorKey, iconSize, rowW, rowH, windowId)
 			track:SetTexture(BAR_TEXTURE);
 			local r, g, b = getColor(colorKey);
 			track:SetVertexColor(r, g, b, 0.55);
-			track:SetPoint("TOPLEFT", button.ctIcon, "TOPRIGHT", 1, 0);
-			track:SetPoint("BOTTOMRIGHT", button, "BOTTOMRIGHT", 0, 0);
+			if (iconRight) then	-- icon on the right -> bar fills to its left
+				track:SetPoint("TOPRIGHT", button.ctIcon, "TOPLEFT", -1, 0);
+				track:SetPoint("BOTTOMLEFT", button, "BOTTOMLEFT", 0, 0);
+			else
+				track:SetPoint("TOPLEFT", button.ctIcon, "TOPRIGHT", 1, 0);
+				track:SetPoint("BOTTOMRIGHT", button, "BOTTOMRIGHT", 0, 0);
+			end
 			button.ctTrack = track;
 		end
 		-- Duration bar: a DARK overlay marking the ELAPSED (used-up) part over the bright track. Driven
@@ -188,8 +198,13 @@ local function makeInitButton(colorKey, iconSize, rowW, rowH, windowId)
 			bar:SetStatusBarTexture(BAR_TEXTURE);
 			local pr, pg, pb = getColor("depletion");	-- elapsed-time overlay colour (bgColorBUFF, blue)
 			bar:SetStatusBarColor(pr, pg, pb, 0.85);
-			bar:SetPoint("TOPLEFT", button.ctIcon, "TOPRIGHT", 1, 0);
-			bar:SetPoint("BOTTOMRIGHT", button, "BOTTOMRIGHT", 0, 0);
+			if (iconRight) then	-- icon on the right -> bar fills to its left (same footprint as the track)
+				bar:SetPoint("TOPRIGHT", button.ctIcon, "TOPLEFT", -1, 0);
+				bar:SetPoint("BOTTOMLEFT", button, "BOTTOMLEFT", 0, 0);
+			else
+				bar:SetPoint("TOPLEFT", button.ctIcon, "TOPRIGHT", 1, 0);
+				bar:SetPoint("BOTTOMRIGHT", button, "BOTTOMRIGHT", 0, 0);
+			end
 			if (bar.SetReverseFill) then
 				bar:SetReverseFill(true);
 			end
@@ -206,18 +221,25 @@ local function makeInitButton(colorKey, iconSize, rowW, rowH, windowId)
 			pcall(button.SetApplicationCount, button, count);
 		end
 		-- Time-remaining text on the right of the bar (ChatFontNormal / white -- original default font).
-		if (not button.ctDuration) then
+		-- Omitted entirely when the window's "Show time remaining" option is off (showTimers1).
+		if (showTime and not button.ctDuration) then
 			local dur = button.ctBar:CreateFontString(nil, "OVERLAY", "ChatFontNormal");
 			dur:SetPoint("RIGHT", button.ctBar, "RIGHT", -3, 0);
 			dur:SetJustifyH("RIGHT");
 			button.ctDuration = dur;
 			pcall(button.SetDurationText, button, dur);
 		end
-		-- Spell name label over the bar (GameFontNormal / gold -- original default font).
-		if (not button.ctName) then
+		-- Spell name label over the bar (GameFontNormal / gold -- original default font). Omitted when the
+		-- window's "Show name" option is off (showNames1). Its right edge stops at the time text when that
+		-- is shown, else runs to the bar's right edge (so a name-only bar uses the full width).
+		if (showName and not button.ctName) then
 			local name = button.ctBar:CreateFontString(nil, "OVERLAY", "GameFontNormal");
 			name:SetPoint("LEFT", button.ctBar, "LEFT", 3, 0);
-			name:SetPoint("RIGHT", button.ctDuration, "LEFT", -4, 0);
+			if (button.ctDuration) then
+				name:SetPoint("RIGHT", button.ctDuration, "LEFT", -4, 0);
+			else
+				name:SetPoint("RIGHT", button.ctBar, "RIGHT", -3, 0);
+			end
 			name:SetJustifyH("LEFT");
 			name:SetWordWrap(false);
 			button.ctName = name;
@@ -238,10 +260,10 @@ end
 
 -- Fresh option/layout tables per call (don't share one table across containers). `dispellable` sets the
 -- container's displayOnlyDispellableDebuffs option for a debuff group (show only debuffs you can remove).
-local function groupOpts(colorKey, iconSize, rowW, rowH, windowId, dispellable)
+local function groupOpts(colorKey, iconSize, rowW, rowH, windowId, dispellable, iconRight, showName, showTime)
 	return {
 		templateNames = { "CustomAuraButtonTemplate" },
-		initializeFrame = makeInitButton(colorKey or "buff", iconSize, rowW, rowH, windowId),
+		initializeFrame = makeInitButton(colorKey or "buff", iconSize, rowW, rowH, windowId, iconRight, showName, showTime),
 		displayOnlyDispellableDebuffs = dispellable or nil,
 	};
 end
@@ -583,6 +605,8 @@ local function groupSig(w)
 		tostring(o.separateOwn),
 		tostring(o.buffSize1), tostring(o.detailWidth1),
 		tostring(o.buffSpacing), tostring(o.acMaxCount), tostring(o.acDispellableOnly),
+		tostring(o.rightAlign1),
+		tostring(o.showNames1), tostring(o.showTimers1),
 	}, ":");
 end
 local function sortSig(w)
@@ -619,6 +643,13 @@ local function applyGroups(c, w)
 	local spacing = tonumber(o.buffSpacing) or 0;			-- inter-row gap
 	local maxCount = tonumber(o.acMaxCount) or 0;			-- 0 = unlimited; else cap buttons per group
 	local dispellableOnly = not not o.acDispellableOnly;	-- debuff groups: show only dispellable debuffs
+	-- Icon side: rightAlign1 == 3 (constants.RIGHT_ALIGN_YES) puts the icon on the RIGHT end of the row.
+	-- The AC list always grows downward, so the "Default" (1) side is the left, same as the legacy default.
+	local iconRight = (tonumber(o.rightAlign1) == 3);
+	-- Text toggles (both default ON, matching the legacy defaults): whether each bar shows the spell
+	-- name and the time-remaining text. Off -> that fontstring isn't created/registered on the button.
+	local showName = (o.showNames1 ~= false);
+	local showTime = (o.showTimers1 ~= false);
 
 	-- Vertical column, one aura per row, growing downward (see increment 2d/2e).
 	if (c.SetFlowLayoutMaximumLineSize) then
@@ -670,8 +701,8 @@ local function applyGroups(c, w)
 		if (g.enchant) then
 			-- Temporary weapon enchants are the player's own -- only meaningful on the player window.
 			if (w.unit == "player" and type(AuraContainerItemEnchantmentSlot) == "table" and not addedEnchant) then
-				pcall(c.AddItemEnchantment, c, AuraContainerItemEnchantmentSlot.MainHand, groupOpts(g.colorKey, iconSize, rowW, rowH, wid));
-				pcall(c.AddItemEnchantment, c, AuraContainerItemEnchantmentSlot.OffHand, groupOpts(g.colorKey, iconSize, rowW, rowH, wid));
+				pcall(c.AddItemEnchantment, c, AuraContainerItemEnchantmentSlot.MainHand, groupOpts(g.colorKey, iconSize, rowW, rowH, wid, false, iconRight, showName, showTime));
+				pcall(c.AddItemEnchantment, c, AuraContainerItemEnchantmentSlot.OffHand, groupOpts(g.colorKey, iconSize, rowW, rowH, wid, false, iconRight, showName, showTime));
 				pcall(c.SetItemEnchantmentLayout, c, enchantLayout);
 				addedEnchant = true;
 				c.ctEnchantsAdded = true;
@@ -679,7 +710,7 @@ local function applyGroups(c, w)
 		else
 			-- displayOnlyDispellableDebuffs only makes sense on a debuff (HARMFUL) group.
 			local dispel = dispellableOnly and (g.colorKey == "debuff") or false;
-			pcall(c.AddAuraGroup, c, g.key, g.filter, groupOpts(g.colorKey, iconSize, rowW, rowH, wid, dispel));
+			pcall(c.AddAuraGroup, c, g.key, g.filter, groupOpts(g.colorKey, iconSize, rowW, rowH, wid, dispel, iconRight, showName, showTime));
 			pcall(c.SetAuraGroupLayout, c, g.key, layout(rowW, rowH, spacing));
 			if (maxCount > 0) then
 				pcall(c.SetAuraGroupMaxFrameCount, c, g.key, maxCount);
