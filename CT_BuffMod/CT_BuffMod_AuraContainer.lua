@@ -190,9 +190,11 @@ local function makeInitButton(colorKey, iconSize, rowW, rowH, windowId, iconRigh
 		-- by Blizzard's secure code (SetDurationBar -> SetTimerDuration on the secret duration), so it
 		-- animates in combat too. direction = ElapsedTime GROWS with time, so a permanent buff (no
 		-- duration) stays at 0 -> no overlay -> full bright track; RemainingTime would instead sit empty
-		-- for permanent auras. Reverse fill so the overlay eats from the RIGHT, leaving the remaining
-		-- bright bar (and the name) on the left. Name/time text live on this StatusBar frame so they
-		-- draw ABOVE the fill (a child frame would otherwise render over text placed on the button).
+		-- for permanent auras. Fill direction follows the ICON: the overlay eats from the edge FARTHEST
+		-- from the icon, so the depleting boundary always sweeps TOWARD the icon and the remaining bright
+		-- bar clings to the icon side -- icon left => eat from right (reverse fill); icon right => eat from
+		-- left (normal fill). Name/time text live on this StatusBar frame so they draw ABOVE the fill (a
+		-- child frame would otherwise render over text placed on the button).
 		if (not button.ctBar) then
 			local bar = CreateFrame("StatusBar", nil, button);
 			bar:SetStatusBarTexture(BAR_TEXTURE);
@@ -206,7 +208,7 @@ local function makeInitButton(colorKey, iconSize, rowW, rowH, windowId, iconRigh
 				bar:SetPoint("BOTTOMRIGHT", button, "BOTTOMRIGHT", 0, 0);
 			end
 			if (bar.SetReverseFill) then
-				bar:SetReverseFill(true);
+				bar:SetReverseFill(not iconRight);	-- eat from the icon-far edge -> depletion sweeps toward the icon
 			end
 			button.ctBar = bar;
 			local dir = Enum and Enum.StatusBarTimerDirection and Enum.StatusBarTimerDirection.ElapsedTime;
