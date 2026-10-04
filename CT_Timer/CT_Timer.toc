@@ -1,4 +1,4 @@
-## Interface: 110100, 120000, 120100
+## Interface: 110100, 120000, 120100, 16001
 ## Version: 12.1.2
 ## Title: CTMod Midnight - Timer
 ## Author: Cide & TS (Original CTMod); Midnight community port
