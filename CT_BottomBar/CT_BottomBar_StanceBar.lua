@@ -98,7 +98,9 @@ local function InitStanceBar(self)
 	self.frame:SetHeight(32);
 	self.frame:SetWidth(29);
 	
-	hooksecurefunc("UIParent_ManageFramePositions", moveStanceBar);
+	if (type(UIParent_ManageFramePositions) == "function") then	-- removed on modern clients (WoW Forever)
+		hooksecurefunc("UIParent_ManageFramePositions", moveStanceBar);
+	end
 	StanceBarFrame:HookScript("OnShow", moveStanceBar);
 
 	return true;
@@ -137,7 +139,9 @@ local function InitFlightBar(self)
 	self.frame:SetHeight(20);
 	self.frame:SetWidth(20);
 	
-	hooksecurefunc("UIParent_ManageFramePositions", moveFlightBar);
+	if (type(UIParent_ManageFramePositions) == "function") then	-- removed on modern clients (WoW Forever)
+		hooksecurefunc("UIParent_ManageFramePositions", moveFlightBar);
+	end
 	MainMenuBarVehicleLeaveButton:HookScript("OnShow", moveFlightBar);
 
 	return true;

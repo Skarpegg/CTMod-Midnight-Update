@@ -68,6 +68,11 @@ local function CT_BarMod_Shift_Party_Move2(shift)
 	if (InCombatLockdown()) then
 		return;
 	end
+	-- The classic PartyMemberFrame1 global doesn't exist on every client (absent on WoW Forever's modern
+	-- mainline UI, which uses the newer party frames); without it there's nothing to shift here.
+	if (not PartyMemberFrame1) then
+		return;
+	end
 	local point, rel, relpoint, x, y = PartyMemberFrame1:GetPoint(1);
 	if ( shift and point and rel and relpoint and x and y ) then
 		if (not partyShifted) then
@@ -443,7 +448,13 @@ local function CT_BarMod_Shift_Pet_UpdateTextures()
 	end
 
 	local shift = CT_BarMod_Shift_Pet_GetShiftOption();
-	
+
+	-- The classic sliding pet/stance-bar animation textures don't exist on every client (absent on
+	-- WoW Forever's modern mainline UI); with nothing to hide/show, skip rather than index a nil global.
+	if (not SlidingActionBarTexture0 or not SlidingActionBarTexture1) then
+		return;
+	end
+
 	if (shift) then
 		SlidingActionBarTexture0:Hide();
 		SlidingActionBarTexture1:Hide();
@@ -479,25 +490,31 @@ function CT_BarMod_Shift_Pet_UpdatePositions()
 	end
 
 	local frame, yoffset;
-	frame = CT_BarMod_PetActionBarFrame;	
+	frame = CT_BarMod_PetActionBarFrame;
 	local shift = CT_BarMod_Shift_Pet_GetShiftOption();
 
-	PetActionButton1:ClearAllPoints();
-	PetActionButton1:SetPoint("BOTTOMLEFT", frame, "BOTTOMLEFT", 36, 2);
-	
-	if (shift) then
+	-- Repositioning Blizzard's pet action bar this way is rejected on modern clients: PetActionBarFrame is
+	-- a secure, Edit-Mode-managed frame, so anchoring our frame to both UIParent and PetActionBarFrame
+	-- throws "SetPoint would result in anchor family connection" on WoW Forever (and retail). Guard the
+	-- whole reposition so it degrades (pet bar simply not shifted) on clients that forbid it, instead of
+	-- erroring. Classic clients, where this is allowed, behave exactly as before.
+	local ok = pcall(function()
+		PetActionButton1:ClearAllPoints();
+		PetActionButton1:SetPoint("BOTTOMLEFT", frame, "BOTTOMLEFT", 36, 2);
+
+		if (shift) then
 			CT_BarMod_PetActionBarFrame:ClearAllPoints();
 			CT_BarMod_PetActionBarFrame:SetPoint("BOTTOM", UIParent, "BOTTOM", 0, module:getOption("shiftPetOffset") or 113);
 			CT_BarMod_PetActionBarFrame:SetPoint("LEFT", PetActionBarFrame);
 			PetActionBarFrame:EnableMouse(false);
 			petIsShifted = true;
-
-	else
+		else
 			CT_BarMod_PetActionBarFrame:ClearAllPoints();
 			CT_BarMod_PetActionBarFrame:SetPoint("BOTTOMLEFT", PetActionBarFrame, "BOTTOMLEFT", 0, 0);
 			PetActionBarFrame:EnableMouse(true);
 			petIsShifted = false;
-	end
+		end
+	end);
 end
 
 local function CT_BarMod_Shift_Pet_Init()
@@ -875,9 +892,10 @@ end
 local function CT_BarMod_Shift_UIParent_ManageFramePositions()
 	-- (hook) This is called after Blizzard's UIParent_ManageFramePositions function in UIParent.lua.
 	-- removed from game in 2012 -- CT_BarMod_Shift_MultiCast_UpdateTextures();
-	CT_BarMod_Shift_Pet_UpdateTextures();
-	CT_BarMod_Shift_Possess_UpdateTextures();
-	CT_BarMod_Shift_Stance_UpdateTextures();
+	-- Guarded for the same reason as CT_BarMod_Shift_UpdatePositions (classic globals absent on modern UI).
+	pcall(CT_BarMod_Shift_Pet_UpdateTextures);
+	pcall(CT_BarMod_Shift_Possess_UpdateTextures);
+	pcall(CT_BarMod_Shift_Stance_UpdateTextures);
 end
 
 -------------------------------
@@ -903,23 +921,28 @@ local function CT_BarMod_Shift_OnEvent(self, event, arg1, ...)
 		end --]]
 
 		-- If CT_BottomBar is not loaded, or if it supports deactivation of this bar...
+		-- (pcall-guarded: these init the classic stance/pet/possess shifting, which touches globals absent
+		--  on modern clients like WoW Forever; a failure must not abort the rest of this login handler.)
 		if ((not CT_BottomBar) or (CT_BottomBar and CT_BottomBar.ctPetBar)) then
-			CT_BarMod_Shift_Pet_Init();
+			pcall(CT_BarMod_Shift_Pet_Init);
 		end
 
 		-- If CT_BottomBar is not loaded, or if it supports deactivation of this bar...
 		if ((not CT_BottomBar) or (CT_BottomBar and CT_BottomBar.ctPossess)) then
-			CT_BarMod_Shift_Possess_Init();
+			pcall(CT_BarMod_Shift_Possess_Init);
 		end
 
 		-- If CT_BottomBar is not loaded, or if it supports deactivation of this bar...
 		if ((not CT_BottomBar) or (CT_BottomBar and CT_BottomBar.ctClassBar)) then
-			CT_BarMod_Shift_Stance_Init();
+			pcall(CT_BarMod_Shift_Stance_Init);
 		end
 
 		-- We need to hook the UIParent_ManageFramePositions function since it
-		-- may hide/show some textures.
-		hooksecurefunc("UIParent_ManageFramePositions", CT_BarMod_Shift_UIParent_ManageFramePositions);
+		-- may hide/show some textures. (Removed from modern clients -- absent on WoW Forever/retail -- so
+		-- only hook it when it exists.)
+		if (type(UIParent_ManageFramePositions) == "function") then
+			hooksecurefunc("UIParent_ManageFramePositions", CT_BarMod_Shift_UIParent_ManageFramePositions);
+		end
 
 		-- Since Blizzard uses the "function=" syntax in their xml scripts to
 		-- call UIParent_ManageFramePositions, we will have to hook all scripts
@@ -927,15 +950,22 @@ local function CT_BarMod_Shift_OnEvent(self, event, arg1, ...)
 		-- call post hooks of functions created using hooksecurefunc().
 		-- 	<OnShow function="UIParent_ManageFramePositions"/>
 		-- 	<OnHide function="UIParent_ManageFramePositions"/>
+		-- (Each frame is existence-guarded: some are absent/renamed on modern clients like WoW Forever.)
 
-		StanceBarFrame:HookScript("OnShow", CT_BarMod_Shift_UIParent_ManageFramePositions);
-		StanceBarFrame:HookScript("OnHide", CT_BarMod_Shift_UIParent_ManageFramePositions);
+		if (StanceBarFrame) then
+			StanceBarFrame:HookScript("OnShow", CT_BarMod_Shift_UIParent_ManageFramePositions);
+			StanceBarFrame:HookScript("OnHide", CT_BarMod_Shift_UIParent_ManageFramePositions);
+		end
 
-		DurabilityFrame:HookScript("OnShow", CT_BarMod_Shift_UIParent_ManageFramePositions);
-		DurabilityFrame:HookScript("OnHide", CT_BarMod_Shift_UIParent_ManageFramePositions);
-		
-		PetActionBarFrame:HookScript("OnShow", CT_BarMod_Shift_UIParent_ManageFramePositions);
-		PetActionBarFrame:HookScript("OnHide", CT_BarMod_Shift_UIParent_ManageFramePositions);
+		if (DurabilityFrame) then
+			DurabilityFrame:HookScript("OnShow", CT_BarMod_Shift_UIParent_ManageFramePositions);
+			DurabilityFrame:HookScript("OnHide", CT_BarMod_Shift_UIParent_ManageFramePositions);
+		end
+
+		if (PetActionBarFrame) then
+			PetActionBarFrame:HookScript("OnShow", CT_BarMod_Shift_UIParent_ManageFramePositions);
+			PetActionBarFrame:HookScript("OnHide", CT_BarMod_Shift_UIParent_ManageFramePositions);
+		end
 
 		if (PossessBarFrame) then
 			PossessBarFrame:HookScript("OnShow", CT_BarMod_Shift_UIParent_ManageFramePositions);
@@ -948,10 +978,15 @@ local function CT_BarMod_Shift_OnEvent(self, event, arg1, ...)
 		end
 		
 		if (module:getGameVersion() <= 7) then
-			-- Classic
-			ReputationWatchBar:HookScript("OnHide", CT_BarMod_Shift_UIParent_ManageFramePositions);
-			MainMenuBarMaxLevelBar:HookScript("OnShow", CT_BarMod_Shift_UIParent_ManageFramePositions);
-			MainMenuBarMaxLevelBar:HookScript("OnHide", CT_BarMod_Shift_UIParent_ManageFramePositions);
+			-- Classic. NOTE: WoW Forever also reports game version <= 7 (it's 1.x) but runs the modern UI,
+			-- which lacks these classic globals -- so existence-guard each instead of assuming they're there.
+			if (ReputationWatchBar) then
+				ReputationWatchBar:HookScript("OnHide", CT_BarMod_Shift_UIParent_ManageFramePositions);
+			end
+			if (MainMenuBarMaxLevelBar) then
+				MainMenuBarMaxLevelBar:HookScript("OnShow", CT_BarMod_Shift_UIParent_ManageFramePositions);
+				MainMenuBarMaxLevelBar:HookScript("OnHide", CT_BarMod_Shift_UIParent_ManageFramePositions);
+			end
 		end
 	end
 
@@ -978,10 +1013,15 @@ end
 -- Miscellaneous
 
 function CT_BarMod_Shift_UpdatePositions()
+	-- These reposition Blizzard's secure stance/pet/possess bars using classic-era frame/texture globals
+	-- (StanceBarLeft, PetActionBarFrame, …) and anchoring. On modern clients -- WoW Forever (game version
+	-- 1.x but the modern UI) and retail -- many of those globals are absent/renamed and some anchors are
+	-- forbidden, so guard each bar independently: one that can't be shifted degrades silently instead of
+	-- erroring and blocking the others.
 	-- removed in 2012 -- CT_BarMod_Shift_MultiCast_UpdatePositions();
-	CT_BarMod_Shift_Pet_UpdatePositions();
-	CT_BarMod_Shift_Possess_UpdatePositions();
-	CT_BarMod_Shift_Stance_UpdatePositions();
+	pcall(CT_BarMod_Shift_Pet_UpdatePositions);
+	pcall(CT_BarMod_Shift_Possess_UpdatePositions);
+	pcall(CT_BarMod_Shift_Stance_UpdatePositions);
 end
 
 function CT_BarMod_Shift_ResetPositions()

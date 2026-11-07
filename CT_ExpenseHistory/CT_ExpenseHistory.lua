@@ -387,7 +387,7 @@ end
 
 function CT_EH_OnShow()
 	PlaySound(1115);
-	PanelTemplates_SetTab(CT_ExpenseHistoryFrame, 1);
+	pcall(PanelTemplates_SetTab, CT_ExpenseHistoryFrame, 1);	-- guarded: tab highlight is cosmetic; the show/hide below does the real switch
 	CT_ExpenseHistoryFrameSummary:Show();
 	CT_ExpenseHistoryFrameLog:Hide();
 	CT_EH_UpdateSummary();
@@ -568,7 +568,7 @@ function CT_EH_Tab_OnClick(self)
 		CT_EH_UpdateLog();
 	end
 	PlaySound(841);
-	PanelTemplates_SetTab(CT_ExpenseHistoryFrame, self:GetID());
+	pcall(PanelTemplates_SetTab, CT_ExpenseHistoryFrame, self:GetID());	-- guarded: see CT_EH_OnShow
 end
 
 -- Find out if vendor is reagent vendor
@@ -758,25 +758,52 @@ end
 -- CT_ExpenseHistoryFrame
 
 function CT_ExpenseHistoryFrame_OnLoad(self)
-		
-		local tab1 = CreateFrame("Button", "CT_ExpenseHistoryFrameTab1", self, module:getGameVersion() >= 10 and "CharacterFrameTabTemplate" or "CharacterFrameTabButtonTemplate", 1)
+
+		-- Find the character-frame tab template THIS client actually has. Dragonflight+ retail uses
+		-- CharacterFrameTabTemplate; Classic Era/Cata use CharacterFrameTabButtonTemplate; WoW Forever has
+		-- neither (it's game version 1.x so getGameVersion() checks also misfire) but does expose the generic
+		-- PanelTabButtonTemplate (the standard bottom-tab template -- confirmed on the 1.60.1 client). Probe
+		-- the candidates by trying to create a throwaway frame with each and use the first that works; if none
+		-- do, the tab block below is skipped so the module still loads. PanelTabButtonTemplate is listed before
+		-- PanelTopTabButtonTemplate because these tabs sit at the BOTTOM of the window.
+		local tabTemplate;
+		for _, tabName in ipairs({ "CharacterFrameTabButtonTemplate", "CharacterFrameTabTemplate", "PanelTabButtonTemplate", "PanelTopTabButtonTemplate" }) do
+			local ok, probeFrame = pcall(CreateFrame, "Button", nil, UIParent, tabName);	-- detect on UIParent
+			if (ok and probeFrame) then
+				probeFrame:Hide();	-- throwaway probe; can't destroy, so just hide it
+				tabTemplate = tabName;
+				break;
+			end
+		end
+
+		self:RegisterEvent("PLAYER_LOGIN");
+		self.elapsed = 0;
+
+		-- When no template is found, skip the tabs so the module still loads (summary/log view just isn't
+		-- tabbed). numTabs is set directly and the PanelTemplates calls are guarded: on some clients (e.g.
+		-- WoW Forever) the PanelTemplates tab machinery and these templates don't fully cooperate. The actual
+		-- Summary/Log switching is done by show/hide in CT_EH_Tab_OnClick / CT_EH_OnShow (independent of the
+		-- tab visuals), so a guarded-away tab highlight never breaks the window.
+		if (tabTemplate) then
+
+		local tab1 = CreateFrame("Button", "CT_ExpenseHistoryFrameTab1", self, tabTemplate, 1)
 		tab1:SetText(L["CT_ExpenseHistory/Summary/Heading"])
 		tab1:SetPoint("CENTER", self, "BOTTOMLEFT", 60, -8)
 		tab1:SetSize(115, 32)
 		tab1:SetFrameLevel(2)
 		tab1:SetScript("OnClick", CT_EH_Tab_OnClick)
-			
-		local tab2 = CreateFrame("Button", "CT_ExpenseHistoryFrameTab2", self, module:getGameVersion() >= 10 and "CharacterFrameTabTemplate" or "CharacterFrameTabButtonTemplate", 2)
+
+		local tab2 = CreateFrame("Button", "CT_ExpenseHistoryFrameTab2", self, tabTemplate, 2)
 		tab2:SetText(L["CT_ExpenseHistory/Log/Heading"])
 		tab2:SetPoint("LEFT", tab1, "RIGHT", -16, 0)
 		tab2:SetSize(115, 32)
 		tab2:SetFrameLevel(2)
 		tab2:SetScript("OnClick", CT_EH_Tab_OnClick)
 
-		self:RegisterEvent("PLAYER_LOGIN");
-		self.elapsed = 0;
-		PanelTemplates_SetNumTabs(self, 2);
-		PanelTemplates_SetTab(self, 1);
+		self.numTabs = 2;	-- set directly so any later PanelTemplates_SetTab/UpdateTabs sees a number
+		pcall(PanelTemplates_SetNumTabs, self, 2);
+		pcall(PanelTemplates_SetTab, self, 1);
+		end
 		Mixin(self, BackdropTemplateMixin or { });
 		self:SetBackdrop({
 			bgFile = "Interface\\DialogFrame\\UI-DialogBox-Background",

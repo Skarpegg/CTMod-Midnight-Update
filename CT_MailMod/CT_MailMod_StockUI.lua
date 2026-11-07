@@ -920,7 +920,25 @@ do
 		module:inboxUpdateQuickAction();
 		module:inboxUpdateMailboxCount();
 	end
-	hooksecurefunc("InboxFrame_Update", inboxframe_update);
+	-- Forever's mail UI does not expose the InboxFrame_Update global at load time (it is absent on the
+	-- current Forever client), so hooking it directly errored and ABORTED the rest of this file -- which
+	-- is why methods defined below (e.g. updateMailLogButton) came up nil. Hook it only when present; if a
+	-- load-on-demand mail UI defines it later, hook on the first MAIL_SHOW.
+	local function ctHookInboxUpdate()
+		if (type(InboxFrame_Update) == "function" and not module.ctInboxHooked) then
+			module.ctInboxHooked = true;
+			hooksecurefunc("InboxFrame_Update", inboxframe_update);
+			return true;
+		end
+		return false;
+	end
+	if (not ctHookInboxUpdate()) then
+		module:regEvent("MAIL_SHOW", function()
+			if (ctHookInboxUpdate()) then
+				inboxframe_update();
+			end
+		end);
+	end
 
 	module:regCustomEvent("INCOMING_UPDATE", function(self, event)
 		module:inboxUpdateOther();
@@ -941,7 +959,7 @@ do
 	function module:gotoInboxPage(page)
 		-- Displays the specified inbox page.
 		InboxFrame.pageNum = page;
-		InboxFrame_Update();
+		if (InboxFrame_Update) then InboxFrame_Update(); end
 	end
 
 	function module:gotoInboxMailPage(mailIndex)
@@ -1114,7 +1132,9 @@ end
 
 
 -- Right click the Prev/Next page buttons
-do
+-- (These inbox paging buttons are part of the classic mail UI; Forever's modern mail UI doesn't have
+--  them, so only customise them when they exist.)
+if (InboxPrevPageButton and InboxNextPageButton) then
 	InboxPrevPageButton:ClearAllPoints();
 	InboxPrevPageButton:SetPoint("CENTER", InboxFrame, "BOTTOMLEFT", 30, 110);
 
@@ -1131,7 +1151,7 @@ do
 				lastPage = 1;
 			end
 			InboxFrame.pageNum = lastPage;
-			InboxFrame_Update();
+			if (InboxFrame_Update) then InboxFrame_Update(); end
 		end
 	end
 	InboxNextPageButton:HookScript("OnClick", inboxNextPage);
@@ -1139,7 +1159,7 @@ do
 	local function inboxPrevPage(self, button, ...)
 		if (button == "RightButton" or IsShiftKeyDown()) then
 			InboxFrame.pageNum = 1;
-			InboxFrame_Update();
+			if (InboxFrame_Update) then InboxFrame_Update(); end
 		end
 	end
 	InboxPrevPageButton:HookScript("OnClick", inboxPrevPage);
@@ -1210,7 +1230,7 @@ function InboxFrame_OnClick(self, index)
 		InboxFrame.openMailID = 0;
 		HideUIPanel(OpenMailFrame);
 	end
-	InboxFrame_Update();
+	if (InboxFrame_Update) then InboxFrame_Update(); end
 end
 
 function InboxFrame_OnModifiedClick(self, index)

@@ -167,8 +167,12 @@ local function addon_Init(self)
 	local frame = CreateFrame("Frame", "CT_BottomBar_" .. self.frameName .. "_GuideFrame");
 	self.helperFrame = frame;
 
-	hooksecurefunc("PossessBar_Update", addon_Hooked_PossessBar_Update);
-	hooksecurefunc("PossessBar_UpdateState", addon_Hooked_PossessBar_UpdateState);
+	if (type(PossessBar_Update) == "function") then	-- absent/renamed on modern clients (WoW Forever)
+		hooksecurefunc("PossessBar_Update", addon_Hooked_PossessBar_Update);
+	end
+	if (type(PossessBar_UpdateState) == "function") then
+		hooksecurefunc("PossessBar_UpdateState", addon_Hooked_PossessBar_UpdateState);
+	end
 
 	return true;
 end

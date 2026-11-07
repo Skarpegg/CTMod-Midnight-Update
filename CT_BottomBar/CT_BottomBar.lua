@@ -582,7 +582,9 @@ local function hook_UIParent_ManageFramePositions()
 	-- Hook the UIParent_ManageFramePositions function so we can make some adjustments.
 
 	-- This hook catches the places where the function is called using its global name.
-	hooksecurefunc("UIParent_ManageFramePositions", CT_BottomBar_Hooked_UIParent_ManageFramePositions);
+	if (type(UIParent_ManageFramePositions) == "function") then	-- removed on modern clients (WoW Forever)
+		hooksecurefunc("UIParent_ManageFramePositions", CT_BottomBar_Hooked_UIParent_ManageFramePositions);
+	end
 
 	-- The following hooks are required for Blizzard xml scripts that use the following syntax to
 	-- call UIParent_ManageFramePositions. This xml syntax does not call our secure hook of

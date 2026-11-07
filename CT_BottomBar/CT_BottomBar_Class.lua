@@ -216,7 +216,9 @@ local function addon_Init(self)
 	frame:RegisterEvent("ACTIVE_TALENT_GROUP_CHANGED");
 	frame:SetScript("OnEvent", addon_OnEvent);
 
-	hooksecurefunc("StanceBar_Update", addon_Hooked_StanceBar_Update);
+	if (type(StanceBar_Update) == "function") then	-- absent/renamed on modern clients (WoW Forever)
+		hooksecurefunc("StanceBar_Update", addon_Hooked_StanceBar_Update);
+	end
 
 	return true;
 end

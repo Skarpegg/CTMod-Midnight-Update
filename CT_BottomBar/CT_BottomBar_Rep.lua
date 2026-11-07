@@ -796,7 +796,7 @@ local function addon_Init(self)
 	-- (from ReputationFrame.lua)
 	if ReputationWatchBar_UpdateMaxLevel then
 		hooksecurefunc("ReputationWatchBar_UpdateMaxLevel", addon_Hooked_ReputationWatchBar_Update);
-	else
+	elseif ReputationWatchBar_Update then	-- both reputation-watch funcs are gone on modern clients (WoW Forever)
 		hooksecurefunc("ReputationWatchBar_Update", addon_Hooked_ReputationWatchBar_Update);
 	end
 	

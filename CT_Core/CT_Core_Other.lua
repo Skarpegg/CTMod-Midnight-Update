@@ -3001,10 +3001,14 @@ if PlayerPowerBarAlt and not EncounterBar then
 				end
 			);
 
-			hooksecurefunc("UIParent_ManageFramePositions", powerbaralt_UIParent_ManageFramePositions);
-			-- By now GetCVar("uiScale") has a value, so if Blizzard_CombatLog is already loaded
-			-- then it won't cause an error when it tries to multiply by the uiScale.
-			UIParent_ManageFramePositions();
+			-- UIParent_ManageFramePositions was removed from modern clients (absent on WoW Forever); only
+			-- hook and call it where it exists.
+			if (type(UIParent_ManageFramePositions) == "function") then
+				hooksecurefunc("UIParent_ManageFramePositions", powerbaralt_UIParent_ManageFramePositions);
+				-- By now GetCVar("uiScale") has a value, so if Blizzard_CombatLog is already loaded
+				-- then it won't cause an error when it tries to multiply by the uiScale.
+				UIParent_ManageFramePositions();
+			end
 		end
 	end
 	
