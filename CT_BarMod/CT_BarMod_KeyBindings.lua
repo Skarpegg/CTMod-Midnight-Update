@@ -129,7 +129,7 @@ local function buttonsSetMode(mode)
 	buttonsFrame:GetScript("OnShow")(buttonsFrame);
 end
 
-local function getSpellName(actionId, actionMode, noRank)
+local function getSpellName_impl(actionId, actionMode, noRank)
 	local spellName, spellRank;
 
 	if (HasAction(actionId)) then
@@ -196,6 +196,19 @@ local function getSpellName(actionId, actionMode, noRank)
 	end
 
 	return spellName;
+end
+
+-- In combat on modern clients (WoW Forever / retail Midnight), GetActionInfo and the spell name
+-- it yields can be Midnight "secret" values that tainted addon code may neither compare nor read
+-- (the spellName ~= "" test above then throws "a secret string value ... tainted by CT_BarMod").
+-- getSpellName is display-only (keybindings list and binding tooltips), so wrap the worker and
+-- fall back to a neutral placeholder instead of erroring when a name comes back secret.
+local function getSpellName(actionId, actionMode, noRank)
+	local ok, result = pcall(getSpellName_impl, actionId, actionMode, noRank);
+	if (ok) then
+		return result;
+	end
+	return "|c00AAAAAA...|r";
 end
 
 local function buttonsUpdateEntry(index, object, isGroup, group)
