@@ -514,10 +514,20 @@ end
 -- Update: Keybinds trigger Button31, but are now converted to LeftButton during execution so the macro conditional [button:1] will trigger.
 function actionButton:setClickDirection(onKeyDown, alsoOnMouseDown)
 
-	if module:getGameVersion() >= 10 then
+	if module:getGameVersion() >= 10 or EditModeManagerFrame then
+		-- Retail 10.0+, AND WoW Forever. Both are modern-UI clients; we detect them with a
+		-- capability probe (EditModeManagerFrame -- Edit Mode exists on retail and Forever but on
+		-- no Classic flavour) rather than a version/project id, because Forever reports game
+		-- version 1 and its WOW_PROJECT_ID is 18 -- neither WOW_PROJECT_MAINLINE (1) nor
+		-- _CLASSIC (2), so the old WOW_PROJECT_MAINLINE test never fired here.
+		-- Modern clients only fire a cast from a mouse click when the button registers "AnyDown";
+		-- the classic "AnyUp" path below never casts on these down-cast clients. The caller
+		-- already passes onKeyDown = (ActionButtonUseKeyDown=="1"), so forcing alsoOnMouseDown
+		-- routes the button to the "AnyDown" branch when the CVar is down-cast, and leaves the
+		-- "AnyUp" branch (correct) when a user has set up-cast.
 		alsoOnMouseDown = true
 	end
-	
+
 	self.button:SetAttribute("type31", "")
 	if (self.onClickDirectionPreviouslySet) then
 		self.button:UnwrapScript(self.button, "OnClick")

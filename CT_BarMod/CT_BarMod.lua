@@ -217,7 +217,9 @@ local function extraBar_OnHide(self)
 		extraBar_setButtonAlpha(self, 0);
 
 		-- Adjust position of managed frames (some may be affected by this frame).
-		UIParent_ManageFramePositions();
+		if (UIParent_ManageFramePositions) then	-- removed on modern clients (WoW Forever)
+			UIParent_ManageFramePositions();
+		end
 	end
 end
 
@@ -300,7 +302,9 @@ local function hideExtraBar(page, hide)
 			adjustVehicleSeatIndicator();
 
 			-- Adjust position of managed frames (some may be affected by this frame).
-			UIParent_ManageFramePositions();
+			if (UIParent_ManageFramePositions) then	-- removed on modern clients (WoW Forever)
+				UIParent_ManageFramePositions();
+			end
 		end
 	end
 end

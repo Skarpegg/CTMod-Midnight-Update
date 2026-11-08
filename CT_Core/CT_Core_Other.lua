@@ -3086,7 +3086,7 @@ if PlayerPowerBarAlt and not EncounterBar then
 			-- at ADDON_LOADED time by CT_Libary (during the "init" options step).
 
 			PlayerPowerBarAlt:ClearAllPoints();
-			if (GetCVar("uiScale")) then
+			if (GetCVar("uiScale") and UIParent_ManageFramePositions) then	-- removed on modern clients (WoW Forever)
 				UIParent_ManageFramePositions();
 			end
 		end

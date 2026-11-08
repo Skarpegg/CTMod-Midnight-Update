@@ -490,7 +490,7 @@ local function updateChatResizeButton(buttonNum)
 end
 
 local function updateChatResizeButtons()
-	if module:getGameVersion() >= 10 then return end -- Disabled for Retail since Edit Mode handles this entirely
+	if (module:getGameVersion() >= 10 or EditModeManagerFrame) then return end -- Disabled on modern UI (retail + WoW Forever, detected via Edit Mode); Edit Mode handles chat resize there. Forever reports game version 1 so >=10 alone misses it.
 	for buttonNum = 1, 4 do
 		updateChatResizeButton(buttonNum);
 	end
@@ -554,7 +554,7 @@ local function setChatResizeMouseover(showOnMouseover)
 end
 
 local function updateChatResizeMouseover()
-	if module:getGameVersion() >= 10 then return end -- Disabled for Retail
+	if (module:getGameVersion() >= 10 or EditModeManagerFrame) then return end -- Disabled on modern UI (retail + WoW Forever, detected via Edit Mode; Forever is game version 1)
 	local showOnMouseover = module:getOption("chatResizeMouseover");
 	if (showOnMouseover) then
 		setChatResizeMouseover(true);
@@ -570,7 +570,7 @@ end
 local chatResizePoints = {"TOPRIGHT", "TOPLEFT", "BOTTOMLEFT"};
 
 local function createChatFrameResizeButtons(chatFrame)
-	if (module:getGameVersion() >= 10) then return false end -- Fully blocked in Retail to prevent UI lockups
+	if (module:getGameVersion() >= 10 or EditModeManagerFrame) then return false end -- Fully blocked on modern UI (retail + WoW Forever, detected via Edit Mode; Forever is game version 1) to prevent UI lockups
 	if (not chatFrame) then return; end
 	local chatFrameName = chatFrame:GetName();
 	if (not chatFrameName) then return; end
@@ -616,7 +616,7 @@ local function createChatFrameResizeButtons(chatFrame)
 end
 
 local function createChatResizeButtons()
-	if module:getGameVersion() >= 10 then return false end
+	if (module:getGameVersion() >= 10 or EditModeManagerFrame) then return false end -- Disabled on modern UI (retail + WoW Forever, detected via Edit Mode; Forever is game version 1)
 	local updated;
 	for _, chatFrameName in pairs(CHAT_FRAMES) do
 		local chatFrame = _G[chatFrameName]
