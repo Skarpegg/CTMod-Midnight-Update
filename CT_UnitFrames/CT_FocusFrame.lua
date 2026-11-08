@@ -96,7 +96,7 @@ function CT_FocusFrame_OnLoad(self)
 	end
 	
 	local args =
-		module:getGameVersion() >= 10 and {
+		(module:getGameVersion() >= 10 or EditModeManagerFrame) and {
 			unit1,
 			_G[thisName.."TextureFrameName"],
 			"Target", -- WoW 10.x frameType
@@ -1089,7 +1089,7 @@ function CT_TargetofFocus_OnLoad(self)
 	local thisName = self:GetName();
 	local frame = self;
 
-	if module:getGameVersion() >= 10 then
+	if (module:getGameVersion() >= 10 or EditModeManagerFrame) then
 		UnitFrame_Initialize(frame,
 			unit2,
 			_G[thisName.."TextureFrameName"],

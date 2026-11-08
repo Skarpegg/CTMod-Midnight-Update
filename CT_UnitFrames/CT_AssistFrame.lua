@@ -96,7 +96,7 @@ function CT_AssistFrame_OnLoad(self)
 		portraitFrame = _G[thisName.."Portrait"];
 	end
 
-	if module:getGameVersion() >= 10 then
+	if (module:getGameVersion() >= 10 or EditModeManagerFrame) then
 		UnitFrame_Initialize(self,
 			unit1,
 			_G[thisName.."TextureFrameName"],
@@ -1097,7 +1097,7 @@ function CT_TargetofAssist_OnLoad(self)
 	local thisName = self:GetName();
 	local frame = self;
 
-	if module:getGameVersion() >= 10 then
+	if (module:getGameVersion() >= 10 or EditModeManagerFrame) then
 		UnitFrame_Initialize(frame,
 			unit2,
 			_G[thisName.."TextureFrameName"],
