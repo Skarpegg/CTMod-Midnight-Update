@@ -40,9 +40,22 @@ end
 -- Default (unset) is AuraContainer on capable clients; Classic/Cata never load this file so they stay
 -- on the legacy header. Exposed as CT_BuffMod_AuraContainerActive() for the options panel to branch on.
 local function isActive()
+	if (not isCapable()) then
+		return false;
+	end
+	-- The Legacy header is only a valid engine on clients that still have SecureAuraHeaderTemplate (the
+	-- earlier Classic variants). Midnight 12.1 removed that template, so on Midnight/Forever the legacy
+	-- header can only run its degraded unsecure fallback (bad sorting, blank icons, missing buffs like
+	-- Blood Fury). Wherever the secure template is gone, force the AuraContainer on regardless of the
+	-- saved buffEngine option -- the options panel also hides the engine dropdown there, so this is the
+	-- only engine. The buffEngine choice is honoured only where both engines actually work.
+	local secureAvail = _G.CT_BuffMod_SecureAuraHeaderAvailable;
+	if (secureAvail and not secureAvail()) then
+		return true;
+	end
 	local mod = _G["CT_BuffMod"];
 	local eng = mod and mod.getOption and mod:getOption("buffEngine");
-	return (eng ~= 2) and isCapable();
+	return (eng ~= 2);
 end
 _G.CT_BuffMod_AuraContainerActive = isActive;
 
@@ -95,6 +108,7 @@ local function getColor(key)
 end
 local allButtons = {};	-- every styled CustomAuraButton, so a colour-option change can recolour in place
 local windowFontSize = {};	-- [windowId] = current fontSize option, so a font change can re-font in place
+local windowWarnMode = {};	-- [windowId] = acDurationWarn option (1=off,2=last 25%,3=under 90s), read at button build
 
 -- Map CT_BuffMod's fontSize option (1=normal, 2=small, 3=large) onto a bar's name/time fontstrings,
 -- mirroring the legacy display's font objects (large reuses the same lazily-created custom fonts).
@@ -119,6 +133,138 @@ local function applyFonts(button, fontSize)
 	end
 	if (button.ctName) then button.ctName:SetFontObject(nameFont); end
 	if (button.ctDuration) then button.ctDuration:SetFontObject(timeFont); end
+end
+
+-- Retail-style remaining-duration formatter for SetDurationText.
+--
+-- Why this is needed: on the live retail client, CustomAuraButton:SetDurationText(fontString) renders the
+-- countdown with a built-in default format. On WoW Forever the same call succeeds (verified: no error) but
+-- draws NOTHING -- Forever has no built-in default formatter, so the duration text stayed blank. Supplying
+-- an explicit textFormatter makes the text appear, formatted like retail: a single one-letter unit that
+-- rolls up near 1.5x each boundary ("45s", "90s", "2m", "1h"), truncated. Construction mirrors the known-
+-- good one in LibAuraContainer-1.0 (C_StringUtil.CreateSecondsFormatter), which exists precisely to fill
+-- this gap on clients without the native default.
+--
+-- Built once and cached. Every API piece is feature-probed and the whole build is pcall-guarded; if any
+-- part is missing on this client the formatter is nil and the caller falls back to the bare SetDurationText
+-- (no worse than today). A NumericFormatter is a stateless config object, so one instance is shared by all
+-- buttons.
+local durationFormatter;		-- the cached NumericFormatter, or false once a build has failed
+local function getDurationFormatter()
+	if (durationFormatter ~= nil) then
+		return durationFormatter or nil;
+	end
+	durationFormatter = false;	-- don't retry a failed build every button
+	local Interval = Enum and Enum.SecondsFormatterInterval;
+	if (not (C_StringUtil and C_StringUtil.CreateSecondsFormatter and C_CurveUtil and C_CurveUtil.CreateCurve
+		and Interval and Enum.LuaCurveType and Enum.LuaCurveType.Step and Enum.SecondsFormatterAbbreviation)) then
+		return nil;
+	end
+	local ok, fmt = pcall(function()
+		-- Switch "seconds -> minutes -> hours -> days" at 1.5x each unit + 1s (so 90s still reads "90s",
+		-- 91s reads "2m"): a step curve mapping remaining seconds to the display interval, like retail.
+		local unitLengths = { { 60, "Minutes" }, { 3600, "Hours" }, { 86400, "Days" } };
+		local unitCurve = C_CurveUtil.CreateCurve();
+		unitCurve:SetType(Enum.LuaCurveType.Step);
+		unitCurve:AddPoint(0, Interval.Seconds);
+		for _, u in ipairs(unitLengths) do
+			if (Interval[u[2]]) then
+				unitCurve:AddPoint(u[1] * 3 / 2 + 1, Interval[u[2]]);
+			end
+		end
+		local f = C_StringUtil.CreateSecondsFormatter();
+		f:SetMinInterval(Interval.Seconds);
+		f:SetMaxIntervalCurve(unitCurve);
+		f:SetDesiredUnitCount(1);
+		f:SetDefaultAbbreviation(Enum.SecondsFormatterAbbreviation.OneLetter);
+		if (f.SetCanRoundUpLastUnit) then f:SetCanRoundUpLastUnit(true); end
+		if (f.SetRounding and Enum.SecondsFormatterRounding) then
+			f:SetRounding(Enum.SecondsFormatterRounding.Truncate);
+		end
+		return f;
+	end);
+	if (ok and fmt) then
+		durationFormatter = fmt;
+		return fmt;
+	end
+	return nil;
+end
+
+-- Optional "expiring duration" highlight (acDurationWarn option, per window):
+--   1 = Off           -> no colour curve (text keeps its font colour)
+--   2 = Last 25%      -> red while the aura is in its final 25% (scales to any length, so an 8s buff only
+--                        reds in its last ~2s -- no permanently-red short buffs)
+--   3 = Under 90s     -> red while under 90s remaining, like retail's BuffFrame warning (short buffs that
+--                        never exceed 90s therefore read red for their whole life -- the trade-off of a flat
+--                        threshold, which is exactly why mode 2 exists)
+-- Built as a step colour-curve on the duration binding (the way Blizzard/perskan do it): red below the
+-- threshold, normal white above. Mode 2 samples RemainingPercent (assumed 0..1), mode 3 RemainingDuration
+-- (seconds). Cached per mode (one curve object, shared -- it is config, never mutated after build) and
+-- fully feature-probed/pcall-guarded; if the curve can't be built this returns nil and the duration text
+-- just shows without the highlight.
+local warnColorCache = {};	-- [mode] = options table, or false once a build has failed
+local function buildWarnColorOptions(mode)
+	mode = tonumber(mode) or 1;
+	if (mode ~= 2 and mode ~= 3) then
+		return nil;	-- Off / unknown
+	end
+	local cached = warnColorCache[mode];
+	if (cached ~= nil) then
+		return cached or nil;
+	end
+	warnColorCache[mode] = false;
+	local Prop = Enum and Enum.DurationTextBindingProperty;
+	local StepType = Enum and Enum.LuaCurveType and Enum.LuaCurveType.Step;
+	if (not (Prop and StepType and C_CurveUtil and C_CurveUtil.CreateColorCurve and CreateColor)) then
+		return nil;
+	end
+	local property, threshold;
+	if (mode == 3) then
+		property, threshold = Prop.RemainingDuration, 90;		-- seconds remaining
+	else
+		property, threshold = Prop.RemainingPercent, 25;		-- percent remaining, 0..100 scale (final 25%)
+	end
+	if (not property) then
+		return nil;
+	end
+	local ok, curve = pcall(function()
+		local c = C_CurveUtil.CreateColorCurve();
+		c:SetType(StepType);
+		c:AddPoint(0, CreateColor(1, 0.2, 0.2, 1));			-- expiring: red
+		c:AddPoint(threshold, CreateColor(1, 1, 1, 1));		-- above threshold: normal white
+		return c;
+	end);
+	if (ok and curve) then
+		local opts = { curve = curve, property = property };
+		warnColorCache[mode] = opts;
+		return opts;
+	end
+	return nil;
+end
+
+-- Register the remaining-duration text on a CustomAuraButton. Prefer the retail-style formatter (so text
+-- actually shows on Forever) plus the optional expiring-duration highlight (per the window's acDurationWarn).
+-- Falls back progressively so a bad/unsupported option NEVER leaves the text blank: formatter+colour ->
+-- formatter only -> bare registration (correct on clients that have a native default).
+local function registerDurationText(button, fontString)
+	if (type(button.SetDurationText) ~= "function") then
+		return;
+	end
+	local fmt = getDurationFormatter();
+	local textColor = buildWarnColorOptions(windowWarnMode[button.ctWindowId]);
+	if (fmt) then
+		if (textColor) then
+			if (pcall(button.SetDurationText, button, fontString, { textFormatter = fmt, textColor = textColor })) then
+				return;
+			end
+			-- The colour curve may be unsupported on this client -- retry with the formatter alone so the
+			-- countdown text still appears (just without the highlight).
+		end
+		if (pcall(button.SetDurationText, button, fontString, { textFormatter = fmt })) then
+			return;
+		end
+	end
+	pcall(button.SetDurationText, button, fontString);
 end
 
 -- initializeFrame factory: CustomAuraButton is "bring your own regions" -- we create the display
@@ -229,7 +375,7 @@ local function makeInitButton(colorKey, iconSize, rowW, rowH, windowId, iconRigh
 			dur:SetPoint("RIGHT", button.ctBar, "RIGHT", -3, 0);
 			dur:SetJustifyH("RIGHT");
 			button.ctDuration = dur;
-			pcall(button.SetDurationText, button, dur);
+			registerDurationText(button, dur);
 		end
 		-- Spell name label over the bar (GameFontNormal / gold -- original default font). Omitted when the
 		-- window's "Show name" option is off (showNames1). Its right edge stops at the time text when that
@@ -609,6 +755,7 @@ local function groupSig(w)
 		tostring(o.buffSpacing), tostring(o.acMaxCount), tostring(o.acDispellableOnly),
 		tostring(o.rightAlign1),
 		tostring(o.showNames1), tostring(o.showTimers1),
+		tostring(o.acDurationWarn),
 	}, ":");
 end
 local function sortSig(w)
@@ -771,6 +918,9 @@ local function buildWindow(w)
 	-- Live font-size source for this window (read by the init closure for new buttons, and by
 	-- refontWindow for existing ones). Set before any (re)build so freshly-created buttons pick it up.
 	windowFontSize[id] = tonumber(w.options and w.options.fontSize) or 1;
+	-- Expiring-duration highlight mode for this window (read by registerDurationText for new buttons).
+	-- In groupSig below, so a change recreates the container and re-registers the duration text/colour.
+	windowWarnMode[id] = tonumber(w.options and w.options.acDurationWarn) or 1;
 	local c = containers[id];
 	local gsig = groupSig(w);
 	local ssig = sortSig(w);
@@ -991,7 +1141,61 @@ SlashCmdList.CTBUFFMODAC = function(msg)
 	if (msg == "debug") then
 		CT_BuffMod_AuraContainerDB.debug = not CT_BuffMod_AuraContainerDB.debug;
 		print("|cff33ff99CT_BuffMod|r AuraContainer debug: " .. (CT_BuffMod_AuraContainerDB.debug and "ON (/reload to rebuild with group dumps)" or "OFF"));
+	elseif (msg == "dump") then
+		-- Support diagnostic: report whether the duration/name text is actually wired on THIS client.
+		-- CustomAuraButton:SetDurationText/SetSpellName are called in a pcall whose result is IGNORED, so a
+		-- build where they error renders no text with no visible failure. NOTE: a secure aura button's STATE
+		-- (IsShown/GetText/GetAlpha) comes back as a Midnight "secret" value that tainted code can't test --
+		-- so we read ONLY non-secret facts: whether the methods exist (type()), whether our own fontstring
+		-- objects were created, and the ok/err of (re)calling SetDurationText (a Lua error string isn't secret).
+		local P = function(...) print("|cff33ff99CTBuffAC|r", ...); end
+		local probe;	-- first styled button (no IsShown filter -- that value is secret)
+		local total = 0;
+		for button in pairs(allButtons) do
+			if (type(button) == "table") then
+				total = total + 1;
+				probe = probe or button;
+			end
+		end
+		local nContainers = 0;
+		for _ in pairs(containers) do nContainers = nContainers + 1; end
+		P(("containers=%d  styledButtons=%d  isActive=%s"):format(nContainers, total, tostring(isActive())));
+		if (not probe) then
+			P("No styled aura button exists yet -- switch to AuraContainer mode with a buff up, then re-run.");
+			return;
+		end
+		-- Which text methods exist on this client's CustomAuraButton? (method refs are not secret)
+		local mt = function(k) local ok, t = pcall(function() return type(probe[k]); end); return ok and t or "<err>"; end
+		P(("methods: SetDurationText=%s SetSpellName=%s SetDurationBar=%s SetApplicationCount=%s")
+			:format(mt("SetDurationText"), mt("SetSpellName"), mt("SetDurationBar"), mt("SetApplicationCount")));
+		-- Did the retail-style seconds formatter build on this client? (drives whether duration text shows)
+		P(("durationFormatter=%s  (C_StringUtil.CreateSecondsFormatter=%s C_CurveUtil.CreateCurve=%s)")
+			:format(tostring(getDurationFormatter() ~= nil),
+				tostring(C_StringUtil and type(C_StringUtil.CreateSecondsFormatter) or "nil"),
+				tostring(C_CurveUtil and type(C_CurveUtil.CreateCurve) or "nil")));
+		-- Were our fontstring objects created? (our own Lua refs; pcall-guarded in case field access is secret)
+		local has = function(k) local ok, v = pcall(function() return probe[k] ~= nil; end); return ok and tostring(v) or "<err>"; end
+		P(("regions: ctDuration=%s ctName=%s ctBar=%s ctIcon=%s")
+			:format(has("ctDuration"), has("ctName"), has("ctBar"), has("ctIcon")));
+		-- The crux: does registering the duration text ERROR on this client? Re-call it and report ok/err.
+		-- The error message (if any) is a plain Lua string, safe to print; this is where the silent failure lives.
+		local okD, d = pcall(function() return probe.ctDuration; end);
+		d = okD and d or nil;
+		if (d and mt("SetDurationText") == "function") then
+			local ok1, err1 = pcall(probe.SetDurationText, probe, d);
+			P(("SetDurationText(fs)      -> ok=%s err=%s"):format(tostring(ok1), tostring(err1)));
+			local ok2, err2 = pcall(probe.SetDurationText, probe, d, {});
+			P(("SetDurationText(fs, {})  -> ok=%s err=%s"):format(tostring(ok2), tostring(err2)));
+		else
+			P("ctDuration not created (showTimers1 off?) or SetDurationText missing -- cannot test duration text.");
+		end
+		local okNm, nm = pcall(function() return probe.ctName; end);
+		nm = okNm and nm or nil;
+		if (nm and mt("SetSpellName") == "function") then
+			local okN, errN = pcall(probe.SetSpellName, probe, nm);
+			P(("SetSpellName(fs)         -> ok=%s err=%s"):format(tostring(okN), tostring(errN)));
+		end
 	else
-		print("|cff33ff99CT_BuffMod|r /ctbuffac debug -- toggle AuraContainer group-dump logging. Pick the buff engine in the CT_BuffMod options panel.");
+		print("|cff33ff99CT_BuffMod|r /ctbuffac debug -- toggle group-dump logging | /ctbuffac dump -- report duration/name text wiring (run with a buff up). Pick the buff engine in the CT_BuffMod options panel.");
 	end
 end

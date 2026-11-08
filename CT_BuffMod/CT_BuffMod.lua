@@ -38,6 +38,11 @@ local function ctSecureAuraHeaderAvailable()
 	end
 	return secureAuraHeaderAvailable;
 end
+-- Exposed so the AuraContainer display path (and the options panel) can gate on the SAME probe: the
+-- Legacy header is only a real engine where SecureAuraHeaderTemplate still exists (the earlier Classic
+-- variants). On Midnight/Forever it is gone, so Legacy is forced to its degraded unsecure fallback and
+-- must not be offered there -- the AuraContainer becomes the only usable engine.
+_G.CT_BuffMod_SecureAuraHeaderAvailable = ctSecureAuraHeaderAvailable;
 
 module.name = MODULE_NAME;
 module.version = MODULE_VERSION;
@@ -597,17 +602,20 @@ local sorterBuilders =
 			end
 		end
 	end,
+	-- Sort by Time. The aura objects carry .expirationTime (set and sanitized in the gather loop); there
+	-- is no .expires field, so the old a.expires comparisons were always nil == nil -> this sorter did
+	-- nothing and Time sort silently fell through to the fallbacks. Compare .expirationTime.
 	["expires"] = function(reverse)
 		if (reverse) then
 			return function(a, b)
-				if (a.expires ~= b.expires) then
-					return a.expires > b.expires;
+				if (a.expirationTime ~= b.expirationTime) then
+					return a.expirationTime > b.expirationTime;
 				end
 			end
 		else
 			return function(a, b)
-				if (a.expires ~= b.expires) then
-					return a.expires < b.expires;
+				if (a.expirationTime ~= b.expirationTime) then
+					return a.expirationTime < b.expirationTime;
 				end
 			end
 		end
@@ -646,7 +654,11 @@ local function sortFactory(key, separateOwn, reverse, separateZero, priority)
 				end
 			end
 		end
-		return true;
+		-- All fragments tied (e.g. two auras from different filter groups share an .index, which resets
+		-- per group): the two elements compare EQUAL. A table.sort comparator must then return false --
+		-- returning true here (for both comp(a,b) and comp(b,a)) breaks the strict weak ordering and
+		-- yields garbage order or an "invalid order function" error that aborts the whole refresh.
+		return false;
 	end;
 end
 -- EndMod
@@ -8998,6 +9010,14 @@ local function options_updateWindowWidgets(windowId)
 	if (frame.acShowTimers1) then
 		frame.acShowTimers1:SetChecked( frameOptions.showTimers1 ~= false );
 	end
+	-- Restore the saved expiring-highlight selection. Without this the dropdown reverts to its default on
+	-- panel (re)build and writes that default back over the saved option -- which is why the setting did not
+	-- survive /reload (the slider/checkbox AC options above have their own restore lines).
+	if (frame.acDurationWarn and UIDropDownMenu_Initialize) then
+		dropdown = CT_BuffModDropdown_acDurationWarn;
+		UIDropDownMenu_Initialize( dropdown, dropdown.initialize );
+		UIDropDownMenu_SetSelectedValue( dropdown, tonumber(frameOptions.acDurationWarn) or 1 );
+	end
 
 	----------
 	-- Style 2
@@ -9446,6 +9466,7 @@ module.optionUpdate = function(self, optName, value)
 		optName == "acShowTitle" or		-- AuraContainer-only title bar toggle (handled entirely by the AC path)
 		optName == "acMaxCount" or		-- AuraContainer-only: cap buttons per group
 		optName == "acDispellableOnly" or	-- AuraContainer-only: debuff groups show only dispellable
+		optName == "acDurationWarn" or	-- AuraContainer-only: expiring-duration text highlight mode
 		optName == "fontSize"
 	) then
 		options_updateUnprotected(optName, value, windowId);
@@ -9602,7 +9623,13 @@ module.frame = function()
 	-- In AuraContainer mode (acMode) the legacy-engine-only sections below are skipped.
 	local acAvailable = (CT_BuffMod_AuraContainerActive ~= nil);
 	local acMode = acAvailable and CT_BuffMod_AuraContainerActive();
-	if (acAvailable) then
+	-- Only offer the engine choice where BOTH engines actually work: the container must be available AND
+	-- SecureAuraHeaderTemplate must still exist (the earlier Classic variants). On Midnight/Forever the
+	-- secure template is gone, so the Legacy header would only run its degraded unsecure fallback -- don't
+	-- offer it; the container is forced on (see AuraContainer isActive) and is the only usable engine.
+	local secureHeaderAvailable = (not CT_BuffMod_SecureAuraHeaderAvailable) or CT_BuffMod_SecureAuraHeaderAvailable();
+	local offerEngineChoice = acAvailable and secureHeaderAvailable;
+	if (offerEngineChoice) then
 		optionsBeginFrame(-5, 0, "frame#tl:0:%y#r");
 			optionsAddObject(  0,   17, "font#tl:5:%y#v:GameFontNormalLarge#Buff display engine");
 			optionsBeginFrame(-15,   20, "dropdown#tl:15:%y#s:240:%s#n:CT_BuffModDropdown_buffEngine#i:buffEngine#o:buffEngine:1#AuraContainer (recommended)#Legacy header");
@@ -10669,6 +10696,13 @@ CONSOLIDATION REMOVED FROM GAME--]]
 			-- checkboxes do; off omits that fontstring from the bar. The AC display rebuilds on change).
 			optionsAddObject(-15,   26, "checkbutton#tl:30:%y#i:acShowNames1#o:showNames1:true#" .. L["CT_BuffMod/Options/Window/Button/Style1/ShowNameCheckbox"]);
 			optionsAddObject( -5,   26, "checkbutton#tl:30:%y#i:acShowTimers1#o:showTimers1:true#" .. L["CT_BuffMod/Options/Window/Button/General/TimeRemainingCheckbox"]);
+
+			-- Expiring-duration highlight: turn the time text red as an aura runs low. "Last 25%" scales to
+			-- any duration (a short buff only reds near its end); "Under 90s" is retail's flat threshold (any
+			-- buff shorter than 90s then stays red its whole life). Off = no highlight. Per window; writes
+			-- acDurationWarn, which is in the AC groupSig so the display rebuilds with the new colour on change.
+			optionsAddObject(-20,   15, "font#tl:30:%y#v:ChatFontNormal#Expiring highlight:");
+			optionsAddObject( 15,   20, "dropdown#tl:150:%y#s:110:%s#n:CT_BuffModDropdown_acDurationWarn#i:acDurationWarn#o:acDurationWarn:1#Off#Last 25%#Under 90s");
 		end
 
 		----------
