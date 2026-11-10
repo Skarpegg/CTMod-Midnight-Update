@@ -143,7 +143,7 @@ function OpenMailFrame_OnHide()
 		-- DeleteInboxItem(InboxFrame.openMailID);  -- *mod*
 	end
 	InboxFrame.openMailID = 0;
-	InboxFrame_Update();
+	if (InboxFrame_Update) then InboxFrame_Update(); end	-- absent on Forever's modern mail UI
 	PlaySound(SOUNDKIT.IG_BACKPACK_CLOSE or 830);
 end
 

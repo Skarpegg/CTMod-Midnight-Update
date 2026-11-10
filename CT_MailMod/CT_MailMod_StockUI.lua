@@ -1191,6 +1191,15 @@ do
 	end);
 end
 
+-- WoW Forever taint-protects the mail body: GetInboxText returns "" to addon code, and writing the
+-- InboxFrame_OnClick global routes the inbox checkbutton's click through our tainted code, which
+-- taints the native open/render chain and blanks the message body. On Forever we therefore leave
+-- Blizzard's native inbox-click handlers in place so the body renders (this drops CT's inbox
+-- modifier-click shortcuts there; taking from the opened mail still works). Detected via Edit Mode
+-- present together with the classic game version (1), which is unique to Forever.
+local ctMailLeaveNativeInboxClick = EditModeManagerFrame and (module:getGameVersion() < 10);
+if (not ctMailLeaveNativeInboxClick) then
+
 function InboxFrame_OnClick(self, index)
 	-- This is a replacement for Blizzard's InboxFrame_OnClick function.
 	--
@@ -1220,7 +1229,7 @@ function InboxFrame_OnClick(self, index)
 	if ( self:GetChecked() ) then
 		InboxFrame.openMailID = index;
 		OpenMailFrame.updateButtonPositions = true;
-		OpenMail_Update();
+		if (OpenMail_Update) then OpenMail_Update(); end
 		--OpenMailFrame:Show();
 		ShowUIPanel(OpenMailFrame);
 		OpenMailFrameInset:SetPoint("TOPLEFT", 4, -80);
@@ -1246,6 +1255,8 @@ function InboxFrame_OnModifiedClick(self, index)
 	-- *mod*
 	InboxFrame_OnClick(self, index);
 end
+
+end	-- end ctMailLeaveNativeInboxClick gate (leave native inbox-click handlers on WoW Forever)
 
 function InboxGetMoreMail()
 	-- This is a replacement for Blizzard's InboxGetMoreMail function
