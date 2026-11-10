@@ -1258,6 +1258,17 @@ end
 
 end	-- end ctMailLeaveNativeInboxClick gate (leave native inbox-click handlers on WoW Forever)
 
+if (ctMailLeaveNativeInboxClick and type(InboxFrame_OnClick) == "function") then
+	-- Native owns the inbox click on Forever (see the gate above), so CT's initOpenMail() never
+	-- runs -- and without it module.openMail is nil, which makes the open-mail money and item
+	-- attachment buttons bail out at their "if (not mail) then return" guard and look dead.
+	-- Post-hook the native handler to rebuild CT's mail object. hooksecurefunc preserves the
+	-- original function's own security context, so the taint-protected message body still renders.
+	hooksecurefunc("InboxFrame_OnClick", function(self, index)
+		module:initOpenMail();
+	end);
+end
+
 function InboxGetMoreMail()
 	-- This is a replacement for Blizzard's InboxGetMoreMail function
 	-- that was added to MailFrame.lua in the WoW 3.3 patch.
